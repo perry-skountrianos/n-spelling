@@ -492,40 +492,40 @@ function getRandomEncouragement() {
     return phrases[Math.floor(Math.random() * phrases.length)];
 }
 
-function getRandomSnakeFact() {
-    const facts = [
-        "Snakes smell with their tongues! They flick them out to taste the air.",
-        "There are over 3,000 different species of snakes in the world!",
-        "Snakes don't have eyelids — they sleep with their eyes open!",
-        "The king cobra is the longest venomous snake and can grow over 5 metres!",
-        "Snakes can be found on every continent except Antarctica.",
-        "Some snakes can fly! The paradise tree snake glides between trees in Southeast Asia.",
-        "A snake's jaw can open super wide to swallow food bigger than its head!",
-        "The smallest snake in the world is the Barbados threadsnake — it's only 10cm long!",
-        "Snakes shed their skin several times a year as they grow. It's called moulting!",
-        "The green anaconda is the heaviest snake — it can weigh over 200 kilograms!",
-        "Some sea snakes can hold their breath underwater for up to 2 hours!",
-        "Corn snakes are great climbers and can go straight up a tree!",
-        "The black mamba in Africa is the fastest snake — it can move at 19 km per hour!",
-        "Pythons squeeze their food with their strong muscles. They're called constrictors!",
-        "Baby snakes are called snakelets or hatchlings!",
-        "Snakes have hundreds of ribs — some have over 400!",
-        "The inland taipan in Australia has the most powerful venom of any land snake.",
-        "Rattlesnakes shake their tails to warn other animals to stay away!",
-        "Some snakes, like the ball python, curl into a ball when they're scared.",
-        "Snakes have been on Earth for over 100 million years — even before dinosaurs went extinct!",
-        "The reticulated python from Asia is the longest snake and can reach over 7 metres!",
-        "Hognose snakes are dramatic — they play dead when they feel threatened!",
-        "Snakes are cold-blooded, so they love sunbathing on warm rocks.",
-        "In Japan, snakes are considered a symbol of good luck!",
-        "The egg-eating snake from Africa can swallow eggs whole and spit out the shell!",
+function getRandomSnakeQuiz() {
+    const quizzes = [
+        { question: "How do snakes smell?", options: ["With their nose", "With their tongue", "With their skin"], answer: 1, explanation: "Snakes flick their tongue out to taste the air and smell things around them!" },
+        { question: "How many species of snakes are there?", options: ["About 300", "About 1,000", "Over 3,000"], answer: 2, explanation: "There are over 3,000 different species of snakes in the world!" },
+        { question: "Do snakes have eyelids?", options: ["Yes, they blink a lot", "No, they sleep with eyes open", "Only some snakes do"], answer: 1, explanation: "Snakes don't have eyelids — they sleep with their eyes open!" },
+        { question: "What is the longest venomous snake?", options: ["Black mamba", "King cobra", "Rattlesnake"], answer: 1, explanation: "The king cobra can grow over 5 metres long — that's taller than a giraffe!" },
+        { question: "Which continent has NO snakes?", options: ["Australia", "Antarctica", "Africa"], answer: 1, explanation: "Antarctica is too cold for snakes — they can be found on every other continent!" },
+        { question: "Can any snakes fly?", options: ["No, never", "Yes, some glide through the air", "Only baby snakes"], answer: 1, explanation: "The paradise tree snake in Southeast Asia can glide between trees!" },
+        { question: "How do snakes eat big food?", options: ["They chew it into pieces", "Their jaw opens super wide", "They only eat small things"], answer: 1, explanation: "A snake's jaw can stretch wide to swallow food bigger than its own head!" },
+        { question: "How small is the smallest snake?", options: ["About 10cm long", "About 50cm long", "About 1 metre long"], answer: 0, explanation: "The Barbados threadsnake is only about 10cm — it can fit on a coin!" },
+        { question: "What is it called when snakes shed their skin?", options: ["Peeling", "Moulting", "Hatching"], answer: 1, explanation: "Snakes moult their skin several times a year as they grow bigger!" },
+        { question: "What is the heaviest snake?", options: ["King cobra", "Reticulated python", "Green anaconda"], answer: 2, explanation: "The green anaconda can weigh over 200 kilograms — as heavy as a lion!" },
+        { question: "How long can sea snakes hold their breath?", options: ["5 minutes", "30 minutes", "Up to 2 hours"], answer: 2, explanation: "Some sea snakes can hold their breath underwater for up to 2 hours!" },
+        { question: "What is the fastest snake?", options: ["King cobra", "Black mamba", "Corn snake"], answer: 1, explanation: "The black mamba in Africa can move at 19 km per hour — faster than most people run!" },
+        { question: "What are baby snakes called?", options: ["Snakelets", "Puppies", "Cubs"], answer: 0, explanation: "Baby snakes are called snakelets or hatchlings!" },
+        { question: "How many ribs can a snake have?", options: ["About 12", "About 50", "Over 400"], answer: 2, explanation: "Some snakes have over 400 ribs — humans only have 24!" },
+        { question: "Which snake has the strongest venom on land?", options: ["Rattlesnake", "King cobra", "Inland taipan"], answer: 2, explanation: "The inland taipan from Australia has the most powerful venom of any land snake!" },
+        { question: "Why do rattlesnakes shake their tails?", options: ["To attract food", "To warn others to stay away", "To keep cool"], answer: 1, explanation: "Rattlesnakes shake their rattles as a warning — it means 'stay back!'" },
+        { question: "What does a ball python do when scared?", options: ["It runs away fast", "It curls into a ball", "It hisses loudly"], answer: 1, explanation: "Ball pythons curl into a tight ball to protect themselves when they're scared!" },
+        { question: "How long have snakes been on Earth?", options: ["1 million years", "10 million years", "Over 100 million years"], answer: 2, explanation: "Snakes have been around for over 100 million years — even before dinosaurs went extinct!" },
+        { question: "What is the longest snake in the world?", options: ["Green anaconda", "King cobra", "Reticulated python"], answer: 2, explanation: "The reticulated python from Asia can reach over 7 metres long!" },
+        { question: "What does a hognose snake do when threatened?", options: ["It plays dead", "It changes colour", "It spits venom"], answer: 0, explanation: "Hognose snakes are super dramatic — they flip over and play dead!" },
+        { question: "Why do snakes sunbathe on rocks?", options: ["To dry off", "Because they're cold-blooded", "To hide from birds"], answer: 1, explanation: "Snakes are cold-blooded, so they need the sun's warmth to heat up their bodies!" },
+        { question: "In Japan, what do snakes symbolise?", options: ["Danger", "Good luck", "Wisdom"], answer: 1, explanation: "In Japan, snakes are considered a symbol of good luck!" },
+        { question: "What can the egg-eating snake do?", options: ["Swallow eggs whole", "Cook eggs with venom", "Only eat scrambled eggs"], answer: 0, explanation: "The egg-eating snake from Africa swallows eggs whole and spits out the shell!" },
+        { question: "How do pythons catch their food?", options: ["They use venom", "They squeeze it", "They chase it down"], answer: 1, explanation: "Pythons are constrictors — they wrap around their food and squeeze with their strong muscles!" },
+        { question: "Are corn snakes good climbers?", options: ["No, they stay on the ground", "Yes, they can climb trees", "Only baby corn snakes can"], answer: 1, explanation: "Corn snakes are great climbers and can go straight up a tree trunk!" },
     ];
-    return facts[Math.floor(Math.random() * facts.length)];
+    return quizzes[Math.floor(Math.random() * quizzes.length)];
 }
 
 function showSnakeCelebration() {
     const message = getRandomEncouragement();
-    const fact = getRandomSnakeFact();
+    const quiz = getRandomSnakeQuiz();
     const overlay = document.createElement('div');
     overlay.className = 'snake-overlay';
     overlay.innerHTML = `
@@ -534,37 +534,88 @@ function showSnakeCelebration() {
                 <span class="snake-segment" style="animation-delay:0s">🟢</span><span class="snake-segment" style="animation-delay:0.05s">🟢</span><span class="snake-segment" style="animation-delay:0.1s">🟢</span><span class="snake-segment" style="animation-delay:0.15s">🟢</span><span class="snake-segment" style="animation-delay:0.2s">🟢</span><span class="snake-segment" style="animation-delay:0.25s">🟢</span><span class="snake-segment" style="animation-delay:0.3s">🟢</span><span class="snake-segment" style="animation-delay:0.35s">🟢</span><span class="snake-segment" style="animation-delay:0.4s">🐍</span>
             </div>
             <div class="snake-speech">${message}</div>
-            <div class="snake-fact">Did you know? ${fact}</div>
+            <div class="snake-quiz">
+                <div class="quiz-question">🐍 ${quiz.question}</div>
+                <div class="quiz-options">
+                    ${quiz.options.map((opt, i) => `<button class="quiz-option" data-index="${i}">${opt}</button>`).join('')}
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
         </div>
     `;
     document.body.appendChild(overlay);
 
-    // Speak the encouragement, then the snake fact
+    // Speak the encouragement, then the question
     synth.cancel();
-    const fullText = message + ". Did you know? " + fact;
-    const utterance = new SpeechSynthesisUtterance(fullText);
-    utterance.rate = 0.95;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
+    const encourageUtterance = new SpeechSynthesisUtterance(message);
+    encourageUtterance.rate = 1.0;
+    encourageUtterance.pitch = 1.1;
+    encourageUtterance.volume = 1;
     const voice = getVoice();
-    if (voice) utterance.voice = voice;
+    if (voice) encourageUtterance.voice = voice;
 
-    // Remove overlay when speech finishes, or after a fallback timeout
-    let overlayDismissed = false;
-    function dismissOverlay() {
-        if (overlayDismissed) return;
-        overlayDismissed = true;
-        overlay.classList.add('fade-out');
-        setTimeout(() => overlay.remove(), 400);
-    }
+    encourageUtterance.onend = () => {
+        const questionUtterance = new SpeechSynthesisUtterance(quiz.question);
+        questionUtterance.rate = 0.95;
+        questionUtterance.pitch = 1.0;
+        questionUtterance.volume = 1;
+        if (voice) questionUtterance.voice = voice;
+        synth.speak(questionUtterance);
+    };
 
-    utterance.onend = () => setTimeout(dismissOverlay, 500);
-    utterance.onerror = dismissOverlay;
+    synth.speak(encourageUtterance);
 
-    synth.speak(utterance);
+    // Handle quiz option clicks
+    const optionBtns = overlay.querySelectorAll('.quiz-option');
+    const feedbackDiv = overlay.querySelector('.quiz-feedback');
+    let quizAnswered = false;
 
-    // Fallback: dismiss after 12 seconds in case onend doesn't fire
-    setTimeout(dismissOverlay, 12000);
+    optionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const chosen = parseInt(btn.dataset.index);
+            const correct = chosen === quiz.answer;
+
+            // Highlight correct/wrong
+            optionBtns.forEach(b => {
+                const idx = parseInt(b.dataset.index);
+                if (idx === quiz.answer) {
+                    b.classList.add('quiz-correct');
+                } else if (idx === chosen && !correct) {
+                    b.classList.add('quiz-wrong');
+                }
+                b.disabled = true;
+            });
+
+            // Show explanation
+            feedbackDiv.innerHTML = `<span class="${correct ? 'quiz-right' : 'quiz-not-right'}">${correct ? '✓ Correct!' : '✗ Not quite!'}</span> ${quiz.explanation}`;
+            feedbackDiv.style.display = 'block';
+
+            // Speak the result
+            synth.cancel();
+            const resultText = correct ? "Correct! " + quiz.explanation : "Not quite. " + quiz.explanation;
+            const resultUtterance = new SpeechSynthesisUtterance(resultText);
+            resultUtterance.rate = 0.95;
+            resultUtterance.pitch = 1.0;
+            resultUtterance.volume = 1;
+            if (voice) resultUtterance.voice = voice;
+            synth.speak(resultUtterance);
+
+            // Dismiss after reading explanation
+            let dismissed = false;
+            function dismiss() {
+                if (dismissed) return;
+                dismissed = true;
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+            resultUtterance.onend = () => setTimeout(dismiss, 1000);
+            resultUtterance.onerror = dismiss;
+            setTimeout(dismiss, 12000);
+        });
+    });
 }
 
 function checkSpelling() {

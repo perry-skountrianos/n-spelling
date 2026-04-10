@@ -7,6 +7,8 @@ let resultsArray = [];
 let inputMode = 'type'; // 'type' or 'speak'
 let recognition = null;
 let isListening = false;
+const hasSpeechRecognition = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+const tapKeyboard = document.getElementById('tapKeyboard');
 
 // Shuffle array function
 function shuffleArray(array) {
@@ -148,8 +150,12 @@ function setMode(mode) {
 
     if (mode === 'type') {
         stopListening();
+        tapKeyboard.style.display = 'none';
     } else {
-        startListening();
+        if (hasSpeechRecognition) {
+            startListening();
+        }
+        tapKeyboard.style.display = 'block';
     }
     updatePlaceholder();
     spellingInput.focus();
@@ -157,6 +163,34 @@ function setMode(mode) {
 
 typeModeBtn.addEventListener('click', () => setMode('type'));
 speakModeBtn.addEventListener('click', () => setMode('speak'));
+
+// Label the speak button appropriately
+if (!hasSpeechRecognition) {
+    speakModeBtn.textContent = 'Tap';
+}
+
+// Tap keyboard handler
+tapKeyboard.addEventListener('click', (e) => {
+    const key = e.target.closest('.tap-key');
+    if (!key) return;
+    if (!hasHeardWord) {
+        handleInputAction();
+        return;
+    }
+    if (hasAnswered) {
+        handleInputAction();
+        return;
+    }
+    const letter = key.dataset.letter;
+    const action = key.dataset.action;
+    if (letter) {
+        spellingInput.value += letter;
+    } else if (action === 'delete') {
+        spellingInput.value = spellingInput.value.slice(0, -1);
+    } else if (action === 'enter') {
+        handleInputAction();
+    }
+});
 
 function getCurrentWord() {
     return words[currentWordIndex];
@@ -166,7 +200,11 @@ function updatePlaceholder() {
     if (!hasHeardWord) {
         spellingInput.placeholder = "Hit Enter";
     } else if (!hasAnswered) {
-        spellingInput.placeholder = inputMode === 'speak' ? "Speak or type..." : "Type it";
+        if (inputMode === 'speak') {
+            spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Tap the letters";
+        } else {
+            spellingInput.placeholder = "Type it";
+        }
     } else {
         spellingInput.placeholder = "Enter for next";
     }

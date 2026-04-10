@@ -164,11 +164,11 @@ function getCurrentWord() {
 
 function updatePlaceholder() {
     if (!hasHeardWord) {
-        spellingInput.placeholder = "Press Enter to hear";
+        spellingInput.placeholder = "Hit Enter";
     } else if (!hasAnswered) {
-        spellingInput.placeholder = inputMode === 'speak' ? "Speak or type..." : "Type the word";
+        spellingInput.placeholder = inputMode === 'speak' ? "Speak or type..." : "Type it";
     } else {
-        spellingInput.placeholder = "Press Enter for next";
+        spellingInput.placeholder = "Enter for next";
     }
 }
 

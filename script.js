@@ -493,34 +493,7 @@ function getRandomEncouragement() {
 }
 
 function getRandomSnakeQuiz() {
-    const quizzes = [
-        { question: "How do snakes smell?", options: ["With their nose", "With their tongue", "With their skin"], answer: 1, explanation: "Snakes flick their tongue out to taste the air and smell things around them!" },
-        { question: "How many species of snakes are there?", options: ["About 300", "About 1,000", "Over 3,000"], answer: 2, explanation: "There are over 3,000 different species of snakes in the world!" },
-        { question: "Do snakes have eyelids?", options: ["Yes, they blink a lot", "No, they sleep with eyes open", "Only some snakes do"], answer: 1, explanation: "Snakes don't have eyelids — they sleep with their eyes open!" },
-        { question: "What is the longest venomous snake?", options: ["Black mamba", "King cobra", "Rattlesnake"], answer: 1, explanation: "The king cobra can grow over 5 metres long — that's taller than a giraffe!" },
-        { question: "Which continent has NO snakes?", options: ["Australia", "Antarctica", "Africa"], answer: 1, explanation: "Antarctica is too cold for snakes — they can be found on every other continent!" },
-        { question: "Can any snakes fly?", options: ["No, never", "Yes, some glide through the air", "Only baby snakes"], answer: 1, explanation: "The paradise tree snake in Southeast Asia can glide between trees!" },
-        { question: "How do snakes eat big food?", options: ["They chew it into pieces", "Their jaw opens super wide", "They only eat small things"], answer: 1, explanation: "A snake's jaw can stretch wide to swallow food bigger than its own head!" },
-        { question: "How small is the smallest snake?", options: ["About 10cm long", "About 50cm long", "About 1 metre long"], answer: 0, explanation: "The Barbados threadsnake is only about 10cm — it can fit on a coin!" },
-        { question: "What is it called when snakes shed their skin?", options: ["Peeling", "Moulting", "Hatching"], answer: 1, explanation: "Snakes moult their skin several times a year as they grow bigger!" },
-        { question: "What is the heaviest snake?", options: ["King cobra", "Reticulated python", "Green anaconda"], answer: 2, explanation: "The green anaconda can weigh over 200 kilograms — as heavy as a lion!" },
-        { question: "How long can sea snakes hold their breath?", options: ["5 minutes", "30 minutes", "Up to 2 hours"], answer: 2, explanation: "Some sea snakes can hold their breath underwater for up to 2 hours!" },
-        { question: "What is the fastest snake?", options: ["King cobra", "Black mamba", "Corn snake"], answer: 1, explanation: "The black mamba in Africa can move at 19 km per hour — faster than most people run!" },
-        { question: "What are baby snakes called?", options: ["Snakelets", "Puppies", "Cubs"], answer: 0, explanation: "Baby snakes are called snakelets or hatchlings!" },
-        { question: "How many ribs can a snake have?", options: ["About 12", "About 50", "Over 400"], answer: 2, explanation: "Some snakes have over 400 ribs — humans only have 24!" },
-        { question: "Which snake has the strongest venom on land?", options: ["Rattlesnake", "King cobra", "Inland taipan"], answer: 2, explanation: "The inland taipan from Australia has the most powerful venom of any land snake!" },
-        { question: "Why do rattlesnakes shake their tails?", options: ["To attract food", "To warn others to stay away", "To keep cool"], answer: 1, explanation: "Rattlesnakes shake their rattles as a warning — it means 'stay back!'" },
-        { question: "What does a ball python do when scared?", options: ["It runs away fast", "It curls into a ball", "It hisses loudly"], answer: 1, explanation: "Ball pythons curl into a tight ball to protect themselves when they're scared!" },
-        { question: "How long have snakes been on Earth?", options: ["1 million years", "10 million years", "Over 100 million years"], answer: 2, explanation: "Snakes have been around for over 100 million years — even before dinosaurs went extinct!" },
-        { question: "What is the longest snake in the world?", options: ["Green anaconda", "King cobra", "Reticulated python"], answer: 2, explanation: "The reticulated python from Asia can reach over 7 metres long!" },
-        { question: "What does a hognose snake do when threatened?", options: ["It plays dead", "It changes colour", "It spits venom"], answer: 0, explanation: "Hognose snakes are super dramatic — they flip over and play dead!" },
-        { question: "Why do snakes sunbathe on rocks?", options: ["To dry off", "Because they're cold-blooded", "To hide from birds"], answer: 1, explanation: "Snakes are cold-blooded, so they need the sun's warmth to heat up their bodies!" },
-        { question: "In Japan, what do snakes symbolise?", options: ["Danger", "Good luck", "Wisdom"], answer: 1, explanation: "In Japan, snakes are considered a symbol of good luck!" },
-        { question: "What can the egg-eating snake do?", options: ["Swallow eggs whole", "Cook eggs with venom", "Only eat scrambled eggs"], answer: 0, explanation: "The egg-eating snake from Africa swallows eggs whole and spits out the shell!" },
-        { question: "How do pythons catch their food?", options: ["They use venom", "They squeeze it", "They chase it down"], answer: 1, explanation: "Pythons are constrictors — they wrap around their food and squeeze with their strong muscles!" },
-        { question: "Are corn snakes good climbers?", options: ["No, they stay on the ground", "Yes, they can climb trees", "Only baby corn snakes can"], answer: 1, explanation: "Corn snakes are great climbers and can go straight up a tree trunk!" },
-    ];
-    return quizzes[Math.floor(Math.random() * quizzes.length)];
+    return animalQuizzes[Math.floor(Math.random() * animalQuizzes.length)];
 }
 
 function showSnakeCelebration() {

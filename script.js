@@ -375,12 +375,18 @@ function clearProgress() {
 }
 
 async function loadProgress() {
+    const totalWords = words.length;
     // Try Firebase first (cross-device), fall back to localStorage
     if (typeof db !== 'undefined') {
         try {
             const snapshot = await db.ref('sessions/niko').once('value');
             const sessionData = snapshot.val();
             if (sessionData && sessionData.words && sessionData.resultsArray) {
+                // Discard if word list size changed
+                if (sessionData.words.length !== totalWords) {
+                    clearProgress();
+                    return false;
+                }
                 resultsArray = sessionData.resultsArray;
                 currentWordIndex = sessionData.currentWordIndex;
                 words = sessionData.words;
@@ -393,6 +399,11 @@ async function loadProgress() {
     const saved = localStorage.getItem('spellingSession');
     if (saved) {
         const sessionData = JSON.parse(saved);
+        // Discard if word list size changed
+        if (sessionData.words.length !== totalWords) {
+            clearProgress();
+            return false;
+        }
         resultsArray = sessionData.resultsArray;
         currentWordIndex = sessionData.currentWordIndex;
         words = sessionData.words;

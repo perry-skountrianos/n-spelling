@@ -516,8 +516,40 @@ function getRandomEncouragement() {
     return phrases[Math.floor(Math.random() * phrases.length)];
 }
 
+function getRandomSnakeFact() {
+    const facts = [
+        "Snakes smell with their tongues! They flick them out to taste the air.",
+        "There are over 3,000 different species of snakes in the world!",
+        "Snakes don't have eyelids — they sleep with their eyes open!",
+        "The king cobra is the longest venomous snake and can grow over 5 metres!",
+        "Snakes can be found on every continent except Antarctica.",
+        "Some snakes can fly! The paradise tree snake glides between trees in Southeast Asia.",
+        "A snake's jaw can open super wide to swallow food bigger than its head!",
+        "The smallest snake in the world is the Barbados threadsnake — it's only 10cm long!",
+        "Snakes shed their skin several times a year as they grow. It's called moulting!",
+        "The green anaconda is the heaviest snake — it can weigh over 200 kilograms!",
+        "Some sea snakes can hold their breath underwater for up to 2 hours!",
+        "Corn snakes are great climbers and can go straight up a tree!",
+        "The black mamba in Africa is the fastest snake — it can move at 19 km per hour!",
+        "Pythons squeeze their food with their strong muscles. They're called constrictors!",
+        "Baby snakes are called snakelets or hatchlings!",
+        "Snakes have hundreds of ribs — some have over 400!",
+        "The inland taipan in Australia has the most powerful venom of any land snake.",
+        "Rattlesnakes shake their tails to warn other animals to stay away!",
+        "Some snakes, like the ball python, curl into a ball when they're scared.",
+        "Snakes have been on Earth for over 100 million years — even before dinosaurs went extinct!",
+        "The reticulated python from Asia is the longest snake and can reach over 7 metres!",
+        "Hognose snakes are dramatic — they play dead when they feel threatened!",
+        "Snakes are cold-blooded, so they love sunbathing on warm rocks.",
+        "In Japan, snakes are considered a symbol of good luck!",
+        "The egg-eating snake from Africa can swallow eggs whole and spit out the shell!",
+    ];
+    return facts[Math.floor(Math.random() * facts.length)];
+}
+
 function showSnakeCelebration() {
     const message = getRandomEncouragement();
+    const fact = getRandomSnakeFact();
     const overlay = document.createElement('div');
     overlay.className = 'snake-overlay';
     overlay.innerHTML = `
@@ -526,11 +558,12 @@ function showSnakeCelebration() {
                 <span class="snake-segment" style="animation-delay:0s">🟢</span><span class="snake-segment" style="animation-delay:0.05s">🟢</span><span class="snake-segment" style="animation-delay:0.1s">🟢</span><span class="snake-segment" style="animation-delay:0.15s">🟢</span><span class="snake-segment" style="animation-delay:0.2s">🟢</span><span class="snake-segment" style="animation-delay:0.25s">🟢</span><span class="snake-segment" style="animation-delay:0.3s">🟢</span><span class="snake-segment" style="animation-delay:0.35s">🟢</span><span class="snake-segment" style="animation-delay:0.4s">🐍</span>
             </div>
             <div class="snake-speech">${message}</div>
+            <div class="snake-fact">${fact}</div>
         </div>
     `;
     document.body.appendChild(overlay);
 
-    // Speak the encouragement
+    // Speak the encouragement, then the snake fact
     synth.cancel();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.rate = 1.0;
@@ -538,12 +571,22 @@ function showSnakeCelebration() {
     utterance.volume = 1;
     const voice = getVoice();
     if (voice) utterance.voice = voice;
+
+    utterance.onend = () => {
+        const factUtterance = new SpeechSynthesisUtterance("Did you know? " + fact);
+        factUtterance.rate = 0.95;
+        factUtterance.pitch = 1.0;
+        factUtterance.volume = 1;
+        if (voice) factUtterance.voice = voice;
+        synth.speak(factUtterance);
+    };
+
     synth.speak(utterance);
 
     setTimeout(() => {
         overlay.classList.add('fade-out');
         setTimeout(() => overlay.remove(), 400);
-    }, 1800);
+    }, 6000);
 }
 
 function checkSpelling() {

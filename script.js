@@ -390,7 +390,13 @@ async function loadProgress() {
                 resultsArray = sessionData.resultsArray;
                 currentWordIndex = sessionData.currentWordIndex;
                 words = sessionData.words;
+                // Sync to localStorage
+                localStorage.setItem('spellingSession', JSON.stringify(sessionData));
                 return true;
+            } else {
+                // Firebase has no session — clear any stale localStorage too
+                localStorage.removeItem('spellingSession');
+                return false;
             }
         } catch(e) {
             console.warn('Firebase load failed, trying localStorage:', e);

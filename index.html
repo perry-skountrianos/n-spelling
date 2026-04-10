@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Practice</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="score-display" id="scoreDisplay">
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="correctCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="wrongCount">0</span>
+        </div>
+    </div>
+    <button class="reset-btn" id="resetBtn" title="Parents: click to reset">⚙️</button>
+    <div class="container">
+        <div class="main-content" id="mainContent">
+            <div class="word-section">
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="typeModeBtn" data-mode="type">Type</button>
+                <button class="mode-btn" id="speakModeBtn" data-mode="speak">Speak</button>
+            </div>
+
+            <div class="input-section">
+                <input 
+                    type="text" 
+                    id="spellingInput" 
+                    placeholder="Press Enter to hear"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="results-display" id="resultsDisplay"></div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="restart-btn" id="restartBtn" style="display: none;">Start Over</button>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h1>Practice Complete!</h1>
+            <div class="final-score">
+                <p class="score-text">Final Score</p>
+                <p class="score-number" id="finalScore">0 / 100</p>
+            </div>
+
+            <div class="incorrect-section" id="incorrectSection" style="display: none;">
+                <h2>Words to Practice</h2>
+                <div class="incorrect-words" id="incorrectWords"></div>
+            </div>
+
+            <button class="restart-btn" id="restartBtn2">Try Again</button>
+        </div>
+    </div>
+
+    <script src="words.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

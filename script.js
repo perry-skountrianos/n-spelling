@@ -26,6 +26,7 @@ const incorrectSection = document.getElementById('incorrectSection');
 const incorrectWordsDisplay = document.getElementById('incorrectWords');
 const finalScoreDisplay = document.getElementById('finalScore');
 const restartBtn2 = document.getElementById('restartBtn2');
+const saveReportBtn = document.getElementById('saveReportBtn');
 const resultsDisplay = document.getElementById('resultsDisplay');
 const scoreDisplay = document.getElementById('scoreDisplay');
 const resetBtn = document.getElementById('resetBtn');
@@ -518,27 +519,17 @@ function showSnakeCelebration() {
     `;
     document.body.appendChild(overlay);
 
-    // Speak the encouragement, then the question
+    // Speak the encouragement, question, and options in one utterance
     synth.cancel();
-    const encourageUtterance = new SpeechSynthesisUtterance(message);
-    encourageUtterance.rate = 1.0;
-    encourageUtterance.pitch = 1.1;
-    encourageUtterance.volume = 1;
+    const optionsText = quiz.options.map((opt, i) => `${i + 1}: ${opt}`).join('. ');
+    const fullSpeech = message + '. ' + quiz.question + ' ' + optionsText;
+    const utterance = new SpeechSynthesisUtterance(fullSpeech);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.1;
+    utterance.volume = 1;
     const voice = getVoice();
-    if (voice) encourageUtterance.voice = voice;
-
-    encourageUtterance.onend = () => {
-        const optionsText = quiz.options.map((opt, i) => `${i + 1}: ${opt}`).join('. ');
-        const fullQuestion = quiz.question + ' ' + optionsText;
-        const questionUtterance = new SpeechSynthesisUtterance(fullQuestion);
-        questionUtterance.rate = 0.95;
-        questionUtterance.pitch = 1.0;
-        questionUtterance.volume = 1;
-        if (voice) questionUtterance.voice = voice;
-        synth.speak(questionUtterance);
-    };
-
-    synth.speak(encourageUtterance);
+    if (voice) utterance.voice = voice;
+    synth.speak(utterance);
 
     // Handle quiz option clicks
     const optionBtns = overlay.querySelectorAll('.quiz-option');
@@ -824,6 +815,70 @@ window.addEventListener('load', async () => {
 
 // Restart button
 restartBtn2.addEventListener('click', restartGame);
+
+// Save report button
+saveReportBtn.addEventListener('click', saveReport);
+
+function saveReport() {
+    const totalAttempts = resultsArray.length;
+    const correctCount = resultsArray.filter(r => r.isCorrect).length;
+    const wrongCount = totalAttempts - correctCount;
+    const percentage = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 0;
+    const today = new Date();
+    const dateString = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    let text = `Niko's Spelling Report\n`;
+    text += `${'='.repeat(30)}\n`;
+    text += `Date: ${dateString} at ${timeString}\n`;
+    text += `Score: ${correctCount} / ${totalAttempts} (${percentage}%)\n`;
+    text += `Correct: ${correctCount}  |  Wrong: ${wrongCount}\n`;
+    text += `${'='.repeat(30)}\n\n`;
+
+    const wrongResults = resultsArray.filter(r => !r.isCorrect);
+    if (wrongResults.length > 0) {
+        text += `Words to Practice:\n`;
+        text += `${'-'.repeat(30)}\n`;
+        wrongResults.forEach((r, i) => {
+            text += `${i + 1}. ${r.word} (typed: ${r.typed})\n`;
+        });
+        text += `\n`;
+    }
+
+    const correctResults = resultsArray.filter(r => r.isCorrect);
+    if (correctResults.length > 0) {
+        text += `Words Spelled Correctly:\n`;
+        text += `${'-'.repeat(30)}\n`;
+        correctResults.forEach((r, i) => {
+            text += `${i + 1}. ${r.word}\n`;
+        });
+    }
+
+    // Try native share on mobile, otherwise download
+    const fileName = `niko-spelling-${today.toISOString().slice(0, 10)}.txt`;
+    if (navigator.share && isMobile) {
+        const file = new File([text], fileName, { type: 'text/plain' });
+        navigator.share({
+            title: "Niko's Spelling Report",
+            text: text,
+            files: [file]
+        }).catch(() => downloadReport(text, fileName));
+    } else {
+        downloadReport(text, fileName);
+    }
+}
+
+function downloadReport(text, fileName) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
 // Reset button (parents only)
 resetBtn.addEventListener('click', () => {

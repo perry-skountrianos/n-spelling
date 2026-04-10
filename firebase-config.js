@@ -18,13 +18,13 @@
 //    }
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCiNeOMZCyXMv6pMh05yHdHbl-pNOv7H8s",
+    authDomain: "n-spelling.firebaseapp.com",
+    databaseURL: "https://n-spelling-default-rtdb.firebaseio.com",
+    projectId: "n-spelling",
+    storageBucket: "n-spelling.firebasestorage.app",
+    messagingSenderId: "713846333107",
+    appId: "1:713846333107:web:31014535c28b345f08dac6"
 };
 
 firebase.initializeApp(firebaseConfig);

@@ -190,7 +190,7 @@ function getCurrentWord() {
 
 function updatePlaceholder() {
     if (!hasHeardWord) {
-        spellingInput.placeholder = isMobile ? "Tap Hear Word ☝️" : "Hit Enter";
+        spellingInput.placeholder = isMobile ? "Tap Hear Word" : "Hit Enter";
     } else if (!hasAnswered) {
         if (inputMode === 'speak' && !isMobile) {
             spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type...";
@@ -198,7 +198,7 @@ function updatePlaceholder() {
             spellingInput.placeholder = "Type...";
         }
     } else {
-        spellingInput.placeholder = isMobile ? "Tap Next Word ☝️" : "Enter for next";
+        spellingInput.placeholder = isMobile ? "Tap Next Word" : "Enter for next";
     }
     updateHearBtn();
 }
@@ -278,17 +278,15 @@ function displayResults() {
     const wrongResults = resultsArray.filter(r => !r.isCorrect);
     if (wrongResults.length === 0) return;
 
-    // On mobile, wrap in a collapsible details element
+    // Wrap wrong words in a collapsible dropdown
     let container = resultsDisplay;
-    if (isMobile) {
-        const details = document.createElement('details');
-        details.className = 'wrong-words-dropdown';
-        const summary = document.createElement('summary');
-        summary.textContent = `Wrong words (${wrongResults.length})`;
-        details.appendChild(summary);
-        resultsDisplay.appendChild(details);
-        container = details;
-    }
+    const details = document.createElement('details');
+    details.className = 'wrong-words-dropdown';
+    const summary = document.createElement('summary');
+    summary.textContent = `Wrong words (${wrongResults.length})`;
+    details.appendChild(summary);
+    resultsDisplay.appendChild(details);
+    container = details;
     
     wrongResults.forEach((result, index) => {
         const div = document.createElement('div');

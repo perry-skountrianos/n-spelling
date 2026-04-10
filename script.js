@@ -188,11 +188,11 @@ function updateHearBtn() {
     }
     hearBtn.style.display = 'block';
     if (!hasHeardWord) {
-        hearBtn.textContent = '🔊 Hear Word';
+        hearBtn.textContent = 'Hear Word';
     } else if (!hasAnswered) {
-        hearBtn.textContent = '🔊 Repeat';
+        hearBtn.textContent = 'Repeat';
     } else {
-        hearBtn.textContent = '▶ Next Word';
+        hearBtn.textContent = 'Next Word';
     }
 }
 

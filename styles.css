@@ -511,24 +511,116 @@ h1 {
 
 /* Responsive */
 @media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
     .score-display {
         position: static;
-        margin-bottom: 20px;
+        display: flex;
         justify-content: center;
-        display: block;
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+
+    .donut-wrapper {
+        width: 50px;
+        height: 50px;
+    }
+
+    .donut-label {
+        font-size: 14px;
+    }
+
+    .reset-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+    }
+
+    .main-content {
+        margin-top: 0;
+    }
+
+    .mode-toggle {
+        margin-bottom: 8px;
+    }
+
+    .mode-btn {
+        padding: 6px 18px;
+        font-size: 14px;
     }
 
     h1 {
-        font-size: 28px;
-        margin-bottom: 40px;
+        font-size: 22px;
+        margin-bottom: 20px;
     }
 
     .input-section {
+        margin-top: 4vh;
+        margin-bottom: 15px;
         flex-direction: column;
     }
 
     #spellingInput {
+        width: 100%;
         min-width: 100%;
+        font-size: 48px;
+        letter-spacing: 6px;
+        padding: 8px 0;
+    }
+
+    .results-display {
+        width: 100%;
+        margin-top: 20px;
+        padding-top: 10px;
+    }
+
+    .result-item {
+        font-size: 16px;
+        padding: 3px 0;
+    }
+
+    .result-number {
+        width: 28px;
+        font-size: 14px;
+    }
+
+    .result-typed {
+        font-size: 14px;
+    }
+
+    .result-hint {
+        font-size: 11px;
+    }
+
+    .result-checkmark,
+    .result-x {
+        font-size: 20px;
+        min-width: 28px;
+    }
+
+    .snake-body {
+        font-size: 28px;
+    }
+
+    .snake-speech {
+        font-size: 20px;
+        padding: 8px 18px;
+        border-radius: 12px;
+    }
+
+    .score-number {
+        font-size: 36px;
+    }
+
+    .incorrect-section {
+        padding: 14px;
     }
 
     .submit-btn {

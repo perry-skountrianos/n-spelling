@@ -96,6 +96,27 @@ body {
     margin-bottom: 10px;
 }
 
+.hear-btn {
+    display: none;
+    margin: 15px auto;
+    padding: 14px 32px;
+    font-size: 20px;
+    font-weight: 600;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hear-btn:active {
+    transform: scale(0.96);
+    background: #333;
+}
+
 .mode-btn {
     padding: 8px 24px;
     font-size: 16px;
@@ -524,16 +545,16 @@ h1 {
         display: flex;
         justify-content: center;
         margin-bottom: 10px;
-        gap: 8px;
+        gap: 10px;
     }
 
     .donut-wrapper {
-        width: 50px;
-        height: 50px;
+        width: 64px;
+        height: 64px;
     }
 
     .donut-label {
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .reset-btn {
@@ -548,12 +569,19 @@ h1 {
     }
 
     .mode-toggle {
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
 
     .mode-btn {
         padding: 6px 18px;
         font-size: 14px;
+    }
+
+    .hear-btn {
+        margin: 8px auto;
+        padding: 12px 28px;
+        font-size: 18px;
+        border-radius: 10px;
     }
 
     h1 {
@@ -562,22 +590,23 @@ h1 {
     }
 
     .input-section {
-        margin-top: 4vh;
-        margin-bottom: 15px;
+        margin-top: 2vh;
+        margin-bottom: 10px;
         flex-direction: column;
     }
 
     #spellingInput {
         width: 100%;
         min-width: 100%;
-        font-size: 48px;
-        letter-spacing: 6px;
-        padding: 8px 0;
+        font-size: 40px;
+        letter-spacing: 5px;
+        padding: 6px 0;
+        text-align: center;
     }
 
     .results-display {
         width: 100%;
-        margin-top: 20px;
+        margin-top: 15px;
         padding-top: 10px;
     }
 
@@ -625,6 +654,11 @@ h1 {
 
     .submit-btn {
         width: 100%;
+    }
+
+    .tap-key {
+        height: 44px;
+        font-size: 18px;
     }
 }
 

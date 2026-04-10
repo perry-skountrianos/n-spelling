@@ -291,9 +291,35 @@ function saveProgress() {
         timestamp: new Date().toISOString()
     };
     localStorage.setItem('spellingSession', JSON.stringify(sessionData));
+    // Sync to Firebase
+    if (typeof db !== 'undefined') {
+        db.ref('sessions/niko').set(sessionData).catch(e => console.warn('Firebase save failed:', e));
+    }
 }
 
-function loadProgress() {
+function clearProgress() {
+    localStorage.removeItem('spellingSession');
+    if (typeof db !== 'undefined') {
+        db.ref('sessions/niko').remove().catch(e => console.warn('Firebase clear failed:', e));
+    }
+}
+
+async function loadProgress() {
+    // Try Firebase first (cross-device), fall back to localStorage
+    if (typeof db !== 'undefined') {
+        try {
+            const snapshot = await db.ref('sessions/niko').once('value');
+            const sessionData = snapshot.val();
+            if (sessionData && sessionData.words && sessionData.resultsArray) {
+                resultsArray = sessionData.resultsArray;
+                currentWordIndex = sessionData.currentWordIndex;
+                words = sessionData.words;
+                return true;
+            }
+        } catch(e) {
+            console.warn('Firebase load failed, trying localStorage:', e);
+        }
+    }
     const saved = localStorage.getItem('spellingSession');
     if (saved) {
         const sessionData = JSON.parse(saved);
@@ -551,8 +577,8 @@ function showCompletionReport() {
 }
 
 function restartGame() {
-    // Clear localStorage
-    localStorage.removeItem('spellingSession');
+    // Clear saved progress
+    clearProgress();
     
     // Shuffle words for next round
     const shuffledWords = shuffleArray(words);
@@ -636,8 +662,8 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Shuffle/load words on page load
-window.addEventListener('load', () => {
-    const hasSession = loadProgress();
+window.addEventListener('load', async () => {
+    const hasSession = await loadProgress();
     
     if (!hasSession) {
         // New session - shuffle words
@@ -662,7 +688,7 @@ restartBtn2.addEventListener('click', restartGame);
 resetBtn.addEventListener('click', () => {
     const password = prompt('Parent password to reset all progress:');
     if (password === 'read123') {
-        localStorage.removeItem('spellingSession');
+        clearProgress();
         location.reload();
     } else if (password !== null) {
         alert('Incorrect password');

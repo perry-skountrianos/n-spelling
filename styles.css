@@ -569,7 +569,7 @@ h1 {
     }
 
     .mode-toggle {
-        margin-bottom: 4px;
+        display: none;
     }
 
     .mode-btn {

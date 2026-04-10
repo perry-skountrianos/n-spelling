@@ -528,7 +528,9 @@ function showSnakeCelebration() {
     if (voice) encourageUtterance.voice = voice;
 
     encourageUtterance.onend = () => {
-        const questionUtterance = new SpeechSynthesisUtterance(quiz.question);
+        const optionsText = quiz.options.map((opt, i) => `${i + 1}: ${opt}`).join('. ');
+        const fullQuestion = quiz.question + ' ' + optionsText;
+        const questionUtterance = new SpeechSynthesisUtterance(fullQuestion);
         questionUtterance.rate = 0.95;
         questionUtterance.pitch = 1.0;
         questionUtterance.volume = 1;

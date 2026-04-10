@@ -243,13 +243,17 @@ function updateScoreDisplay() {
     const correct = resultsArray.filter(r => r.isCorrect).length;
     const wrong = answered - correct;
     const total = words.length;
+    const remaining = total - answered;
 
     // Update donut charts
     const correctPct = total > 0 ? (correct / total) * 100 : 0;
     const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
 
+    document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);
     document.getElementById('donutCorrect').setAttribute('stroke-dasharray', `${correctPct} ${100 - correctPct}`);
     document.getElementById('donutWrong').setAttribute('stroke-dasharray', `${wrongPct} ${100 - wrongPct}`);
+    document.getElementById('remainingCount').textContent = remaining;
     document.getElementById('correctCount').textContent = correct;
     document.getElementById('wrongCount').textContent = wrong;
 }

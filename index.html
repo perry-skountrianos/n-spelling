@@ -11,6 +11,13 @@
         <div class="donut-wrapper">
             <svg class="donut" viewBox="0 0 36 36">
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="remainingCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
                 <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
             </svg>
             <span class="donut-label" id="correctCount">0</span>

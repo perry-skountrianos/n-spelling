@@ -523,35 +523,37 @@ function showSnakeCelebration() {
                 <span class="snake-segment" style="animation-delay:0s">🟢</span><span class="snake-segment" style="animation-delay:0.05s">🟢</span><span class="snake-segment" style="animation-delay:0.1s">🟢</span><span class="snake-segment" style="animation-delay:0.15s">🟢</span><span class="snake-segment" style="animation-delay:0.2s">🟢</span><span class="snake-segment" style="animation-delay:0.25s">🟢</span><span class="snake-segment" style="animation-delay:0.3s">🟢</span><span class="snake-segment" style="animation-delay:0.35s">🟢</span><span class="snake-segment" style="animation-delay:0.4s">🐍</span>
             </div>
             <div class="snake-speech">${message}</div>
-            <div class="snake-fact">${fact}</div>
+            <div class="snake-fact">Did you know? ${fact}</div>
         </div>
     `;
     document.body.appendChild(overlay);
 
     // Speak the encouragement, then the snake fact
     synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.2;
+    const fullText = message + ". Did you know? " + fact;
+    const utterance = new SpeechSynthesisUtterance(fullText);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.1;
     utterance.volume = 1;
     const voice = getVoice();
     if (voice) utterance.voice = voice;
 
-    utterance.onend = () => {
-        const factUtterance = new SpeechSynthesisUtterance("Did you know? " + fact);
-        factUtterance.rate = 0.95;
-        factUtterance.pitch = 1.0;
-        factUtterance.volume = 1;
-        if (voice) factUtterance.voice = voice;
-        synth.speak(factUtterance);
-    };
+    // Remove overlay when speech finishes, or after a fallback timeout
+    let overlayDismissed = false;
+    function dismissOverlay() {
+        if (overlayDismissed) return;
+        overlayDismissed = true;
+        overlay.classList.add('fade-out');
+        setTimeout(() => overlay.remove(), 400);
+    }
+
+    utterance.onend = () => setTimeout(dismissOverlay, 500);
+    utterance.onerror = dismissOverlay;
 
     synth.speak(utterance);
 
-    setTimeout(() => {
-        overlay.classList.add('fade-out');
-        setTimeout(() => overlay.remove(), 400);
-    }, 6000);
+    // Fallback: dismiss after 12 seconds in case onend doesn't fire
+    setTimeout(dismissOverlay, 12000);
 }
 
 function checkSpelling() {

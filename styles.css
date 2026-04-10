@@ -627,3 +627,60 @@ h1 {
         width: 100%;
     }
 }
+
+/* Tap keyboard */
+.tap-keyboard {
+    width: 100%;
+    max-width: 500px;
+    margin: 10px auto 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.tap-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.tap-key {
+    flex: 1;
+    max-width: 44px;
+    height: 48px;
+    border: none;
+    border-radius: 6px;
+    background: #e8e8e8;
+    color: #000;
+    font-size: 20px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tap-key:active {
+    background: #c8c8c8;
+    transform: scale(0.95);
+}
+
+.tap-key-action {
+    flex: 1.4;
+    max-width: 62px;
+    font-size: 16px;
+    background: #d0d0d0;
+}
+
+.tap-key-enter {
+    background: #000;
+    color: #fff;
+    font-weight: 600;
+}
+
+.tap-key-enter:active {
+    background: #333;
+}

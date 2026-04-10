@@ -676,4 +676,41 @@ h1 {
         width: 100%;
     }
 
+    .wrong-words-dropdown {
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+    }
+
+    .wrong-words-dropdown summary {
+        padding: 12px 16px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #e53935;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .wrong-words-dropdown summary::before {
+        content: '▶';
+        font-size: 12px;
+        transition: transform 0.2s;
+    }
+
+    .wrong-words-dropdown[open] summary::before {
+        transform: rotate(90deg);
+    }
+
+    .wrong-words-dropdown summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .wrong-words-dropdown .result-item {
+        border-top: 1px solid #f0f0f0;
+    }
+
 }

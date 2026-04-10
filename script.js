@@ -192,10 +192,10 @@ function updatePlaceholder() {
     if (!hasHeardWord) {
         spellingInput.placeholder = isMobile ? "Tap Hear Word ☝️" : "Hit Enter";
     } else if (!hasAnswered) {
-        if (inputMode === 'speak') {
-            spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Tap the letters";
+        if (inputMode === 'speak' && !isMobile) {
+            spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type...";
         } else {
-            spellingInput.placeholder = "Type it";
+            spellingInput.placeholder = "Type...";
         }
     } else {
         spellingInput.placeholder = isMobile ? "Tap Next Word ☝️" : "Enter for next";
@@ -276,6 +276,19 @@ function displayResults() {
     resultsDisplay.innerHTML = '';
     
     const wrongResults = resultsArray.filter(r => !r.isCorrect);
+    if (wrongResults.length === 0) return;
+
+    // On mobile, wrap in a collapsible details element
+    let container = resultsDisplay;
+    if (isMobile) {
+        const details = document.createElement('details');
+        details.className = 'wrong-words-dropdown';
+        const summary = document.createElement('summary');
+        summary.textContent = `Wrong words (${wrongResults.length})`;
+        details.appendChild(summary);
+        resultsDisplay.appendChild(details);
+        container = details;
+    }
     
     wrongResults.forEach((result, index) => {
         const div = document.createElement('div');
@@ -314,7 +327,7 @@ function displayResults() {
         
         div.appendChild(wordDiv);
         div.appendChild(statusDiv);
-        resultsDisplay.appendChild(div);
+        container.appendChild(div);
     });
 }
 

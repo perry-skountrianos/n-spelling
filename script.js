@@ -155,7 +155,7 @@ function setMode(mode) {
         tapKeyboard.style.display = 'none';
         spellingInput.readOnly = false;
     } else {
-        if (hasSpeechRecognition) {
+        if (hasSpeechRecognition && !isMobile) {
             startListening();
         }
         tapKeyboard.style.display = 'block';
@@ -452,7 +452,7 @@ function speakWord() {
                 hasHeardWord = true;
                 updatePlaceholder();
                 spellingInput.focus();
-                if (inputMode === 'speak') startListening();
+                if (inputMode === 'speak' && !isMobile) startListening();
             };
             sentenceUtterance.onerror = (event) => {
                 console.error('Speech error:', event.error);
@@ -464,7 +464,7 @@ function speakWord() {
             hasHeardWord = true;
             updatePlaceholder();
             spellingInput.focus();
-            if (inputMode === 'speak') startListening();
+            if (inputMode === 'speak' && !isMobile) startListening();
         };
     }
     

@@ -32,6 +32,8 @@ const scoreDisplay = document.getElementById('scoreDisplay');
 const resetBtn = document.getElementById('resetBtn');
 const typeModeBtn = document.getElementById('typeModeBtn');
 const speakModeBtn = document.getElementById('speakModeBtn');
+const hearBtn = document.getElementById('hearBtn');
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 // Initialize speech synthesis
 const synth = window.speechSynthesis;
@@ -151,14 +153,19 @@ function setMode(mode) {
     if (mode === 'type') {
         stopListening();
         tapKeyboard.style.display = 'none';
+        spellingInput.readOnly = false;
     } else {
         if (hasSpeechRecognition) {
             startListening();
         }
         tapKeyboard.style.display = 'block';
+        if (isMobile) {
+            spellingInput.readOnly = true; // prevent native keyboard on mobile
+        }
     }
     updatePlaceholder();
-    spellingInput.focus();
+    updateHearBtn();
+    if (mode === 'type') spellingInput.focus();
 }
 
 typeModeBtn.addEventListener('click', () => setMode('type'));
@@ -167,6 +174,26 @@ speakModeBtn.addEventListener('click', () => setMode('speak'));
 // Label the speak button appropriately
 if (!hasSpeechRecognition) {
     speakModeBtn.textContent = 'Tap';
+}
+
+// Hear button
+hearBtn.addEventListener('click', () => {
+    handleInputAction();
+});
+
+function updateHearBtn() {
+    if (!isMobile) {
+        hearBtn.style.display = 'none';
+        return;
+    }
+    hearBtn.style.display = 'block';
+    if (!hasHeardWord) {
+        hearBtn.textContent = '🔊 Hear Word';
+    } else if (!hasAnswered) {
+        hearBtn.textContent = '🔊 Repeat';
+    } else {
+        hearBtn.textContent = '▶ Next Word';
+    }
 }
 
 // Tap keyboard handler
@@ -198,7 +225,7 @@ function getCurrentWord() {
 
 function updatePlaceholder() {
     if (!hasHeardWord) {
-        spellingInput.placeholder = "Hit Enter";
+        spellingInput.placeholder = isMobile ? "Tap Hear Word ☝️" : "Hit Enter";
     } else if (!hasAnswered) {
         if (inputMode === 'speak') {
             spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Tap the letters";
@@ -206,8 +233,9 @@ function updatePlaceholder() {
             spellingInput.placeholder = "Type it";
         }
     } else {
-        spellingInput.placeholder = "Enter for next";
+        spellingInput.placeholder = isMobile ? "Tap Next Word ☝️" : "Enter for next";
     }
+    updateHearBtn();
 }
 
 function updateScoreDisplay() {
@@ -719,6 +747,11 @@ window.addEventListener('load', async () => {
     updatePlaceholder();
     updateScoreDisplay();
     spellingInput.focus();
+
+    // Auto-select tap mode on mobile
+    if (isMobile) {
+        setMode('speak');
+    }
 });
 
 // Restart button

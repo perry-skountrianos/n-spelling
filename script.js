@@ -242,14 +242,19 @@ hearBtn.addEventListener('click', () => {
 });
 
 function updateHearBtn() {
-    // Icon stays as speaker, only title changes
-    hearBtn.textContent = '🔊';
-    if (!hasHeardWord) {
-        hearBtn.title = 'Hear Word';
-    } else if (!hasAnswered) {
-        hearBtn.title = 'Repeat';
+    // Show checkmark if there's text to check, speaker otherwise
+    if (hasHeardWord && !hasAnswered && spellingInput.value.trim().length > 0) {
+        hearBtn.textContent = '✔️';
+        hearBtn.title = 'Check Spelling';
     } else {
-        hearBtn.title = 'Next Word';
+        hearBtn.textContent = '🔊';
+        if (!hasHeardWord) {
+            hearBtn.title = 'Hear Word';
+        } else if (!hasAnswered) {
+            hearBtn.title = 'Repeat';
+        } else {
+            hearBtn.title = 'Next Word';
+        }
     }
 }
 
@@ -857,6 +862,7 @@ spellingInput.addEventListener('input', (e) => {
         spellingInput.value = '';
         return;
     }
+    updateHearBtn();
 });
 
 // Global Enter key handler (works even if textbox not focused)

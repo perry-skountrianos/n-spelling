@@ -253,9 +253,9 @@ function updatePlaceholder() {
         spellingInput.placeholder = isMobile ? "Tap Hear Word" : "Hit Enter";
     } else if (!hasAnswered) {
         if (inputMode === 'speak' && !isMobile) {
-            spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type...";
+            spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type or Hit Enter...";
         } else {
-            spellingInput.placeholder = "Type...";
+            spellingInput.placeholder = "Type or Hit Enter...";
         }
     } else {
         spellingInput.placeholder = isMobile ? "Tap Next Word" : "Enter for next";

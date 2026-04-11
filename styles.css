@@ -889,7 +889,7 @@ h1 {
         font-size: 40px;
         letter-spacing: 5px;
         padding: 6px 0;
-        text-align: center;
+        text-align: left;
     }
 
     .results-display {

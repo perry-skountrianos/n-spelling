@@ -691,7 +691,7 @@ function checkSpelling() {
         // Speak the explanation
         synth.cancel();
         const explanation = explainMistake(userInput, correctWord);
-        const spellOut = `The correct spelling is: ${correctWord.split('').join(', ')}. ${explanation}`;
+        const spellOut = `The correct spelling is: ${correctWord.toLowerCase().split('').join(', ')}. ${explanation}`;
         const feedbackUtterance = new SpeechSynthesisUtterance(spellOut);
         feedbackUtterance.rate = 0.9;
         feedbackUtterance.pitch = 1.0;
@@ -1107,11 +1107,11 @@ const spellingTips = {
     'live': 'L-I-V-E. Same pattern as give.',
     'have': 'H-A-V-E. Ends with silent E.',
     'they': 'T-H-E-Y. The EY says "ay."',
-    'just': 'J-U-S-T. Sound it out!',
+    'just': 'Rhymes with must and bust.',
     'you': 'Y-O-U. Three letters for "yoo."',
     'only': 'O-N-L-Y. Sounds like "own-lee."',
     'always': 'A-L-W-A-Y-S. All + ways!',
-    'under': 'U-N-D-E-R. Sound it out!',
+    'under': 'Starts with "un" like undo.',
     'say': 'S-A-Y. Rhymes with day, play, way.',
     'and': 'A-N-D. Nice and short!',
     'look': 'L-O-O-K. Double O!',
@@ -1119,8 +1119,8 @@ const spellingTips = {
     'like': 'L-I-K-E. Silent E at the end.',
     'put': 'P-U-T. Sounds like "poot" — rhymes with foot!',
     'those': 'T-H-O-S-E. Like "the" + "ose."',
-    'after': 'A-F-T-E-R. Sound it out!',
-    'first': 'F-I-R-S-T. Sound it out!',
+    'after': 'Rhymes with laughter without the L.',
+    'first': 'Starts with "fir" like a fir tree.',
     'far': 'F-A-R. Just three letters.',
     'down': 'D-O-W-N. Rhymes with town.',
     'she': 'S-H-E. Just three letters.',
@@ -1131,7 +1131,7 @@ const spellingTips = {
     'please': 'P-L-E-A-S-E. Ends with silent E.',
     'start': 'S-T-A-R-T. Starts and ends with T/ST.',
     "don't": "D-O-N-'-T. Don + apostrophe + T.",
-    'want': 'W-A-N-T. Sound it out!',
+    'want': 'Rhymes with font, not went.',
     'think': 'T-H-I-N-K. TH + ink!',
     'why': 'W-H-Y. Starts with WH.',
     'play': 'P-L-A-Y. Rhymes with say, day.',
@@ -1143,17 +1143,17 @@ const spellingTips = {
     'soon': 'S-O-O-N. Double O!',
     'where': 'W-H-E-R-E. Has "here" in it + W.',
     'got': 'G-O-T. Rhymes with hot, not.',
-    'hurt': 'H-U-R-T. Sound it out!',
+    'hurt': 'Rhymes with dirt and shirt.',
     'now': 'N-O-W. Rhymes with how, cow.',
     'way': 'W-A-Y. Rhymes with say, play, day.',
     'be': 'B-E. Just two letters!',
     'had': 'H-A-D. Rhymes with sad, dad.',
-    'help': 'H-E-L-P. Sound it out!',
+    'help': 'Rhymes with yelp.',
     'these': 'T-H-E-S-E. Like "the" + S + E.',
     'how': 'H-O-W. Rhymes with now, cow.',
     'his': 'H-I-S. Just three letters.',
     'three': 'T-H-R-E-E. Double E!',
-    'words': 'W-O-R-D-S. Sound it out!',
+    'words': 'Like "word" plus S. Sounds like "wurdz".',
     'any': 'A-N-Y. The A sounds like "eh."',
     'her': 'H-E-R. Just three letters.',
     'on': 'O-N. Just two letters!',
@@ -1161,9 +1161,9 @@ const spellingTips = {
     'work': 'W-O-R-K. Sounds like "wurk."',
     'were': 'W-E-R-E. Sounds like "wur."',
     'old': 'O-L-D. Rhymes with cold, gold.',
-    'very': 'V-E-R-Y. Sound it out!',
-    'from': 'F-R-O-M. Sound it out!',
-    'over': 'O-V-E-R. Sound it out!',
+    'very': 'Ends in Y, not E.',
+    'from': 'Starts with FR like frog.',
+    'over': 'Starts with O, rhymes with clover.',
     'what': 'W-H-A-T. Starts with WH.',
 };
 
@@ -1344,7 +1344,7 @@ function speakFlashcard(word) {
         letters.forEach(l => l.classList.remove('highlight'));
         letters[i].classList.add('highlight');
         // Speak the letter
-        const letterUtterance = new SpeechSynthesisUtterance(word[i].toUpperCase());
+        const letterUtterance = new SpeechSynthesisUtterance(word[i].toLowerCase());
         letterUtterance.rate = 0.7;
         if (voice) letterUtterance.voice = voice;
         letterUtterance.onend = () => speakLetterAt(i + 1);

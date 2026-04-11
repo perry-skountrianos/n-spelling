@@ -13,6 +13,80 @@ body {
     padding: 20px;
 }
 
+/* Profile selector screen */
+.profile-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+}
+
+.profile-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #333;
+}
+
+.profile-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 24px 32px;
+    border-radius: 16px;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    transition: all 0.15s;
+    min-width: 120px;
+}
+
+.profile-card:hover {
+    border-color: #000;
+    background: #f9f9f9;
+    transform: scale(1.03);
+}
+
+.profile-avatar {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.profile-add-btn {
+    background: none;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #888;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.profile-add-btn:hover {
+    border-color: #666;
+    color: #333;
+}
+
 .container {
     width: 100%;
     max-width: 100%;

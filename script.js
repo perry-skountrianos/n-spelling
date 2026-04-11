@@ -74,6 +74,7 @@ const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
 let practiceScope = localStorage.getItem('practiceScope') || 'wrong'; // 'all' or 'wrong'
 let showCelebration = localStorage.getItem('showCelebration') !== 'false'; // default true
+let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true'; // default false
 
 function updatePracticeToggleLabel() {
     practiceWordsToggle.textContent = practiceScope === 'all' ? '✅ All Words' : '📝 All Words';
@@ -1255,8 +1256,8 @@ function showFlashcard() {
     const wordEl = document.getElementById('flashcardWord');
     wordEl.innerHTML = word.split('').map(l => `<span class="letter">${l}</span>`).join('');
 
-    // Speaker
-    document.getElementById('flashcardSpeaker').onclick = () => speakFlashcard(word);
+    // Update mute button
+    updateMuteButton();
 
     // Sentence with word highlighted
     const sentenceEl = document.getElementById('flashcardSentence');
@@ -1293,11 +1294,14 @@ function showFlashcard() {
         familyEl.style.display = 'none';
     }
 
-    // Auto-speak and animate
-    speakFlashcard(word);
+    // Auto-speak and animate (unless muted)
+    if (!flashcardMuted) {
+        speakFlashcard(word);
+    }
 }
 
 function speakFlashcard(word) {
+    if (flashcardMuted) return;
     synth.cancel();
     const letters = document.querySelectorAll('#flashcardWord .letter');
     const voice = getVoice();
@@ -1417,5 +1421,26 @@ document.getElementById('flashcardPlay').addEventListener('click', () => {
         }
     } else {
         synth.cancel();
+    }
+});
+
+// Mute/unmute toggle
+function updateMuteButton() {
+    const btn = document.getElementById('flashcardSpeaker');
+    btn.textContent = flashcardMuted ? '🔇' : '🔊';
+    btn.title = flashcardMuted ? 'Unmute' : 'Mute';
+}
+updateMuteButton();
+
+document.getElementById('flashcardSpeaker').addEventListener('click', () => {
+    flashcardMuted = !flashcardMuted;
+    localStorage.setItem('flashcardMuted', flashcardMuted);
+    updateMuteButton();
+    if (flashcardMuted) {
+        synth.cancel();
+    } else {
+        // Unmuted — speak current card
+        const card = practiceCards[practiceIndex];
+        if (card) speakFlashcard(card.word);
     }
 });

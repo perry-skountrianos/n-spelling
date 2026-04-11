@@ -223,7 +223,17 @@ function setAppMode(mode) {
     }
 }
 
-practiceModeBtn.addEventListener('click', () => setAppMode('practice'));
+practiceModeBtn.addEventListener('click', () => {
+    // If test is in progress, require parent password to prevent peeking
+    if (appMode === 'test' && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
+        const password = prompt('Parent password to switch during a test:');
+        if (password !== 'read123') {
+            if (password !== null) alert('Incorrect password');
+            return;
+        }
+    }
+    setAppMode('practice');
+});
 testModeBtn.addEventListener('click', () => setAppMode('test'));
 
 // Hear button

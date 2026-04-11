@@ -1,6 +1,99 @@
 // The words list is loaded from words.js
 const allWords = [...words]; // keep a copy of the full list
 
+// Profile management
+let currentProfile = localStorage.getItem('currentProfile') || '';
+const profileAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋'];
+
+function getProfileName() {
+    return currentProfile.charAt(0).toUpperCase() + currentProfile.slice(1);
+}
+
+function profileKey(key) {
+    return currentProfile + '_' + key;
+}
+
+function profileRef(path) {
+    return path + '/' + currentProfile;
+}
+
+function loadProfileList() {
+    const profileScreen = document.getElementById('profileScreen');
+    const profileList = document.getElementById('profileList');
+    profileList.innerHTML = '';
+
+    if (typeof db !== 'undefined') {
+        db.ref('profiles').once('value').then(snapshot => {
+            const profiles = snapshot.val() || {};
+            // Always include 'niko' as default
+            if (!profiles['niko']) {
+                profiles['niko'] = { name: 'Niko', avatar: '🦁' };
+                db.ref('profiles/niko').set(profiles['niko']);
+            }
+            renderProfiles(profiles);
+        }).catch(() => {
+            renderProfiles({ niko: { name: 'Niko', avatar: '🦁' } });
+        });
+    } else {
+        renderProfiles({ niko: { name: 'Niko', avatar: '🦁' } });
+    }
+}
+
+function renderProfiles(profiles) {
+    const profileList = document.getElementById('profileList');
+    profileList.innerHTML = '';
+    Object.entries(profiles).forEach(([id, profile]) => {
+        const card = document.createElement('div');
+        card.className = 'profile-card';
+        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span>`;
+        card.addEventListener('click', () => selectProfile(id));
+        profileList.appendChild(card);
+    });
+}
+
+function selectProfile(profileId) {
+    currentProfile = profileId;
+    localStorage.setItem('currentProfile', profileId);
+    // Load profile-scoped settings
+    practiceScope = localStorage.getItem(profileKey('practiceScope')) || 'wrong';
+    showCelebration = localStorage.getItem(profileKey('showCelebration')) !== 'false';
+    flashcardMuted = localStorage.getItem(profileKey('flashcardMuted')) === 'true';
+    updatePracticeToggleLabel();
+    updateCelebrationToggleLabel();
+    updateMuteButton();
+    // Hide profile screen, show app
+    document.getElementById('profileScreen').style.display = 'none';
+    document.getElementById('scoreDisplay').style.display = '';
+    document.querySelector('.gear-menu-wrapper').style.display = '';
+    document.querySelector('.container').style.display = '';
+    initApp();
+}
+
+function showProfileScreen() {
+    document.getElementById('profileScreen').style.display = '';
+    document.getElementById('scoreDisplay').style.display = 'none';
+    document.querySelector('.gear-menu-wrapper').style.display = 'none';
+    document.querySelector('.container').style.display = 'none';
+    loadProfileList();
+}
+
+document.getElementById('addProfileBtn').addEventListener('click', () => {
+    const password = prompt('Parent password:');
+    if (password !== 'read123') {
+        if (password !== null) alert('Incorrect password');
+        return;
+    }
+    const name = prompt('Player name:');
+    if (!name || !name.trim()) return;
+    const id = name.trim().toLowerCase();
+    const avatar = profileAvatars[Math.floor(Math.random() * profileAvatars.length)];
+    if (typeof db !== 'undefined') {
+        db.ref('profiles/' + id).set({ name: name.trim(), avatar: avatar }).then(() => {
+            loadProfileList();
+        });
+    }
+});
+
 let currentWordIndex = 0;
 let hasAnswered = false;
 let hasHeardWord = false;
@@ -19,7 +112,7 @@ async function loadWordsForScope() {
     // Wrong words only — fetch from latest report
     if (typeof db !== 'undefined') {
         try {
-            const snapshot = await db.ref('reports/niko').orderByKey().limitToLast(1).once('value');
+            const snapshot = await db.ref(profileRef('reports')).orderByKey().limitToLast(1).once('value');
             const data = snapshot.val();
             if (data) {
                 const report = Object.values(data)[0];
@@ -72,9 +165,9 @@ const practiceContent = document.getElementById('practiceContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
-let practiceScope = localStorage.getItem('practiceScope') || 'wrong'; // 'all' or 'wrong'
-let showCelebration = localStorage.getItem('showCelebration') !== 'false'; // default true
-let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true'; // default false
+let practiceScope = localStorage.getItem('practiceScope') || 'wrong';
+let showCelebration = localStorage.getItem('showCelebration') !== 'false';
+let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
 function updatePracticeToggleLabel() {
     practiceWordsToggle.textContent = practiceScope === 'all' ? '✅ All Words' : '📝 All Words';
@@ -411,17 +504,17 @@ function saveProgress() {
         practiceScope: practiceScope,
         timestamp: new Date().toISOString()
     };
-    localStorage.setItem('spellingSession', JSON.stringify(sessionData));
+    localStorage.setItem(profileKey('spellingSession'), JSON.stringify(sessionData));
     // Sync to Firebase
     if (typeof db !== 'undefined') {
-        db.ref('sessions/niko').set(sessionData).catch(e => console.warn('Firebase save failed:', e));
+        db.ref(profileRef('sessions')).set(sessionData).catch(e => console.warn('Firebase save failed:', e));
     }
 }
 
 function clearProgress() {
-    localStorage.removeItem('spellingSession');
+    localStorage.removeItem(profileKey('spellingSession'));
     if (typeof db !== 'undefined') {
-        db.ref('sessions/niko').remove().catch(e => console.warn('Firebase clear failed:', e));
+        db.ref(profileRef('sessions')).remove().catch(e => console.warn('Firebase clear failed:', e));
     }
 }
 
@@ -429,7 +522,7 @@ async function loadProgress() {
     // Try Firebase first (cross-device), fall back to localStorage
     if (typeof db !== 'undefined') {
         try {
-            const snapshot = await db.ref('sessions/niko').once('value');
+            const snapshot = await db.ref(profileRef('sessions')).once('value');
             const sessionData = snapshot.val();
             if (sessionData && sessionData.words && sessionData.resultsArray) {
                 // Discard if scope changed
@@ -441,18 +534,18 @@ async function loadProgress() {
                 currentWordIndex = sessionData.currentWordIndex;
                 words = sessionData.words;
                 // Sync to localStorage
-                localStorage.setItem('spellingSession', JSON.stringify(sessionData));
+                localStorage.setItem(profileKey('spellingSession'), JSON.stringify(sessionData));
                 return true;
             } else {
                 // Firebase has no session — clear any stale localStorage too
-                localStorage.removeItem('spellingSession');
+                localStorage.removeItem(profileKey('spellingSession'));
                 return false;
             }
         } catch(e) {
             console.warn('Firebase load failed, trying localStorage:', e);
         }
     }
-    const saved = localStorage.getItem('spellingSession');
+    const saved = localStorage.getItem(profileKey('spellingSession'));
     if (saved) {
         const sessionData = JSON.parse(saved);
         // Discard if scope changed
@@ -550,25 +643,26 @@ function speakWord() {
 }
 
 function getRandomEncouragement() {
+    const name = getProfileName();
     const phrases = [
-        "You're so smart Niko!",
+        `You're so smart ${name}!`,
         "Your brain is amazing!",
         "You should be so proud!",
-        "Look at you go Niko!",
+        `Look at you go ${name}!`,
         "You never give up and it shows!",
         "That was brilliant!",
-        "Wow Niko, you're getting better every time!",
+        `Wow ${name}, you're getting better every time!`,
         "You worked so hard for that one!",
         "I knew you could do it!",
-        "Niko the spelling superstar!",
+        `${name} the spelling superstar!`,
         "Your hard work is paying off!",
         "That's what practice looks like!",
-        "Absolutely perfect Niko!",
+        `Absolutely perfect ${name}!`,
         "You make it look easy!",
         "Nothing can stop you!",
-        "You're unstoppable Niko!",
+        `You're unstoppable ${name}!`,
         "Every word you learn makes you stronger!",
-        "Incredible effort Niko!",
+        `Incredible effort ${name}!`,
     ];
     return phrases[Math.floor(Math.random() * phrases.length)];
 }
@@ -882,8 +976,19 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Shuffle/load words on page load
-window.addEventListener('load', async () => {
+// App initialization (called after profile selection)
+async function initApp() {
+    // Reset state
+    currentWordIndex = 0;
+    hasAnswered = false;
+    hasHeardWord = false;
+    resultsArray = [];
+    mainContent.style.display = '';
+    resultsSection.style.display = 'none';
+    spellingInput.value = '';
+    spellingInput.classList.remove('correct', 'incorrect');
+    setAppMode('test');
+
     const hasSession = await loadProgress();
     
     if (!hasSession) {
@@ -900,7 +1005,17 @@ window.addEventListener('load', async () => {
     
     updatePlaceholder();
     updateScoreDisplay();
+    updateHearBtn();
     spellingInput.focus();
+}
+
+// On page load - show profile selector or go to last profile
+window.addEventListener('load', () => {
+    if (currentProfile) {
+        selectProfile(currentProfile);
+    } else {
+        showProfileScreen();
+    }
 });
 
 // Restart button
@@ -928,7 +1043,7 @@ function saveReport() {
 
     if (typeof db !== 'undefined') {
         const reportId = now.getTime().toString();
-        db.ref('reports/niko/' + reportId).set(reportData)
+        db.ref(profileRef('reports') + '/' + reportId).set(reportData)
             .then(() => {
                 console.log('Report saved automatically.');
             })
@@ -971,7 +1086,7 @@ function loadReports() {
         return;
     }
 
-    db.ref('reports/niko').orderByKey().once('value')
+    db.ref(profileRef('reports')).orderByKey().once('value')
         .then(snapshot => {
             const data = snapshot.val();
             if (!data) {
@@ -1037,6 +1152,13 @@ resetBtn.addEventListener('click', () => {
     }
 });
 
+// Switch player
+document.getElementById('switchProfileBtn').addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+    synth.cancel();
+    showProfileScreen();
+});
+
 // Celebration toggle
 const celebrationToggle = document.getElementById('celebrationToggle');
 function updateCelebrationToggleLabel() {
@@ -1045,7 +1167,7 @@ function updateCelebrationToggleLabel() {
 updateCelebrationToggleLabel();
 celebrationToggle.addEventListener('click', () => {
     showCelebration = !showCelebration;
-    localStorage.setItem('showCelebration', showCelebration);
+    localStorage.setItem(profileKey('showCelebration'), showCelebration);
     updateCelebrationToggleLabel();
     gearDropdown.classList.remove('show');
 });
@@ -1060,7 +1182,7 @@ practiceWordsToggle.addEventListener('click', () => {
         return;
     }
     practiceScope = practiceScope === 'all' ? 'wrong' : 'all';
-    localStorage.setItem('practiceScope', practiceScope);
+    localStorage.setItem(profileKey('practiceScope'), practiceScope);
     updatePracticeToggleLabel();
     loadWordsForScope().then(() => {
         if (appMode === 'practice') {
@@ -1207,7 +1329,7 @@ function loadPracticeCards() {
 
     function showCards(cards) {
         if (cards.length === 0) {
-            flashcardEmpty.innerHTML = '<p>No wrong words!</p><p>Great job, Niko! 🎉</p>';
+            flashcardEmpty.innerHTML = `<p>No wrong words!</p><p>Great job, ${getProfileName()}! 🎉</p>`;
             flashcardEmpty.style.display = '';
             flashcard.style.display = 'none';
             flashcardNav.style.display = 'none';
@@ -1238,7 +1360,7 @@ function loadPracticeCards() {
 
     // Fall back to latest report from Firebase
     if (typeof db !== 'undefined') {
-        db.ref('reports/niko').orderByKey().limitToLast(1).once('value')
+        db.ref(profileRef('reports')).orderByKey().limitToLast(1).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
                 if (!data) {
@@ -1454,7 +1576,7 @@ updateMuteButton();
 
 document.getElementById('flashcardSpeaker').addEventListener('click', () => {
     flashcardMuted = !flashcardMuted;
-    localStorage.setItem('flashcardMuted', flashcardMuted);
+    localStorage.setItem(profileKey('flashcardMuted'), flashcardMuted);
     updateMuteButton();
     if (flashcardMuted) {
         synth.cancel();

@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="score-display" id="scoreDisplay">
+    <!-- Profile selector screen -->
+    <div class="profile-screen" id="profileScreen">
+        <h1 class="profile-title">Who's practicing?</h1>
+        <div class="profile-list" id="profileList"></div>
+        <button class="profile-add-btn" id="addProfileBtn">+ Add Player</button>
+    </div>
+
+    <div class="score-display" id="scoreDisplay" style="display: none;">
         <div class="donut-wrapper">
             <svg class="donut" viewBox="0 0 36 36">
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
@@ -30,13 +37,13 @@
             <span class="donut-label" id="wrongCount">0</span>
         </div>
     </div>
-    <div class="gear-menu-wrapper">
+    <div class="gear-menu-wrapper" style="display: none;">
         <button class="reset-btn" id="gearBtn" title="Settings">⚙️</button>
         <div class="gear-dropdown" id="gearDropdown">
-            <button class="gear-option" id="viewReportsBtn">📊 Reports</button>            <button class="gear-option" id="practiceWordsToggle">📝 All Words</button>            <button class="gear-option" id="celebrationToggle">🎉 Celebration</button>            <button class="gear-option gear-option-danger" id="resetBtn">🔄 New Session</button>
+            <button class="gear-option" id="viewReportsBtn">📊 Reports</button>            <button class="gear-option" id="practiceWordsToggle">📝 All Words</button>            <button class="gear-option" id="celebrationToggle">🎉 Celebration</button>            <button class="gear-option" id="switchProfileBtn">👤 Switch Player</button>            <button class="gear-option gear-option-danger" id="resetBtn">🔄 New Session</button>
         </div>
     </div>
-    <div class="container">
+    <div class="container" style="display: none;">
         <div class="main-content" id="mainContent">
             <div class="word-section">
             </div>

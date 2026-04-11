@@ -9,16 +9,20 @@
 //    {
 //      "rules": {
 //        "sessions": {
-//          "niko": {
+//          "$profile": {
 //            ".read": true,
 //            ".write": true
 //          }
 //        },
 //        "reports": {
-//          "niko": {
+//          "$profile": {
 //            ".read": true,
 //            ".write": true
 //          }
+//        },
+//        "profiles": {
+//          ".read": true,
+//          ".write": true
 //        }
 //      }
 //    }

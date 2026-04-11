@@ -732,6 +732,10 @@ function showCompletionReport() {
     const totalAttempts = resultsArray.length;
     const correctCount = resultsArray.filter(r => r.isCorrect).length;
     const percentage = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 0;
+
+    // Update final score display
+    finalScoreDisplay.textContent = `${correctCount} / ${totalAttempts}`;
+
     const today = new Date();
     const dateString = today.toLocaleDateString('en-US', { 
         year: 'numeric', 

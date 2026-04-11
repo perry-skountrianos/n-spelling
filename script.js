@@ -268,7 +268,7 @@ function updateScoreDisplay() {
     const correct = resultsArray.filter(r => r.isCorrect).length;
     const wrong = answered - correct;
     const total = words.length;
-    const remaining = total - answered;
+    const remaining = Math.max(0, total - answered);
 
     // Update donut charts
     const correctPct = total > 0 ? (correct / total) * 100 : 0;

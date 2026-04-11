@@ -26,7 +26,7 @@ const incorrectSection = document.getElementById('incorrectSection');
 const incorrectWordsDisplay = document.getElementById('incorrectWords');
 const finalScoreDisplay = document.getElementById('finalScore');
 const restartBtn2 = document.getElementById('restartBtn2');
-const saveReportBtn = document.getElementById('saveReportBtn');
+
 const resultsDisplay = document.getElementById('resultsDisplay');
 const scoreDisplay = document.getElementById('scoreDisplay');
 const resetBtn = document.getElementById('resetBtn');
@@ -707,6 +707,9 @@ function showCompletionReport() {
     
     incorrectSection.innerHTML = reportHTML;
     incorrectSection.style.display = 'block';
+
+    // Auto-save report to Firebase
+    saveReport();
 }
 
 function restartGame() {
@@ -822,9 +825,6 @@ window.addEventListener('load', async () => {
 // Restart button
 restartBtn2.addEventListener('click', restartGame);
 
-// Save report button
-saveReportBtn.addEventListener('click', saveReport);
-
 function saveReport() {
     const totalAttempts = resultsArray.length;
     const correctCount = resultsArray.filter(r => r.isCorrect).length;
@@ -849,19 +849,11 @@ function saveReport() {
         const reportId = now.getTime().toString();
         db.ref('reports/niko/' + reportId).set(reportData)
             .then(() => {
-                saveReportBtn.textContent = '✓ Saved!';
-                saveReportBtn.disabled = true;
-                setTimeout(() => {
-                    saveReportBtn.textContent = 'Save Report';
-                    saveReportBtn.disabled = false;
-                }, 3000);
+                console.log('Report saved automatically.');
             })
             .catch(e => {
                 console.warn('Firebase report save failed:', e);
-                alert('Could not save report. Try again.');
             });
-    } else {
-        alert('Firebase not available. Report could not be saved.');
     }
 }
 

@@ -969,6 +969,10 @@ spellingInput.addEventListener('input', (e) => {
 // Global Enter key handler (works even if textbox not focused)
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
+        // Don't interfere when modals are open
+        if (document.getElementById('wordlistsOverlay').style.display !== 'none' ||
+            document.getElementById('wordlistEditOverlay').style.display !== 'none' ||
+            document.getElementById('reportsOverlay').style.display !== 'none') return;
         if (appMode === 'practice') return;
         e.preventDefault();
         spellingInput.focus();
@@ -1584,5 +1588,302 @@ document.getElementById('flashcardSpeaker').addEventListener('click', () => {
         // Unmuted — speak current card
         const card = practiceCards[practiceIndex];
         if (card) speakFlashcard(card.word);
+    }
+});
+
+const wordListsBtn = document.getElementById('wordListsBtn');
+const wordlistsOverlay = document.getElementById('wordlistsOverlay');
+const wordlistsCloseBtn = document.getElementById('wordlistsCloseBtn');
+const wordlistsList = document.getElementById('wordlistsList');
+const addWordListBtn = document.getElementById('addWordListBtn');
+
+wordListsBtn.addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+    wordlistsOverlay.style.display = 'flex';
+    loadWordLists();
+});
+wordlistsCloseBtn.addEventListener('click', () => {
+    wordlistsOverlay.style.display = 'none';
+});
+
+function loadWordLists() {
+    wordlistsList.innerHTML = '<p>Loading...</p>';
+    if (typeof db === 'undefined' || !currentProfile) {
+        wordlistsList.innerHTML = '<p>Not available offline.</p>';
+        return;
+    }
+    db.ref('wordlists/' + currentProfile).once('value').then(snapshot => {
+        const lists = snapshot.val() || {};
+        renderWordLists(lists);
+    });
+}
+
+function firebaseToArray(val) {
+    if (Array.isArray(val)) return val;
+    if (val && typeof val === 'object') return Object.values(val);
+    return [];
+}
+
+function renderWordLists(lists) {
+    wordlistsList.innerHTML = '';
+    const entries = Object.entries(lists);
+    if (entries.length === 0) {
+        wordlistsList.innerHTML = '<p style="text-align:center;color:#999;padding:20px 0;">No word lists yet.</p>';
+        return;
+    }
+    entries.forEach(([id, list]) => {
+        const wordsArr = firebaseToArray(list.words);
+        const card = document.createElement('div');
+        card.className = 'wordlist-card';
+        card.innerHTML = `
+            <div class="wordlist-info">
+                <div class="wordlist-name">${list.name}</div>
+                <div class="wordlist-count">${wordsArr.length} words</div>
+            </div>
+            <div class="wordlist-actions"></div>
+        `;
+        const actions = card.querySelector('.wordlist-actions');
+
+        const loadBtn = document.createElement('button');
+        loadBtn.textContent = 'Load';
+        loadBtn.addEventListener('click', () => doLoadWordList(id));
+        actions.appendChild(loadBtn);
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => doEditWordList(id));
+        actions.appendChild(editBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.className = 'danger';
+        delBtn.addEventListener('click', () => doDeleteWordList(id));
+        actions.appendChild(delBtn);
+
+        wordlistsList.appendChild(card);
+    });
+}
+
+
+// ===== WORD LISTS CRUD =====
+const wordlistEditOverlay = document.getElementById('wordlistEditOverlay');
+const wordlistEditTitle = document.getElementById('wordlistEditTitle');
+const wordlistEditCloseBtn = document.getElementById('wordlistEditCloseBtn');
+const wordlistNameInput = document.getElementById('wordlistNameInput');
+const wordlistWordsList = document.getElementById('wordlistWordsList');
+const newWordInput = document.getElementById('newWordInput');
+const addWordBtn = document.getElementById('addWordBtn');
+const cancelWordListBtn = document.getElementById('cancelWordListBtn');
+const saveWordListBtn = document.getElementById('saveWordListBtn');
+
+let editingWordListId = null;
+let editingWordListWords = [];
+let editingWordListMode = 'create';
+
+function showWordListEditModal(mode, listId, listData) {
+    editingWordListMode = mode;
+    editingWordListId = listId || null;
+    wordlistEditOverlay.style.display = 'flex';
+    if (mode === 'edit' && listData) {
+        wordlistEditTitle.textContent = 'Edit Word List';
+        wordlistNameInput.value = listData.name || '';
+        editingWordListWords = [...firebaseToArray(listData.words)];
+    } else {
+        wordlistEditTitle.textContent = 'Create Word List';
+        wordlistNameInput.value = '';
+        editingWordListWords = [];
+    }
+    renderEditWords();
+    newWordInput.value = '';
+    setTimeout(() => wordlistNameInput.focus(), 100);
+}
+
+function hideWordListEditModal() {
+    wordlistEditOverlay.style.display = 'none';
+    editingWordListId = null;
+    editingWordListWords = [];
+}
+
+function renderEditWords() {
+    wordlistWordsList.innerHTML = '';
+    editingWordListWords.forEach((w, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'wordlist-word-chip';
+
+        const text = document.createElement('span');
+        text.className = 'chip-text';
+        text.textContent = w;
+        chip.appendChild(text);
+
+        // Edit button — replaces text with inline input
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✎';
+        editBtn.title = 'Edit';
+        editBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'chip-edit-input';
+            input.value = w;
+            input.maxLength = 24;
+            input.addEventListener('blur', () => {
+                const val = input.value.trim().toLowerCase();
+                if (val && val !== w && !editingWordListWords.includes(val)) {
+                    editingWordListWords[i] = val;
+                }
+                renderEditWords();
+            });
+            input.addEventListener('keydown', ev => {
+                if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+                ev.stopPropagation();
+            });
+            chip.replaceChild(input, text);
+            editBtn.style.display = 'none';
+            input.focus();
+        });
+        chip.appendChild(editBtn);
+
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✕';
+        delBtn.title = 'Remove';
+        delBtn.addEventListener('click', () => {
+            editingWordListWords.splice(i, 1);
+            renderEditWords();
+        });
+        chip.appendChild(delBtn);
+
+        wordlistWordsList.appendChild(chip);
+    });
+}
+
+// Add word button
+addWordBtn.addEventListener('click', () => {
+    const val = newWordInput.value.trim().toLowerCase();
+    if (val && !editingWordListWords.includes(val)) {
+        editingWordListWords.push(val);
+        renderEditWords();
+        newWordInput.value = '';
+        newWordInput.focus();
+    }
+});
+
+// Enter in word input adds the word
+newWordInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        addWordBtn.click();
+    }
+});
+
+// Enter in name input — don't let it bubble
+wordlistNameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        newWordInput.focus();
+    }
+});
+
+wordlistEditCloseBtn.addEventListener('click', hideWordListEditModal);
+cancelWordListBtn.addEventListener('click', hideWordListEditModal);
+
+// Save word list
+saveWordListBtn.addEventListener('click', () => {
+    const name = wordlistNameInput.value.trim();
+    if (!name) { wordlistNameInput.focus(); return; }
+    if (editingWordListWords.length === 0) { newWordInput.focus(); return; }
+    if (typeof db === 'undefined' || !currentProfile) return;
+
+    const listData = { name: name, words: editingWordListWords };
+    const ref = db.ref('wordlists/' + currentProfile);
+
+    if (editingWordListMode === 'edit' && editingWordListId) {
+        ref.child(editingWordListId).set(listData).then(() => {
+            hideWordListEditModal();
+            loadWordLists();
+        });
+    } else {
+        const id = Date.now().toString();
+        ref.child(id).set(listData).then(() => {
+            hideWordListEditModal();
+            loadWordLists();
+        });
+    }
+});
+
+// CRUD actions
+function doEditWordList(id) {
+    if (typeof db === 'undefined' || !currentProfile) return;
+    db.ref('wordlists/' + currentProfile + '/' + id).once('value').then(snapshot => {
+        const list = snapshot.val();
+        if (!list) return;
+        showWordListEditModal('edit', id, list);
+    });
+}
+
+function doDeleteWordList(id) {
+    if (!confirm('Delete this word list?')) return;
+    if (typeof db === 'undefined' || !currentProfile) return;
+    db.ref('wordlists/' + currentProfile + '/' + id).remove().then(() => {
+        loadWordLists();
+    });
+}
+
+function doLoadWordList(id) {
+    if (typeof db === 'undefined' || !currentProfile) return;
+    db.ref('wordlists/' + currentProfile + '/' + id).once('value').then(snapshot => {
+        const list = snapshot.val();
+        if (!list) return;
+        const loadedWords = firebaseToArray(list.words);
+        words = [...loadedWords];
+        allWords.length = 0;
+        loadedWords.forEach(w => allWords.push(w));
+        clearProgress();
+        restartGame();
+        wordlistsOverlay.style.display = 'none';
+    });
+}
+
+addWordListBtn.addEventListener('click', () => {
+    showWordListEditModal('create');
+});
+
+// ===== PROFILE DELETION =====
+document.getElementById('deleteProfileBtn').addEventListener('click', () => {
+    const password = prompt('Parent password:');
+    if (password !== 'read123') {
+        if (password !== null) alert('Incorrect password');
+        return;
+    }
+    const name = prompt('Enter player name to delete:');
+    if (!name || !name.trim()) return;
+    const id = name.trim().toLowerCase();
+    if (id === 'niko') {
+        alert('Cannot delete the default profile.');
+        return;
+    }
+    // Verify profile exists
+    if (typeof db !== 'undefined') {
+        db.ref('profiles/' + id).once('value').then(snapshot => {
+            if (!snapshot.exists()) {
+                alert('Profile not found.');
+                return;
+            }
+            if (!confirm('Delete player "' + name.trim() + '" and all their data?')) return;
+            db.ref('profiles/' + id).remove();
+            db.ref('reports/' + id).remove();
+            db.ref('sessions/' + id).remove();
+            db.ref('wordlists/' + id).remove();
+            // Clean localStorage
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith(id + '_')) localStorage.removeItem(k);
+            });
+            if (localStorage.getItem('currentProfile') === id) {
+                localStorage.removeItem('currentProfile');
+                currentProfile = '';
+            }
+            loadProfileList();
+        });
     }
 });

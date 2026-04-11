@@ -1,4 +1,5 @@
 // The words list is loaded from words.js
+const allWords = [...words]; // keep a copy of the full list
 
 let currentWordIndex = 0;
 let hasAnswered = false;
@@ -8,6 +9,33 @@ let inputMode = 'type'; // 'type' or 'speak'
 let recognition = null;
 let isListening = false;
 const hasSpeechRecognition = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+// Load words based on practiceScope setting
+async function loadWordsForScope() {
+    if (practiceScope === 'all') {
+        words = [...allWords];
+        return;
+    }
+    // Wrong words only — fetch from latest report
+    if (typeof db !== 'undefined') {
+        try {
+            const snapshot = await db.ref('reports/niko').orderByKey().limitToLast(1).once('value');
+            const data = snapshot.val();
+            if (data) {
+                const report = Object.values(data)[0];
+                const wrongWords = (report.results || []).filter(r => !r.isCorrect).map(r => r.word);
+                if (wrongWords.length > 0) {
+                    words = wrongWords;
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to load wrong words:', e);
+        }
+    }
+    // Fallback to all words if no report or no wrong words
+    words = [...allWords];
+}
 
 // Shuffle array function
 function shuffleArray(array) {
@@ -366,6 +394,7 @@ function saveProgress() {
         resultsArray: resultsArray,
         currentWordIndex: currentWordIndex,
         words: words,
+        practiceScope: practiceScope,
         timestamp: new Date().toISOString()
     };
     localStorage.setItem('spellingSession', JSON.stringify(sessionData));
@@ -383,15 +412,14 @@ function clearProgress() {
 }
 
 async function loadProgress() {
-    const totalWords = words.length;
     // Try Firebase first (cross-device), fall back to localStorage
     if (typeof db !== 'undefined') {
         try {
             const snapshot = await db.ref('sessions/niko').once('value');
             const sessionData = snapshot.val();
             if (sessionData && sessionData.words && sessionData.resultsArray) {
-                // Discard if word list size changed
-                if (sessionData.words.length !== totalWords) {
+                // Discard if scope changed
+                if ((sessionData.practiceScope || 'all') !== practiceScope) {
                     clearProgress();
                     return false;
                 }
@@ -413,8 +441,8 @@ async function loadProgress() {
     const saved = localStorage.getItem('spellingSession');
     if (saved) {
         const sessionData = JSON.parse(saved);
-        // Discard if word list size changed
-        if (sessionData.words.length !== totalWords) {
+        // Discard if scope changed
+        if ((sessionData.practiceScope || 'all') !== practiceScope) {
             clearProgress();
             return false;
         }
@@ -741,24 +769,26 @@ function restartGame() {
     // Clear saved progress
     clearProgress();
     
-    // Shuffle words for next round
-    const shuffledWords = shuffleArray(words);
-    for (let i = 0; i < words.length; i++) {
-        words[i] = shuffledWords[i];
-    }
-    
-    currentWordIndex = 0;
-    hasAnswered = false;
-    hasHeardWord = false;
-    resultsArray = [];
-    spellingInput.value = '';
-    spellingInput.classList.remove('correct', 'incorrect');
-    mainContent.style.display = 'block';
-    resultsSection.style.display = 'none';
-    updatePlaceholder();
-    updateScoreDisplay();
-    spellingInput.focus();
-    speakWord();
+    // Reload words for current scope then shuffle
+    loadWordsForScope().then(() => {
+        const shuffledWords = shuffleArray(words);
+        for (let i = 0; i < words.length; i++) {
+            words[i] = shuffledWords[i];
+        }
+        
+        currentWordIndex = 0;
+        hasAnswered = false;
+        hasHeardWord = false;
+        resultsArray = [];
+        spellingInput.value = '';
+        spellingInput.classList.remove('correct', 'incorrect');
+        mainContent.style.display = 'block';
+        resultsSection.style.display = 'none';
+        updatePlaceholder();
+        updateScoreDisplay();
+        spellingInput.focus();
+        speakWord();
+    });
 }
 
 // Handle Enter key and blur (tap outside)
@@ -827,6 +857,7 @@ window.addEventListener('load', async () => {
     const hasSession = await loadProgress();
     
     if (!hasSession) {
+        await loadWordsForScope();
         // New session - shuffle words
         const shuffledWords = shuffleArray(words);
         for (let i = 0; i < words.length; i++) {

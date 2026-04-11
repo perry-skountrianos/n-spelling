@@ -847,7 +847,7 @@ h1 {
     }
 
     .mode-toggle {
-        display: none;
+        display: flex;
     }
 
     .mode-btn {
@@ -953,6 +953,18 @@ h1 {
         width: 100%;
     }
 
+    .flashcard-word {
+        font-size: 40px;
+        letter-spacing: 2px;
+    }
+
+    .flashcard-sentence {
+        font-size: 16px;
+    }
+
+    .flashcard {
+        padding: 24px 18px;
+    }
 }
 
 .wrong-words-dropdown {
@@ -990,4 +1002,174 @@ h1 {
 
 .wrong-words-dropdown .result-item {
     border-top: 1px solid #f0f0f0;
+}
+
+/* Flashcard Practice Mode */
+.flashcard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.flashcard-empty {
+    text-align: center;
+    color: #999;
+    font-size: 18px;
+    padding: 60px 20px;
+    line-height: 1.8;
+}
+
+.flashcard {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+}
+
+.flashcard-word {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    color: #000;
+    line-height: 1.2;
+}
+
+.flashcard-word .letter {
+    display: inline-block;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.flashcard-word .letter.highlight {
+    color: #bbb;
+    transform: scale(1.15);
+}
+
+.flashcard-speaker {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 4px 10px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    margin-bottom: 16px;
+}
+
+.flashcard-speaker:hover {
+    opacity: 1;
+}
+
+.flashcard-sentence {
+    font-size: 18px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.flashcard-sentence .word-highlight {
+    color: #e53935;
+    font-weight: 600;
+}
+
+.flashcard-mistake {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.flashcard-tip {
+    font-size: 15px;
+    color: #2e7d32;
+    font-weight: 500;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.flashcard-spell {
+    font-size: 14px;
+    color: #999;
+    letter-spacing: 2px;
+    min-height: 20px;
+}
+
+.flashcard-nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.flashcard-arrow {
+    background: none;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    color: #333;
+}
+
+.flashcard-arrow:hover {
+    border-color: #000;
+    background: #f5f5f5;
+}
+
+.flashcard-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.flashcard-counter {
+    font-size: 15px;
+    color: #888;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+}
+
+.flashcard-family {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 14px 18px;
+    width: 100%;
+    text-align: center;
+}
+
+.flashcard-family-label {
+    font-size: 13px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.flashcard-family-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.flashcard-family-word {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
 }

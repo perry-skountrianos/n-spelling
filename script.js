@@ -36,10 +36,13 @@ const viewReportsBtn = document.getElementById('viewReportsBtn');
 const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
-const typeModeBtn = document.getElementById('typeModeBtn');
-const speakModeBtn = document.getElementById('speakModeBtn');
+const practiceModeBtn = document.getElementById('practiceModeBtn');
+const testModeBtn = document.getElementById('testModeBtn');
+const testContent = document.getElementById('testContent');
+const practiceContent = document.getElementById('practiceContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let appMode = 'test'; // 'test' or 'practice'
 
 // Initialize speech synthesis
 const synth = window.speechSynthesis;
@@ -153,9 +156,6 @@ function updateMicIndicator() {
 
 function setMode(mode) {
     inputMode = mode;
-    typeModeBtn.classList.toggle('active', mode === 'type');
-    speakModeBtn.classList.toggle('active', mode === 'speak');
-
     if (mode === 'type') {
         stopListening();
     } else {
@@ -168,8 +168,24 @@ function setMode(mode) {
     if (mode === 'type') spellingInput.focus();
 }
 
-typeModeBtn.addEventListener('click', () => setMode('type'));
-speakModeBtn.addEventListener('click', () => setMode('speak'));
+function setAppMode(mode) {
+    appMode = mode;
+    practiceModeBtn.classList.toggle('active', mode === 'practice');
+    testModeBtn.classList.toggle('active', mode === 'test');
+    testContent.style.display = mode === 'test' ? '' : 'none';
+    practiceContent.style.display = mode === 'practice' ? '' : 'none';
+    scoreDisplay.style.display = mode === 'test' ? '' : 'none';
+    if (mode === 'practice') {
+        stopListening();
+        loadPracticeCards();
+    } else {
+        spellingInput.focus();
+        if (inputMode === 'speak' && !isMobile) startListening();
+    }
+}
+
+practiceModeBtn.addEventListener('click', () => setAppMode('practice'));
+testModeBtn.addEventListener('click', () => setAppMode('test'));
 
 // Hear button
 hearBtn.addEventListener('click', () => {
@@ -815,11 +831,6 @@ window.addEventListener('load', async () => {
     updatePlaceholder();
     updateScoreDisplay();
     spellingInput.focus();
-
-    // Auto-select tap mode on mobile
-    if (isMobile) {
-        setMode('speak');
-    }
 });
 
 // Restart button
@@ -953,5 +964,305 @@ resetBtn.addEventListener('click', () => {
         location.reload();
     } else if (password !== null) {
         alert('Incorrect password');
+    }
+});
+
+// ===== PRACTICE MODE (Flashcards) =====
+
+const wordFamilies = {
+    'Silent K': ['know', 'knew'],
+    'Silent W': ['write', 'who', 'whose'],
+    'Silent L': ['walk', 'talk', 'could', 'should', 'would'],
+    'Homophones': ['their', 'there', 'your', 'yours', 'here', 'knew', 'new', 'by', 'for', 'four', 'two', 'one'],
+    'Double Letters': ['all', 'full', 'pull', 'off', 'been', 'good', 'little', 'pretty'],
+    'Tricky Vowels': ['said', 'does', 'once', 'because', 'again', 'many'],
+    'Unusual Sounds': ['laugh', 'pretty', 'come', 'some', 'done', 'give', 'live', 'have'],
+};
+
+const spellingTips = {
+    'know': 'Silent K — say "no" but write K-N-O-W.',
+    'knew': 'Silent K — like "know" in the past. K-N-E-W.',
+    'write': 'Silent W — you don\'t hear it but it\'s there! W-R-I-T-E.',
+    'who': 'Silent W — sounds like "hoo" but starts with W-H.',
+    'whose': 'Silent W — W-H-O-S-E. Think: who + se.',
+    'walk': 'Silent L — you don\'t say the L! W-A-L-K.',
+    'talk': 'Silent L — same family as walk. T-A-L-K.',
+    'could': 'Silent L — C-O-U-L-D. Remember: O-U-L-D family.',
+    'should': 'Silent L — S-H-O-U-L-D. Same pattern as could/would.',
+    'would': 'Silent L — W-O-U-L-D. Same pattern as could/should.',
+    'their': 'Means "belonging to them." T-H-E-I-R has "heir" in it.',
+    'there': 'A place. T-H-E-R-E has "here" in it!',
+    'your': 'Belongs to you. Y-O-U-R has "you" in it.',
+    'yours': 'Your + S. Y-O-U-R-S.',
+    'here': 'A place — "here" has "her" in it but means a place.',
+    'by': 'Just two letters: B-Y. Short and sweet!',
+    'for': 'Three letters: F-O-R. Not "four" the number!',
+    'four': 'The number 4. F-O-U-R has a U in it.',
+    'two': 'The number 2. T-W-O — silent W!',
+    'one': 'The number 1. O-N-E — sounds like "wun."',
+    'new': 'N-E-W. Rhymes with "few."',
+    'all': 'Double L — A-L-L.',
+    'full': 'Double L — F-U-L-L.',
+    'pull': 'Double L — P-U-L-L. Like "full" but with P.',
+    'off': 'Double F — O-F-F.',
+    'been': 'Double E — B-E-E-N. Has "bee" in it!',
+    'good': 'Double O — G-O-O-D.',
+    'little': 'Double T — L-I-T-T-L-E.',
+    'pretty': 'P-R-E-T-T-Y. Double T! The E sounds like "ih."',
+    'said': 'S-A-I-D. The AI sounds like "eh" — tricky!',
+    'does': 'D-O-E-S. The OE sounds like "uh."',
+    'once': 'O-N-C-E. Sounds like "wunce" but starts with O.',
+    'because': 'B-E-C-A-U-S-E. Big Elephants Can Always Understand Small Elephants!',
+    'again': 'A-G-A-I-N. The AI sounds like "eh."',
+    'many': 'M-A-N-Y. The A sounds like "eh."',
+    'laugh': 'L-A-U-G-H. The GH sounds like F!',
+    'come': 'C-O-M-E. The O sounds like "uh."',
+    'some': 'S-O-M-E. Same pattern as come.',
+    'done': 'D-O-N-E. Same sound pattern as come/some.',
+    'give': 'G-I-V-E. Short I sound.',
+    'live': 'L-I-V-E. Same pattern as give.',
+    'have': 'H-A-V-E. Ends with silent E.',
+    'they': 'T-H-E-Y. The EY says "ay."',
+    'just': 'J-U-S-T. Sound it out!',
+    'you': 'Y-O-U. Three letters for "yoo."',
+    'only': 'O-N-L-Y. Sounds like "own-lee."',
+    'always': 'A-L-W-A-Y-S. All + ways!',
+    'under': 'U-N-D-E-R. Sound it out!',
+    'say': 'S-A-Y. Rhymes with day, play, way.',
+    'and': 'A-N-D. Nice and short!',
+    'look': 'L-O-O-K. Double O!',
+    'see': 'S-E-E. Double E!',
+    'like': 'L-I-K-E. Silent E at the end.',
+    'put': 'P-U-T. Sounds like "poot" — rhymes with foot!',
+    'those': 'T-H-O-S-E. Like "the" + "ose."',
+    'after': 'A-F-T-E-R. Sound it out!',
+    'first': 'F-I-R-S-T. Sound it out!',
+    'far': 'F-A-R. Just three letters.',
+    'down': 'D-O-W-N. Rhymes with town.',
+    'she': 'S-H-E. Just three letters.',
+    'not': 'N-O-T. Short and simple!',
+    'thank': 'T-H-A-N-K. Starts with TH.',
+    'the': 'T-H-E. Most common word!',
+    'was': 'W-A-S. Sounds like "woz."',
+    'please': 'P-L-E-A-S-E. Ends with silent E.',
+    'start': 'S-T-A-R-T. Starts and ends with T/ST.',
+    "don't": "D-O-N-'-T. Don + apostrophe + T.",
+    'want': 'W-A-N-T. Sound it out!',
+    'think': 'T-H-I-N-K. TH + ink!',
+    'why': 'W-H-Y. Starts with WH.',
+    'play': 'P-L-A-Y. Rhymes with say, day.',
+    'has': 'H-A-S. Just three letters.',
+    'go': 'G-O. Just two letters!',
+    'cold': 'C-O-L-D. Rhymes with old, gold.',
+    'find': 'F-I-N-D. Rhymes with kind, mind.',
+    'every': 'E-V-E-R-Y. Starts with "ever."',
+    'soon': 'S-O-O-N. Double O!',
+    'where': 'W-H-E-R-E. Has "here" in it + W.',
+    'got': 'G-O-T. Rhymes with hot, not.',
+    'hurt': 'H-U-R-T. Sound it out!',
+    'now': 'N-O-W. Rhymes with how, cow.',
+    'way': 'W-A-Y. Rhymes with say, play, day.',
+    'be': 'B-E. Just two letters!',
+    'had': 'H-A-D. Rhymes with sad, dad.',
+    'help': 'H-E-L-P. Sound it out!',
+    'these': 'T-H-E-S-E. Like "the" + S + E.',
+    'how': 'H-O-W. Rhymes with now, cow.',
+    'his': 'H-I-S. Just three letters.',
+    'three': 'T-H-R-E-E. Double E!',
+    'words': 'W-O-R-D-S. Sound it out!',
+    'any': 'A-N-Y. The A sounds like "eh."',
+    'her': 'H-E-R. Just three letters.',
+    'on': 'O-N. Just two letters!',
+    'use': 'U-S-E. Silent E at the end.',
+    'work': 'W-O-R-K. Sounds like "wurk."',
+    'were': 'W-E-R-E. Sounds like "wur."',
+    'old': 'O-L-D. Rhymes with cold, gold.',
+    'very': 'V-E-R-Y. Sound it out!',
+    'from': 'F-R-O-M. Sound it out!',
+    'over': 'O-V-E-R. Sound it out!',
+    'what': 'W-H-A-T. Starts with WH.',
+};
+
+let practiceCards = [];
+let practiceIndex = 0;
+
+function getFamilyForWord(word) {
+    for (const [family, members] of Object.entries(wordFamilies)) {
+        if (members.includes(word)) return { name: family, words: members };
+    }
+    return null;
+}
+
+function loadPracticeCards() {
+    const flashcard = document.getElementById('flashcard');
+    const flashcardNav = document.getElementById('flashcardNav');
+    const flashcardEmpty = document.getElementById('flashcardEmpty');
+    const flashcardFamily = document.getElementById('flashcardFamily');
+
+    // Try current session wrong words first
+    const wrongFromSession = resultsArray.filter(r => !r.isCorrect);
+    if (wrongFromSession.length > 0) {
+        practiceCards = wrongFromSession;
+        practiceIndex = 0;
+        flashcardEmpty.style.display = 'none';
+        flashcard.style.display = '';
+        flashcardNav.style.display = wrongFromSession.length > 1 ? 'flex' : 'none';
+        showFlashcard();
+        return;
+    }
+
+    // Fall back to latest report from Firebase
+    if (typeof db !== 'undefined') {
+        db.ref('reports/niko').orderByKey().limitToLast(1).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (!data) {
+                    flashcardEmpty.style.display = '';
+                    flashcard.style.display = 'none';
+                    flashcardNav.style.display = 'none';
+                    flashcardFamily.style.display = 'none';
+                    return;
+                }
+                const report = Object.values(data)[0];
+                const wrongWords = (report.results || []).filter(r => !r.isCorrect);
+                if (wrongWords.length === 0) {
+                    flashcardEmpty.innerHTML = '<p>No wrong words!</p><p>Great job, Niko! 🎉</p>';
+                    flashcardEmpty.style.display = '';
+                    flashcard.style.display = 'none';
+                    flashcardNav.style.display = 'none';
+                    flashcardFamily.style.display = 'none';
+                    return;
+                }
+                practiceCards = wrongWords;
+                practiceIndex = 0;
+                flashcardEmpty.style.display = 'none';
+                flashcard.style.display = '';
+                flashcardNav.style.display = wrongWords.length > 1 ? 'flex' : 'none';
+                showFlashcard();
+            })
+            .catch(() => {
+                flashcardEmpty.style.display = '';
+                flashcard.style.display = 'none';
+                flashcardNav.style.display = 'none';
+                flashcardFamily.style.display = 'none';
+            });
+    } else {
+        flashcardEmpty.style.display = '';
+        flashcard.style.display = 'none';
+        flashcardNav.style.display = 'none';
+        flashcardFamily.style.display = 'none';
+    }
+}
+
+function showFlashcard() {
+    const card = practiceCards[practiceIndex];
+    const word = card.word;
+    const typed = card.typed;
+
+    // Word with individual letter spans
+    const wordEl = document.getElementById('flashcardWord');
+    wordEl.innerHTML = word.split('').map(l => `<span class="letter">${l}</span>`).join('');
+
+    // Speaker
+    document.getElementById('flashcardSpeaker').onclick = () => speakFlashcard(word);
+
+    // Sentence with word highlighted
+    const sentenceEl = document.getElementById('flashcardSentence');
+    const sentence = wordSentences[word] || '';
+    if (sentence) {
+        const regex = new RegExp(`(${word})`, 'gi');
+        sentenceEl.innerHTML = sentence.replace(regex, '<span class="word-highlight">$1</span>');
+    } else {
+        sentenceEl.innerHTML = '';
+    }
+
+    // Mistake
+    const mistakeEl = document.getElementById('flashcardMistake');
+    mistakeEl.textContent = typed ? `You typed: "${typed}"` : '';
+
+    // Tip
+    const tipEl = document.getElementById('flashcardTip');
+    tipEl.textContent = spellingTips[word] || explainMistake(typed || '', word);
+
+    // Clear spell animation
+    document.getElementById('flashcardSpell').textContent = '';
+
+    // Counter
+    document.getElementById('flashcardCounter').textContent = `${practiceIndex + 1} / ${practiceCards.length}`;
+
+    // Nav buttons
+    document.getElementById('flashcardPrev').disabled = practiceIndex === 0;
+    document.getElementById('flashcardNext').disabled = practiceIndex === practiceCards.length - 1;
+
+    // Word family
+    const familyEl = document.getElementById('flashcardFamily');
+    const family = getFamilyForWord(word);
+    if (family) {
+        familyEl.style.display = '';
+        familyEl.innerHTML = `<div class="flashcard-family-label">${family.name}</div><div class="flashcard-family-words">${family.words.map(w => `<span class="flashcard-family-word">${w}</span>`).join('')}</div>`;
+    } else {
+        familyEl.style.display = 'none';
+    }
+
+    // Auto-speak and animate
+    speakFlashcard(word);
+}
+
+function speakFlashcard(word) {
+    synth.cancel();
+    const letters = document.querySelectorAll('#flashcardWord .letter');
+    const spellEl = document.getElementById('flashcardSpell');
+
+    // Speak the word
+    const wordUtterance = new SpeechSynthesisUtterance(word);
+    wordUtterance.rate = 0.8;
+    wordUtterance.pitch = 1.0;
+    const voice = getVoice();
+    if (voice) wordUtterance.voice = voice;
+
+    wordUtterance.onend = () => {
+        // Animate letter by letter
+        let i = 0;
+        spellEl.textContent = '';
+        const interval = setInterval(() => {
+            if (i >= letters.length) {
+                clearInterval(interval);
+                // Speak the word once more after spelling
+                setTimeout(() => {
+                    const again = new SpeechSynthesisUtterance(word);
+                    again.rate = 0.85;
+                    if (voice) again.voice = voice;
+                    synth.speak(again);
+                }, 400);
+                return;
+            }
+            // Highlight current letter
+            letters.forEach(l => l.classList.remove('highlight'));
+            letters[i].classList.add('highlight');
+            // Speak the letter
+            const letterUtterance = new SpeechSynthesisUtterance(word[i].toUpperCase());
+            letterUtterance.rate = 0.7;
+            if (voice) letterUtterance.voice = voice;
+            synth.speak(letterUtterance);
+            spellEl.textContent += word[i].toUpperCase() + ' ';
+            i++;
+        }, 600);
+    };
+
+    synth.speak(wordUtterance);
+}
+
+// Flashcard navigation
+document.getElementById('flashcardPrev').addEventListener('click', () => {
+    if (practiceIndex > 0) {
+        practiceIndex--;
+        showFlashcard();
+    }
+});
+
+document.getElementById('flashcardNext').addEventListener('click', () => {
+    if (practiceIndex < practiceCards.length - 1) {
+        practiceIndex++;
+        showFlashcard();
     }
 });

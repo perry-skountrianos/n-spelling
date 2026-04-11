@@ -242,14 +242,13 @@ hearBtn.addEventListener('click', () => {
 });
 
 function updateHearBtn() {
+    // Icon stays as speaker, only title changes
+    hearBtn.textContent = '🔊';
     if (!hasHeardWord) {
-        hearBtn.textContent = '🔊';
         hearBtn.title = 'Hear Word';
     } else if (!hasAnswered) {
-        hearBtn.textContent = '🔁';
         hearBtn.title = 'Repeat';
     } else {
-        hearBtn.textContent = '➡️';
         hearBtn.title = 'Next Word';
     }
 }

@@ -33,6 +33,7 @@ const resetBtn = document.getElementById('resetBtn');
 const gearBtn = document.getElementById('gearBtn');
 const gearDropdown = document.getElementById('gearDropdown');
 const viewReportsBtn = document.getElementById('viewReportsBtn');
+const practiceWordsToggle = document.getElementById('practiceWordsToggle');
 const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
@@ -43,6 +44,11 @@ const practiceContent = document.getElementById('practiceContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
+let practiceScope = localStorage.getItem('practiceScope') || 'wrong'; // 'all' or 'wrong'
+
+function updatePracticeToggleLabel() {
+    practiceWordsToggle.textContent = practiceScope === 'all' ? '✅ All Words' : '📝 All Words';
+}
 
 // Initialize speech synthesis
 const synth = window.speechSynthesis;
@@ -967,6 +973,16 @@ resetBtn.addEventListener('click', () => {
     }
 });
 
+// Practice scope toggle (All Words / Wrong Words)
+updatePracticeToggleLabel();
+practiceWordsToggle.addEventListener('click', () => {
+    practiceScope = practiceScope === 'all' ? 'wrong' : 'all';
+    localStorage.setItem('practiceScope', practiceScope);
+    updatePracticeToggleLabel();
+    if (appMode === 'practice') loadPracticeCards();
+    gearDropdown.classList.remove('show');
+});
+
 // ===== PRACTICE MODE (Flashcards) =====
 
 const wordFamilies = {
@@ -1099,15 +1115,34 @@ function loadPracticeCards() {
     const flashcardEmpty = document.getElementById('flashcardEmpty');
     const flashcardFamily = document.getElementById('flashcardFamily');
 
-    // Try current session wrong words first
-    const wrongFromSession = resultsArray.filter(r => !r.isCorrect);
-    if (wrongFromSession.length > 0) {
-        practiceCards = wrongFromSession;
+    function showCards(cards) {
+        if (cards.length === 0) {
+            flashcardEmpty.innerHTML = '<p>No wrong words!</p><p>Great job, Niko! 🎉</p>';
+            flashcardEmpty.style.display = '';
+            flashcard.style.display = 'none';
+            flashcardNav.style.display = 'none';
+            flashcardFamily.style.display = 'none';
+            return;
+        }
+        practiceCards = cards;
         practiceIndex = 0;
         flashcardEmpty.style.display = 'none';
         flashcard.style.display = '';
-        flashcardNav.style.display = wrongFromSession.length > 1 ? 'flex' : 'none';
+        flashcardNav.style.display = cards.length > 1 ? 'flex' : 'none';
         showFlashcard();
+    }
+
+    // "All words" mode
+    if (practiceScope === 'all') {
+        const allCards = words.map(w => ({ word: w, typed: null }));
+        showCards(allCards);
+        return;
+    }
+
+    // "Wrong words" mode — try current session first
+    const wrongFromSession = resultsArray.filter(r => !r.isCorrect);
+    if (wrongFromSession.length > 0) {
+        showCards(wrongFromSession);
         return;
     }
 
@@ -1117,6 +1152,7 @@ function loadPracticeCards() {
             .then(snapshot => {
                 const data = snapshot.val();
                 if (!data) {
+                    flashcardEmpty.innerHTML = '<p>No wrong words to practice yet.</p><p>Complete a test first!</p>';
                     flashcardEmpty.style.display = '';
                     flashcard.style.display = 'none';
                     flashcardNav.style.display = 'none';
@@ -1125,20 +1161,7 @@ function loadPracticeCards() {
                 }
                 const report = Object.values(data)[0];
                 const wrongWords = (report.results || []).filter(r => !r.isCorrect);
-                if (wrongWords.length === 0) {
-                    flashcardEmpty.innerHTML = '<p>No wrong words!</p><p>Great job, Niko! 🎉</p>';
-                    flashcardEmpty.style.display = '';
-                    flashcard.style.display = 'none';
-                    flashcardNav.style.display = 'none';
-                    flashcardFamily.style.display = 'none';
-                    return;
-                }
-                practiceCards = wrongWords;
-                practiceIndex = 0;
-                flashcardEmpty.style.display = 'none';
-                flashcard.style.display = '';
-                flashcardNav.style.display = wrongWords.length > 1 ? 'flex' : 'none';
-                showFlashcard();
+                showCards(wrongWords);
             })
             .catch(() => {
                 flashcardEmpty.style.display = '';
@@ -1182,7 +1205,7 @@ function showFlashcard() {
 
     // Tip
     const tipEl = document.getElementById('flashcardTip');
-    tipEl.textContent = spellingTips[word] || explainMistake(typed || '', word);
+    tipEl.textContent = spellingTips[word] || (typed ? explainMistake(typed, word) : '');
 
     // Clear spell animation
     document.getElementById('flashcardSpell').textContent = '';
@@ -1212,42 +1235,53 @@ function speakFlashcard(word) {
     synth.cancel();
     const letters = document.querySelectorAll('#flashcardWord .letter');
     const spellEl = document.getElementById('flashcardSpell');
+    const voice = getVoice();
 
-    // Speak the word
+    // Speak the word first
     const wordUtterance = new SpeechSynthesisUtterance(word);
     wordUtterance.rate = 0.8;
     wordUtterance.pitch = 1.0;
-    const voice = getVoice();
     if (voice) wordUtterance.voice = voice;
 
     wordUtterance.onend = () => {
-        // Animate letter by letter
-        let i = 0;
+        // Spell letter by letter, chained via onend
         spellEl.textContent = '';
-        const interval = setInterval(() => {
-            if (i >= letters.length) {
-                clearInterval(interval);
-                // Speak the word once more after spelling
-                setTimeout(() => {
-                    const again = new SpeechSynthesisUtterance(word);
-                    again.rate = 0.85;
-                    if (voice) again.voice = voice;
-                    synth.speak(again);
-                }, 400);
-                return;
-            }
-            // Highlight current letter
-            letters.forEach(l => l.classList.remove('highlight'));
-            letters[i].classList.add('highlight');
-            // Speak the letter
-            const letterUtterance = new SpeechSynthesisUtterance(word[i].toUpperCase());
-            letterUtterance.rate = 0.7;
-            if (voice) letterUtterance.voice = voice;
-            synth.speak(letterUtterance);
-            spellEl.textContent += word[i].toUpperCase() + ' ';
-            i++;
-        }, 600);
+        letters.forEach(l => l.classList.remove('highlight'));
+        speakLetterAt(0);
     };
+
+    function speakLetterAt(i) {
+        if (i >= letters.length) {
+            // All letters done — speak the word again
+            setTimeout(() => {
+                const again = new SpeechSynthesisUtterance(word);
+                again.rate = 0.85;
+                if (voice) again.voice = voice;
+                again.onend = () => {
+                    // Speak the sentence
+                    const sentence = wordSentences[word];
+                    if (sentence) {
+                        const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
+                        sentenceUtterance.rate = 0.9;
+                        if (voice) sentenceUtterance.voice = voice;
+                        synth.speak(sentenceUtterance);
+                    }
+                };
+                synth.speak(again);
+            }, 300);
+            return;
+        }
+        // Highlight current letter
+        letters.forEach(l => l.classList.remove('highlight'));
+        letters[i].classList.add('highlight');
+        spellEl.textContent += word[i].toUpperCase() + ' ';
+        // Speak the letter
+        const letterUtterance = new SpeechSynthesisUtterance(word[i].toUpperCase());
+        letterUtterance.rate = 0.7;
+        if (voice) letterUtterance.voice = voice;
+        letterUtterance.onend = () => speakLetterAt(i + 1);
+        synth.speak(letterUtterance);
+    }
 
     synth.speak(wordUtterance);
 }

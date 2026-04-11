@@ -73,6 +73,7 @@ const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
 let practiceScope = localStorage.getItem('practiceScope') || 'wrong'; // 'all' or 'wrong'
+let showCelebration = localStorage.getItem('showCelebration') !== 'false'; // default true
 
 function updatePracticeToggleLabel() {
     practiceWordsToggle.textContent = practiceScope === 'all' ? '✅ All Words' : '📝 All Words';
@@ -672,7 +673,9 @@ function checkSpelling() {
         hasAnswered = true;
         updatePlaceholder();
         spellingInput.disabled = true;
-        showSnakeCelebration();
+        if (showCelebration) {
+            showSnakeCelebration();
+        }
         setTimeout(() => {
             spellingInput.disabled = false;
             spellingInput.focus();
@@ -1011,6 +1014,19 @@ resetBtn.addEventListener('click', () => {
     } else if (password !== null) {
         alert('Incorrect password');
     }
+});
+
+// Celebration toggle
+const celebrationToggle = document.getElementById('celebrationToggle');
+function updateCelebrationToggleLabel() {
+    celebrationToggle.textContent = showCelebration ? '✅ Celebration' : '❌ Celebration';
+}
+updateCelebrationToggleLabel();
+celebrationToggle.addEventListener('click', () => {
+    showCelebration = !showCelebration;
+    localStorage.setItem('showCelebration', showCelebration);
+    updateCelebrationToggleLabel();
+    gearDropdown.classList.remove('show');
 });
 
 // Practice scope toggle (All Words / Wrong Words)

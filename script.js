@@ -1326,14 +1326,26 @@ function speakFlashcard(word) {
                 again.onend = () => {
                     // Speak the sentence
                     const sentence = wordSentences[word];
+                    const tip = spellingTips[word];
+                    const speakTip = () => {
+                        if (tip) {
+                            const tipUtterance = new SpeechSynthesisUtterance(tip);
+                            tipUtterance.rate = 0.9;
+                            if (voice) tipUtterance.voice = voice;
+                            tipUtterance.onend = () => advanceSlideshow();
+                            synth.speak(tipUtterance);
+                        } else {
+                            advanceSlideshow();
+                        }
+                    };
                     if (sentence) {
                         const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
                         sentenceUtterance.rate = 0.9;
                         if (voice) sentenceUtterance.voice = voice;
-                        sentenceUtterance.onend = () => advanceSlideshow();
+                        sentenceUtterance.onend = speakTip;
                         synth.speak(sentenceUtterance);
                     } else {
-                        advanceSlideshow();
+                        speakTip();
                     }
                 };
                 synth.speak(again);

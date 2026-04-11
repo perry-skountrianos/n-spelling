@@ -1094,13 +1094,6 @@ h1 {
     line-height: 1.5;
 }
 
-.flashcard-spell {
-    font-size: 14px;
-    color: #999;
-    letter-spacing: 2px;
-    min-height: 20px;
-}
-
 .flashcard-nav {
     display: flex;
     align-items: center;

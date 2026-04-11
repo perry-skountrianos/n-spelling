@@ -1211,9 +1211,6 @@ function showFlashcard() {
     const tipEl = document.getElementById('flashcardTip');
     tipEl.textContent = spellingTips[word] || (typed ? explainMistake(typed, word) : '');
 
-    // Clear spell animation
-    document.getElementById('flashcardSpell').textContent = '';
-
     // Counter
     document.getElementById('flashcardCounter').textContent = `${practiceIndex + 1} / ${practiceCards.length}`;
 
@@ -1238,7 +1235,6 @@ function showFlashcard() {
 function speakFlashcard(word) {
     synth.cancel();
     const letters = document.querySelectorAll('#flashcardWord .letter');
-    const spellEl = document.getElementById('flashcardSpell');
     const voice = getVoice();
 
     // Speak the word first
@@ -1249,7 +1245,6 @@ function speakFlashcard(word) {
 
     wordUtterance.onend = () => {
         // Spell letter by letter, chained via onend
-        spellEl.textContent = '';
         letters.forEach(l => l.classList.remove('highlight'));
         speakLetterAt(0);
     };
@@ -1283,7 +1278,6 @@ function speakFlashcard(word) {
         // Highlight current letter
         letters.forEach(l => l.classList.remove('highlight'));
         letters[i].classList.add('highlight');
-        spellEl.textContent += word[i].toUpperCase() + ' ';
         // Speak the letter
         const letterUtterance = new SpeechSynthesisUtterance(word[i].toUpperCase());
         letterUtterance.rate = 0.7;

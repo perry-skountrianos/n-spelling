@@ -296,8 +296,6 @@ body {
     flex-shrink: 0;
     transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
-    align-self: flex-end;
-    margin-bottom: 4px;
 }
 
 .hear-btn:hover {

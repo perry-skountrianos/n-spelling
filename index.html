@@ -43,26 +43,53 @@
             </div>
 
             <div class="mode-toggle">
-                <button class="mode-btn active" id="typeModeBtn" data-mode="type">Type</button>
-                <button class="mode-btn" id="speakModeBtn" data-mode="speak">Speak</button>
+                <button class="mode-btn" id="practiceModeBtn">Practice</button>
+                <button class="mode-btn active" id="testModeBtn">Test</button>
             </div>
 
-            <button class="hear-btn" id="hearBtn">🔊 Hear Word</button>
+            <!-- Test mode content -->
+            <div id="testContent">
+                <button class="hear-btn" id="hearBtn">🔊 Hear Word</button>
 
-            <div class="input-section">
-                <input 
-                    type="text" 
-                    id="spellingInput" 
-                    placeholder="Press Enter to hear"
-                    autocomplete="off"
-                >
+                <div class="input-section">
+                    <input 
+                        type="text" 
+                        id="spellingInput" 
+                        placeholder="Press Enter to hear"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="results-display" id="resultsDisplay"></div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <button class="restart-btn" id="restartBtn" style="display: none;">Start Over</button>
             </div>
 
-            <div class="results-display" id="resultsDisplay"></div>
-
-            <div class="feedback" id="feedback"></div>
-
-            <button class="restart-btn" id="restartBtn" style="display: none;">Start Over</button>
+            <!-- Practice mode content -->
+            <div id="practiceContent" style="display: none;">
+                <div class="flashcard-container">
+                    <div class="flashcard-empty" id="flashcardEmpty">
+                        <p>No wrong words to practice yet.</p>
+                        <p>Complete a test first!</p>
+                    </div>
+                    <div class="flashcard" id="flashcard" style="display: none;">
+                        <div class="flashcard-word" id="flashcardWord"></div>
+                        <button class="flashcard-speaker" id="flashcardSpeaker" title="Hear word">🔊</button>
+                        <div class="flashcard-sentence" id="flashcardSentence"></div>
+                        <div class="flashcard-mistake" id="flashcardMistake"></div>
+                        <div class="flashcard-tip" id="flashcardTip"></div>
+                        <div class="flashcard-spell" id="flashcardSpell"></div>
+                    </div>
+                    <div class="flashcard-nav" id="flashcardNav" style="display: none;">
+                        <button class="flashcard-arrow" id="flashcardPrev">←</button>
+                        <span class="flashcard-counter" id="flashcardCounter">1 / 5</span>
+                        <button class="flashcard-arrow" id="flashcardNext">→</button>
+                    </div>
+                    <div class="flashcard-family" id="flashcardFamily" style="display: none;"></div>
+                </div>
+            </div>
         </div>
 
         <div class="results-section" id="resultsSection" style="display: none;">

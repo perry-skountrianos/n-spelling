@@ -1012,11 +1012,23 @@ resetBtn.addEventListener('click', () => {
 // Practice scope toggle (All Words / Wrong Words)
 updatePracticeToggleLabel();
 practiceWordsToggle.addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+    const password = prompt('Parent password:');
+    if (password !== 'read123') {
+        if (password !== null) alert('Incorrect password');
+        return;
+    }
     practiceScope = practiceScope === 'all' ? 'wrong' : 'all';
     localStorage.setItem('practiceScope', practiceScope);
     updatePracticeToggleLabel();
-    if (appMode === 'practice') loadPracticeCards();
-    gearDropdown.classList.remove('show');
+    loadWordsForScope().then(() => {
+        if (appMode === 'practice') {
+            loadPracticeCards();
+        } else {
+            clearProgress();
+            restartGame();
+        }
+    });
 });
 
 // ===== PRACTICE MODE (Flashcards) =====

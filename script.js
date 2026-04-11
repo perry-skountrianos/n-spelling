@@ -30,6 +30,12 @@ const saveReportBtn = document.getElementById('saveReportBtn');
 const resultsDisplay = document.getElementById('resultsDisplay');
 const scoreDisplay = document.getElementById('scoreDisplay');
 const resetBtn = document.getElementById('resetBtn');
+const gearBtn = document.getElementById('gearBtn');
+const gearDropdown = document.getElementById('gearDropdown');
+const viewReportsBtn = document.getElementById('viewReportsBtn');
+const reportsOverlay = document.getElementById('reportsOverlay');
+const reportsList = document.getElementById('reportsList');
+const reportsCloseBtn = document.getElementById('reportsCloseBtn');
 const typeModeBtn = document.getElementById('typeModeBtn');
 const speakModeBtn = document.getElementById('speakModeBtn');
 const hearBtn = document.getElementById('hearBtn');
@@ -824,64 +830,131 @@ function saveReport() {
     const correctCount = resultsArray.filter(r => r.isCorrect).length;
     const wrongCount = totalAttempts - correctCount;
     const percentage = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 0;
-    const today = new Date();
-    const dateString = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
 
-    let text = `Niko's Spelling Report\n`;
-    text += `${'='.repeat(30)}\n`;
-    text += `Date: ${dateString} at ${timeString}\n`;
-    text += `Score: ${correctCount} / ${totalAttempts} (${percentage}%)\n`;
-    text += `Correct: ${correctCount}  |  Wrong: ${wrongCount}\n`;
-    text += `${'='.repeat(30)}\n\n`;
+    const reportData = {
+        date: now.toISOString(),
+        totalWords: totalAttempts,
+        correct: correctCount,
+        wrong: wrongCount,
+        percentage: percentage,
+        results: resultsArray.map(r => ({
+            word: r.word,
+            typed: r.typed,
+            isCorrect: r.isCorrect
+        }))
+    };
 
-    const wrongResults = resultsArray.filter(r => !r.isCorrect);
-    if (wrongResults.length > 0) {
-        text += `Words to Practice:\n`;
-        text += `${'-'.repeat(30)}\n`;
-        wrongResults.forEach((r, i) => {
-            text += `${i + 1}. ${r.word} (typed: ${r.typed})\n`;
-        });
-        text += `\n`;
-    }
-
-    const correctResults = resultsArray.filter(r => r.isCorrect);
-    if (correctResults.length > 0) {
-        text += `Words Spelled Correctly:\n`;
-        text += `${'-'.repeat(30)}\n`;
-        correctResults.forEach((r, i) => {
-            text += `${i + 1}. ${r.word}\n`;
-        });
-    }
-
-    // Try native share on mobile, otherwise download
-    const fileName = `niko-spelling-${today.toISOString().slice(0, 10)}.txt`;
-    if (navigator.share && isMobile) {
-        const file = new File([text], fileName, { type: 'text/plain' });
-        navigator.share({
-            title: "Niko's Spelling Report",
-            text: text,
-            files: [file]
-        }).catch(() => downloadReport(text, fileName));
+    if (typeof db !== 'undefined') {
+        const reportId = now.getTime().toString();
+        db.ref('reports/niko/' + reportId).set(reportData)
+            .then(() => {
+                saveReportBtn.textContent = '✓ Saved!';
+                saveReportBtn.disabled = true;
+                setTimeout(() => {
+                    saveReportBtn.textContent = 'Save Report';
+                    saveReportBtn.disabled = false;
+                }, 3000);
+            })
+            .catch(e => {
+                console.warn('Firebase report save failed:', e);
+                alert('Could not save report. Try again.');
+            });
     } else {
-        downloadReport(text, fileName);
+        alert('Firebase not available. Report could not be saved.');
     }
 }
 
-function downloadReport(text, fileName) {
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+// Gear menu
+gearBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    gearDropdown.classList.toggle('show');
+});
+
+document.addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+});
+
+gearDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+// View reports
+viewReportsBtn.addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+    reportsOverlay.style.display = 'flex';
+    loadReports();
+});
+
+reportsCloseBtn.addEventListener('click', () => {
+    reportsOverlay.style.display = 'none';
+});
+
+function loadReports() {
+    reportsList.innerHTML = '<p class="reports-loading">Loading reports...</p>';
+
+    if (typeof db === 'undefined') {
+        reportsList.innerHTML = '<p class="reports-loading">Firebase not available.</p>';
+        return;
+    }
+
+    db.ref('reports/niko').orderByKey().once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                reportsList.innerHTML = '<p class="reports-loading">No reports saved yet.</p>';
+                return;
+            }
+
+            const reports = Object.entries(data).sort((a, b) => b[0] - a[0]);
+            reportsList.innerHTML = '';
+
+            reports.forEach(([id, report]) => {
+                const date = new Date(report.date);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                const card = document.createElement('div');
+                card.className = 'report-card';
+                card.innerHTML = `
+                    <div class="report-card-header">
+                        <div class="report-date">${dateStr} at ${timeStr}</div>
+                        <div class="report-score ${report.percentage >= 80 ? 'report-score-good' : report.percentage >= 50 ? 'report-score-ok' : 'report-score-low'}">${report.percentage}%</div>
+                    </div>
+                    <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalWords} words</div>
+                `;
+
+                if (report.results) {
+                    const wrongWords = report.results.filter(r => !r.isCorrect);
+                    if (wrongWords.length > 0) {
+                        const details = document.createElement('details');
+                        details.className = 'report-details';
+                        const summary = document.createElement('summary');
+                        summary.textContent = `Wrong words (${wrongWords.length})`;
+                        details.appendChild(summary);
+
+                        const wordsList = document.createElement('div');
+                        wordsList.className = 'report-words';
+                        wrongWords.forEach(w => {
+                            wordsList.innerHTML += `<div class="report-word-item"><span class="report-word-correct">${w.word}</span> <span class="report-word-typed">typed: ${w.typed}</span></div>`;
+                        });
+                        details.appendChild(wordsList);
+                        card.appendChild(details);
+                    }
+                }
+
+                reportsList.appendChild(card);
+            });
+        })
+        .catch(e => {
+            console.warn('Failed to load reports:', e);
+            reportsList.innerHTML = '<p class="reports-loading">Failed to load reports.</p>';
+        });
 }
 
 // Reset button (parents only)
 resetBtn.addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
     const password = prompt('Parent password to reset all progress:');
     if (password === 'read123') {
         clearProgress();

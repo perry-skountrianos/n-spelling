@@ -1252,7 +1252,9 @@ function speakFlashcard(word) {
 
     function speakLetterAt(i) {
         if (i >= letters.length) {
-            // All letters done — speak the word again
+            // All letters done — remove highlights, all black
+            letters.forEach(l => l.classList.remove('highlight'));
+            // Speak the word again
             setTimeout(() => {
                 const again = new SpeechSynthesisUtterance(word);
                 again.rate = 0.85;

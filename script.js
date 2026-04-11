@@ -817,6 +817,7 @@ const handleInputAction = () => {
 spellingInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
+        if (appMode === 'practice') return;
         handleInputAction();
     }
 });
@@ -846,6 +847,7 @@ spellingInput.addEventListener('input', (e) => {
 // Global Enter key handler (works even if textbox not focused)
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
+        if (appMode === 'practice') return;
         e.preventDefault();
         spellingInput.focus();
         handleInputAction();

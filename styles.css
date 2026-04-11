@@ -282,7 +282,7 @@ body {
 }
 
 .hear-btn {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 72px;
@@ -863,6 +863,7 @@ h1 {
     }
 
     .hear-btn {
+        display: flex;
         width: 56px;
         height: 56px;
         font-size: 28px;

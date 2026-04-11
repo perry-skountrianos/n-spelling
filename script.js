@@ -242,17 +242,15 @@ hearBtn.addEventListener('click', () => {
 });
 
 function updateHearBtn() {
-    if (!isMobile) {
-        hearBtn.style.display = 'none';
-        return;
-    }
-    hearBtn.style.display = 'block';
     if (!hasHeardWord) {
-        hearBtn.textContent = 'Hear Word';
+        hearBtn.textContent = '🔊';
+        hearBtn.title = 'Hear Word';
     } else if (!hasAnswered) {
-        hearBtn.textContent = 'Repeat';
+        hearBtn.textContent = '🔁';
+        hearBtn.title = 'Repeat';
     } else {
-        hearBtn.textContent = 'Next Word';
+        hearBtn.textContent = '➡️';
+        hearBtn.title = 'Next Word';
     }
 }
 

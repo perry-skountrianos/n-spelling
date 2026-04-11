@@ -264,7 +264,7 @@ function getCurrentWord() {
 
 function updatePlaceholder() {
     if (!hasHeardWord) {
-        spellingInput.placeholder = isMobile ? "Tap Hear Word" : "Hit Enter";
+        spellingInput.placeholder = isMobile ? "Type..." : "Hit Enter";
     } else if (!hasAnswered) {
         if (inputMode === 'speak' && !isMobile) {
             spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type...";

@@ -13,6 +13,12 @@
 //            ".read": true,
 //            ".write": true
 //          }
+//        },
+//        "reports": {
+//          "niko": {
+//            ".read": true,
+//            ".write": true
+//          }
 //        }
 //      }
 //    }

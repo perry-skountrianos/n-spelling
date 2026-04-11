@@ -30,7 +30,13 @@
             <span class="donut-label" id="wrongCount">0</span>
         </div>
     </div>
-    <button class="reset-btn" id="resetBtn" title="Parents: click to reset">⚙️</button>
+    <div class="gear-menu-wrapper">
+        <button class="reset-btn" id="gearBtn" title="Settings">⚙️</button>
+        <div class="gear-dropdown" id="gearDropdown">
+            <button class="gear-option" id="viewReportsBtn">📊 Reports</button>
+            <button class="gear-option gear-option-danger" id="resetBtn">🗑️ Reset Progress</button>
+        </div>
+    </div>
     <div class="container">
         <div class="main-content" id="mainContent">
             <div class="word-section">
@@ -73,6 +79,19 @@
 
             <button class="restart-btn" id="saveReportBtn" style="background: #2196f3;">Save Report</button>
             <button class="restart-btn" id="restartBtn2">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Reports overlay -->
+    <div class="reports-overlay" id="reportsOverlay" style="display: none;">
+        <div class="reports-panel">
+            <div class="reports-header">
+                <h2>📊 Spelling Reports</h2>
+                <button class="reports-close" id="reportsCloseBtn">✕</button>
+            </div>
+            <div class="reports-list" id="reportsList">
+                <p class="reports-loading">Loading reports...</p>
+            </div>
         </div>
     </div>
 

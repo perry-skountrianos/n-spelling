@@ -12,6 +12,7 @@
         <h1 class="profile-title">Who's practicing?</h1>
         <div class="profile-list" id="profileList"></div>
         <button class="profile-add-btn" id="addProfileBtn">+ Add Player</button>
+        <button class="profile-delete-btn" id="deleteProfileBtn">Delete a player</button>
     </div>
 
     <div class="score-display" id="scoreDisplay" style="display: none;">
@@ -41,6 +42,7 @@
         <button class="reset-btn" id="gearBtn" title="Settings">⚙️</button>
         <div class="gear-dropdown" id="gearDropdown">
             <button class="gear-option" id="viewReportsBtn">📊 Reports</button>            <button class="gear-option" id="practiceWordsToggle">📝 All Words</button>            <button class="gear-option" id="celebrationToggle">🎉 Celebration</button>            <button class="gear-option" id="switchProfileBtn">👤 Switch Player</button>            <button class="gear-option gear-option-danger" id="resetBtn">🔄 New Session</button>
+            <button class="gear-option" id="wordListsBtn">📝 Word Lists</button>
         </div>
     </div>
     <div class="container" style="display: none;">
@@ -60,7 +62,7 @@
                     <input 
                         type="text" 
                         id="spellingInput" 
-                        placeholder="Press Enter to hear"
+                        placeholder="Hit Enter"
                         autocomplete="off"
                     >
                 </div>
@@ -122,6 +124,42 @@
             </div>
             <div class="reports-list" id="reportsList">
                 <p class="reports-loading">Loading reports...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Word Lists Modal -->
+    <div class="wordlists-overlay" id="wordlistsOverlay" style="display: none;">
+        <div class="wordlists-panel">
+            <div class="wordlists-header">
+                <h2>📝 Word Lists</h2>
+                <button class="wordlists-close" id="wordlistsCloseBtn">✕</button>
+            </div>
+            <div class="wordlists-list" id="wordlistsList"></div>
+            <button class="wordlists-add-btn" id="addWordListBtn">+ Create New List</button>
+        </div>
+    </div>
+
+    <!-- Edit/Create Word List Modal -->
+    <div class="wordlist-edit-overlay" id="wordlistEditOverlay" style="display: none;">
+        <div class="wordlist-edit-panel">
+            <div class="wordlist-edit-header">
+                <h2 id="wordlistEditTitle">Create Word List</h2>
+                <button class="wordlist-edit-close" id="wordlistEditCloseBtn">✕</button>
+            </div>
+            <div class="wordlist-edit-form">
+                <input type="text" id="wordlistNameInput" maxlength="32" placeholder="List name">
+                <div class="wordlist-words-label">Words</div>
+                <div class="wordlist-words-list" id="wordlistWordsList"></div>
+                <div class="wordlist-add-row">
+                    <input type="text" id="newWordInput" maxlength="24" placeholder="Type a word...">
+                    <button type="button" id="addWordBtn">+</button>
+                </div>
+            </div>
+            <div class="wordlist-edit-actions">
+                <button type="button" class="btn-cancel" id="cancelWordListBtn">Cancel</button>
+                <button type="button" class="btn-save" id="saveWordListBtn">Save</button>
             </div>
         </div>
     </div>

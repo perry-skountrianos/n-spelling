@@ -185,6 +185,9 @@ function setAppMode(mode) {
         stopListening();
         loadPracticeCards();
     } else {
+        slideshowPlaying = false;
+        updatePlayButton();
+        synth.cancel();
         spellingInput.focus();
         if (inputMode === 'speak' && !isMobile) startListening();
     }
@@ -1101,6 +1104,7 @@ const spellingTips = {
 
 let practiceCards = [];
 let practiceIndex = 0;
+let slideshowPlaying = false;
 
 function getFamilyForWord(word) {
     for (const [family, members] of Object.entries(wordFamilies)) {
@@ -1266,7 +1270,10 @@ function speakFlashcard(word) {
                         const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
                         sentenceUtterance.rate = 0.9;
                         if (voice) sentenceUtterance.voice = voice;
+                        sentenceUtterance.onend = () => advanceSlideshow();
                         synth.speak(sentenceUtterance);
+                    } else {
+                        advanceSlideshow();
                     }
                 };
                 synth.speak(again);
@@ -1290,6 +1297,8 @@ function speakFlashcard(word) {
 
 // Flashcard navigation
 document.getElementById('flashcardPrev').addEventListener('click', () => {
+    slideshowPlaying = false;
+    updatePlayButton();
     if (practiceIndex > 0) {
         practiceIndex--;
         showFlashcard();
@@ -1297,8 +1306,45 @@ document.getElementById('flashcardPrev').addEventListener('click', () => {
 });
 
 document.getElementById('flashcardNext').addEventListener('click', () => {
+    slideshowPlaying = false;
+    updatePlayButton();
     if (practiceIndex < practiceCards.length - 1) {
         practiceIndex++;
         showFlashcard();
+    }
+});
+
+// Slideshow play/pause
+function advanceSlideshow() {
+    if (!slideshowPlaying) return;
+    if (practiceIndex < practiceCards.length - 1) {
+        setTimeout(() => {
+            if (!slideshowPlaying) return;
+            practiceIndex++;
+            showFlashcard();
+        }, 1500);
+    } else {
+        // Reached end
+        slideshowPlaying = false;
+        updatePlayButton();
+    }
+}
+
+function updatePlayButton() {
+    const btn = document.getElementById('flashcardPlay');
+    btn.textContent = slideshowPlaying ? '❚❚' : '▶';
+    btn.title = slideshowPlaying ? 'Pause' : 'Auto-play';
+}
+
+document.getElementById('flashcardPlay').addEventListener('click', () => {
+    slideshowPlaying = !slideshowPlaying;
+    updatePlayButton();
+    if (slideshowPlaying) {
+        // If speech is not currently playing, start the current card
+        if (!synth.speaking) {
+            showFlashcard();
+        }
+    } else {
+        synth.cancel();
     }
 });

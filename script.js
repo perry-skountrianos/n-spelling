@@ -505,6 +505,13 @@ function speakWord() {
     const voice = getVoice();
     if (voice) wordUtterance.voice = voice;
 
+    // On desktop, allow typing immediately while word is being spoken
+    if (!isMobile) {
+        hasHeardWord = true;
+        updatePlaceholder();
+        spellingInput.focus();
+    }
+
     // Speak the sentence after the word
     const sentence = wordSentences[word];
     if (sentence) {

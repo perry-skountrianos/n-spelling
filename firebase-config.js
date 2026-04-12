@@ -29,6 +29,12 @@
 //            ".read": true,
 //            ".write": true
 //          }
+//        },
+//        "activeWordList": {
+//          "$profile": {
+//            ".read": true,
+//            ".write": true
+//          }
 //        }
 //      }
 //    }

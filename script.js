@@ -60,11 +60,23 @@ async function ensureDefaultWordList(profileId) {
     if (!snapshot.exists()) {
         await ref.child('default').set({ name: 'Red Card Words', words: defaultWords });
     }
-    // Load the default list as current words
-    const defaultSnap = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
-    if (defaultSnap.exists()) {
-        const list = Object.values(defaultSnap.val())[0];
-        const loadedWords = firebaseToArray(list.words);
+    // Load the active list (saved preference) or default to Red Card Words
+    let loadedWords = null;
+    const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');
+    const activeId = activeIdSnap.val();
+    if (activeId) {
+        const activeSnap = await ref.child(activeId).once('value');
+        if (activeSnap.exists()) {
+            loadedWords = firebaseToArray(activeSnap.val().words);
+        }
+    }
+    if (!loadedWords) {
+        const defaultSnap = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
+        if (defaultSnap.exists()) {
+            loadedWords = firebaseToArray(Object.values(defaultSnap.val())[0].words);
+        }
+    }
+    if (loadedWords) {
         allWords.length = 0;
         loadedWords.forEach(w => allWords.push(w));
         words = [...allWords];
@@ -78,7 +90,6 @@ async function ensureDefaultWordList(profileId) {
                 practiceScope = 'all';
                 localStorage.setItem(profileId + '_practiceScope', 'all');
             } else if (!sess) {
-                // No session — ensure scope is all so full word list is used
                 practiceScope = 'all';
                 localStorage.setItem(profileId + '_practiceScope', 'all');
             }
@@ -1909,6 +1920,8 @@ function doLoadWordList(id) {
         loadedWords.forEach(w => allWords.push(w));
         practiceScope = 'all';
         localStorage.setItem(profileKey('practiceScope'), 'all');
+        // Remember active list for next login
+        db.ref('activeWordList/' + currentProfile).set(id);
         clearProgress();
         restartGame();
         wordlistsOverlay.style.display = 'none';
@@ -1945,6 +1958,7 @@ document.getElementById('deleteProfileBtn').addEventListener('click', () => {
             db.ref('reports/' + id).remove();
             db.ref('sessions/' + id).remove();
             db.ref('wordlists/' + id).remove();
+            db.ref('activeWordList/' + id).remove();
             // Clean localStorage
             Object.keys(localStorage).forEach(k => {
                 if (k.startsWith(id + '_')) localStorage.removeItem(k);

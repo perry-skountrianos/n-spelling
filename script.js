@@ -1626,11 +1626,27 @@ function firebaseToArray(val) {
 
 function renderWordLists(lists) {
     wordlistsList.innerHTML = '';
+
+    // Always show current active words as first card
+    const currentCard = document.createElement('div');
+    currentCard.className = 'wordlist-card';
+    currentCard.innerHTML = `
+        <div class="wordlist-info">
+            <div class="wordlist-name">Current Words</div>
+            <div class="wordlist-count">${allWords.length} words</div>
+        </div>
+        <div class="wordlist-actions"></div>
+    `;
+    const currentActions = currentCard.querySelector('.wordlist-actions');
+    const currentEditBtn = document.createElement('button');
+    currentEditBtn.textContent = 'Edit';
+    currentEditBtn.addEventListener('click', () => {
+        showWordListEditModal('edit', '__current__', { name: 'Current Words', words: [...allWords] });
+    });
+    currentActions.appendChild(currentEditBtn);
+    wordlistsList.appendChild(currentCard);
+
     const entries = Object.entries(lists);
-    if (entries.length === 0) {
-        wordlistsList.innerHTML = '<p style="text-align:center;color:#999;padding:20px 0;">No word lists yet.</p>';
-        return;
-    }
     entries.forEach(([id, list]) => {
         const wordsArr = firebaseToArray(list.words);
         const card = document.createElement('div');
@@ -1684,6 +1700,7 @@ function showWordListEditModal(mode, listId, listData) {
     editingWordListMode = mode;
     editingWordListId = listId || null;
     wordlistEditOverlay.style.display = 'flex';
+    wordlistNameInput.readOnly = (listId === '__current__');
     if (mode === 'edit' && listData) {
         wordlistEditTitle.textContent = 'Edit Word List';
         wordlistNameInput.value = listData.name || '';
@@ -1793,6 +1810,19 @@ saveWordListBtn.addEventListener('click', () => {
     const name = wordlistNameInput.value.trim();
     if (!name) { wordlistNameInput.focus(); return; }
     if (editingWordListWords.length === 0) { newWordInput.focus(); return; }
+
+    // Saving current words — update in-memory arrays directly
+    if (editingWordListId === '__current__') {
+        allWords.length = 0;
+        editingWordListWords.forEach(w => allWords.push(w));
+        words = [...allWords];
+        clearProgress();
+        restartGame();
+        hideWordListEditModal();
+        loadWordLists();
+        return;
+    }
+
     if (typeof db === 'undefined' || !currentProfile) return;
 
     const listData = { name: name, words: editingWordListWords };

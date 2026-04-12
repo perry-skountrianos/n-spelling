@@ -75,6 +75,12 @@ async function ensureDefaultWordList(profileId) {
             if (sess && sess.words && sess.words.length !== loadedWords.length) {
                 await db.ref('sessions/' + profileId).remove();
                 localStorage.removeItem(profileId + '_spellingSession');
+                practiceScope = 'all';
+                localStorage.setItem(profileId + '_practiceScope', 'all');
+            } else if (!sess) {
+                // No session — ensure scope is all so full word list is used
+                practiceScope = 'all';
+                localStorage.setItem(profileId + '_practiceScope', 'all');
             }
         } catch(e) {}
     }
@@ -1870,6 +1876,8 @@ function doLoadWordList(id) {
         words = [...loadedWords];
         allWords.length = 0;
         loadedWords.forEach(w => allWords.push(w));
+        practiceScope = 'all';
+        localStorage.setItem(profileKey('practiceScope'), 'all');
         clearProgress();
         restartGame();
         wordlistsOverlay.style.display = 'none';

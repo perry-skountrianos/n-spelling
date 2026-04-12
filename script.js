@@ -86,6 +86,33 @@ async function ensureDefaultWordList(profileId) {
     }
 }
 
+// Build/update "Red Card Words - Mistakes" list from all reports
+async function updateMistakesList(profileId) {
+    if (typeof db === 'undefined') return;
+    const reportsSnap = await db.ref('reports/' + profileId).once('value');
+    const reports = reportsSnap.val();
+    if (!reports) return;
+
+    // Collect unique wrong words from all reports
+    const wrongSet = new Set();
+    Object.values(reports).forEach(report => {
+        (report.results || []).forEach(r => {
+            if (!r.isCorrect) wrongSet.add(r.word.toLowerCase());
+        });
+    });
+    if (wrongSet.size === 0) return;
+
+    // Merge with existing mistakes list (don't lose manually added words)
+    const listRef = db.ref('wordlists/' + profileId + '/mistakes');
+    const existingSnap = await listRef.once('value');
+    const existing = existingSnap.val();
+    const existingWords = existing ? firebaseToArray(existing.words) : [];
+    existingWords.forEach(w => wrongSet.add(w));
+
+    const merged = [...wrongSet].sort();
+    await listRef.set({ name: 'Red Card Words - Mistakes', words: merged });
+}
+
 function selectProfile(profileId) {
     currentProfile = profileId;
     localStorage.setItem('currentProfile', profileId);
@@ -101,7 +128,10 @@ function selectProfile(profileId) {
     document.getElementById('scoreDisplay').style.display = '';
     document.querySelector('.gear-menu-wrapper').style.display = '';
     document.querySelector('.container').style.display = '';
-    ensureDefaultWordList(profileId).then(() => initApp()).catch(() => initApp());
+    ensureDefaultWordList(profileId)
+        .then(() => updateMistakesList(profileId))
+        .then(() => initApp())
+        .catch(() => initApp());
 }
 
 function showProfileScreen() {
@@ -1085,6 +1115,7 @@ function saveReport() {
         db.ref(profileRef('reports') + '/' + reportId).set(reportData)
             .then(() => {
                 console.log('Report saved automatically.');
+                updateMistakesList(currentProfile);
             })
             .catch(e => {
                 console.warn('Firebase report save failed:', e);

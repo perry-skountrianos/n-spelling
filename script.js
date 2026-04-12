@@ -1633,7 +1633,7 @@ function renderWordLists(lists) {
     currentCard.innerHTML = `
         <div class="wordlist-info">
             <div class="wordlist-name">Current Words</div>
-            <div class="wordlist-count">${allWords.length} words</div>
+            <div class="wordlist-count">${allWords.length} word${allWords.length === 1 ? '' : 's'}</div>
         </div>
         <div class="wordlist-actions"></div>
     `;
@@ -1654,7 +1654,7 @@ function renderWordLists(lists) {
         card.innerHTML = `
             <div class="wordlist-info">
                 <div class="wordlist-name">${list.name}</div>
-                <div class="wordlist-count">${wordsArr.length} words</div>
+                <div class="wordlist-count">${wordsArr.length} word${wordsArr.length === 1 ? '' : 's'}</div>
             </div>
             <div class="wordlist-actions"></div>
         `;

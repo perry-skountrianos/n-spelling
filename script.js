@@ -68,6 +68,15 @@ async function ensureDefaultWordList(profileId) {
         allWords.length = 0;
         loadedWords.forEach(w => allWords.push(w));
         words = [...allWords];
+        // Clear stale session if its word count doesn't match
+        try {
+            const sessSnap = await db.ref('sessions/' + profileId).once('value');
+            const sess = sessSnap.val();
+            if (sess && sess.words && sess.words.length !== loadedWords.length) {
+                await db.ref('sessions/' + profileId).remove();
+                localStorage.removeItem(profileId + '_spellingSession');
+            }
+        } catch(e) {}
     }
 }
 

@@ -23,6 +23,12 @@
 //        "profiles": {
 //          ".read": true,
 //          ".write": true
+//        },
+//        "wordlists": {
+//          "$profile": {
+//            ".read": true,
+//            ".write": true
+//          }
 //        }
 //      }
 //    }

@@ -1,5 +1,6 @@
 // The words list is loaded from words.js
 const allWords = [...words]; // keep a copy of the full list
+const defaultWords = [...words]; // immutable copy of the original Red Card Words
 
 // Profile management
 let currentProfile = localStorage.getItem('currentProfile') || '';
@@ -51,6 +52,25 @@ function renderProfiles(profiles) {
     });
 }
 
+// Ensure "Red Card Words" default list exists in Firebase for the profile
+async function ensureDefaultWordList(profileId) {
+    if (typeof db === 'undefined') return;
+    const ref = db.ref('wordlists/' + profileId);
+    const snapshot = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
+    if (!snapshot.exists()) {
+        await ref.child('default').set({ name: 'Red Card Words', words: defaultWords });
+    }
+    // Load the default list as current words
+    const defaultSnap = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
+    if (defaultSnap.exists()) {
+        const list = Object.values(defaultSnap.val())[0];
+        const loadedWords = firebaseToArray(list.words);
+        allWords.length = 0;
+        loadedWords.forEach(w => allWords.push(w));
+        words = [...allWords];
+    }
+}
+
 function selectProfile(profileId) {
     currentProfile = profileId;
     localStorage.setItem('currentProfile', profileId);
@@ -66,7 +86,7 @@ function selectProfile(profileId) {
     document.getElementById('scoreDisplay').style.display = '';
     document.querySelector('.gear-menu-wrapper').style.display = '';
     document.querySelector('.container').style.display = '';
-    initApp();
+    ensureDefaultWordList(profileId).then(() => initApp()).catch(() => initApp());
 }
 
 function showProfileScreen() {

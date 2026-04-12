@@ -1802,13 +1802,13 @@ saveWordListBtn.addEventListener('click', () => {
         ref.child(editingWordListId).set(listData).then(() => {
             hideWordListEditModal();
             loadWordLists();
-        });
+        }).catch(err => alert('Save failed: ' + err.message));
     } else {
         const id = Date.now().toString();
         ref.child(id).set(listData).then(() => {
             hideWordListEditModal();
             loadWordLists();
-        });
+        }).catch(err => alert('Save failed: ' + err.message));
     }
 });
 
@@ -1827,7 +1827,7 @@ function doDeleteWordList(id) {
     if (typeof db === 'undefined' || !currentProfile) return;
     db.ref('wordlists/' + currentProfile + '/' + id).remove().then(() => {
         loadWordLists();
-    });
+    }).catch(err => alert('Delete failed: ' + err.message));
 }
 
 function doLoadWordList(id) {

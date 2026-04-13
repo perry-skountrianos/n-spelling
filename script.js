@@ -59,6 +59,13 @@ async function ensureDefaultWordList(profileId) {
     const snapshot = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
     if (!snapshot.exists()) {
         await ref.child('default').set({ name: 'Red Card Words', words: defaultWords });
+    } else {
+        // Update default list if words.js changed (e.g. duplicates removed)
+        const entry = Object.entries(snapshot.val())[0];
+        const existing = firebaseToArray(entry[1].words);
+        if (existing.length !== defaultWords.length) {
+            await ref.child(entry[0]).set({ name: 'Red Card Words', words: defaultWords });
+        }
     }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;

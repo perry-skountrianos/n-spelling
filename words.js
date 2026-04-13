@@ -16,7 +16,7 @@ let words = [
     'hurt', 'now', 'way', 'be', 'had', 'help',
     'these', 'write', 'how', 'live', 'his', 'off',
     'three', 'words', 'any', 'talk', 'her', 'on',
-    'use', 'work', 'would', 'were', 'here', 'old',
+    'use', 'work', 'would', 'here', 'old',
     'there', 'one', 'very', 'from', 'over', 'what'
 ];
 

@@ -66,7 +66,7 @@ function renderProfiles(profiles) {
     Object.entries(profiles).forEach(([id, profile]) => {
         const card = document.createElement('div');
         card.className = 'profile-card';
-        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit">✏️</button>`;
+        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
         card.querySelector('.profile-avatar').addEventListener('click', () => selectProfile(id));
         card.querySelector('.profile-name').addEventListener('click', () => selectProfile(id));
         card.querySelector('.profile-card-edit').addEventListener('click', (e) => {

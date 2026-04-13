@@ -144,7 +144,6 @@ function selectProfile(profileId) {
     // Hide profile screen, show app
     document.getElementById('profileScreen').style.display = 'none';
     document.getElementById('scoreDisplay').style.display = '';
-    document.querySelector('.gear-menu-wrapper').style.display = '';
     document.querySelector('.container').style.display = '';
     ensureDefaultWordList(profileId)
         .then(() => updateMistakesList(profileId))
@@ -155,7 +154,6 @@ function selectProfile(profileId) {
 function showProfileScreen() {
     document.getElementById('profileScreen').style.display = '';
     document.getElementById('scoreDisplay').style.display = 'none';
-    document.querySelector('.gear-menu-wrapper').style.display = 'none';
     document.querySelector('.container').style.display = 'none';
     loadProfileList();
 }

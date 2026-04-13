@@ -97,8 +97,9 @@ body {
 .score-display {
     position: fixed;
     top: 20px;
-    left: 50px;
+    left: 20px;
     display: flex;
+    align-items: center;
     gap: 12px;
     z-index: 100;
 }
@@ -130,18 +131,17 @@ body {
 }
 
 .gear-menu-wrapper {
-    position: fixed;
-    top: 20px;
-    left: 20px;
+    position: relative;
     z-index: 200;
+    margin-right: 4px;
 }
 
 .menu-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 6px;
-    opacity: 0.5;
+    padding: 8px;
+    opacity: 0.4;
     transition: opacity 0.2s;
 }
 
@@ -153,14 +153,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    width: 22px;
+    width: 24px;
 }
 
 .menu-icon span {
     display: block;
-    height: 2px;
+    height: 2.5px;
     background: #000;
-    border-radius: 1px;
+    border-radius: 2px;
 }
 
 .gear-dropdown {
@@ -928,16 +928,15 @@ h1 {
     }
 
     .gear-menu-wrapper {
-        top: 10px;
-        left: 10px;
+        margin-right: 2px;
     }
 
     .menu-btn {
-        padding: 4px;
+        padding: 6px;
     }
 
     .menu-icon {
-        width: 18px;
+        width: 20px;
         gap: 4px;
     }
 

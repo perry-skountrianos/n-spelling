@@ -15,18 +15,19 @@
         <button class="profile-delete-btn" id="deleteProfileBtn">Delete a player</button>
     </div>
 
-    <div class="score-display" id="scoreDisplay" style="display: none;">
-        <div class="gear-menu-wrapper">
-            <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
-            <div class="gear-dropdown" id="gearDropdown">
-                <button class="gear-option" id="viewReportsBtn">📊 Reports</button>
-                <button class="gear-option" id="practiceWordsToggle">📝 All Words</button>
-                <button class="gear-option" id="celebrationToggle">🎉 Celebration</button>
-                <button class="gear-option" id="wordListsBtn">📝 Word Lists</button>
-                <button class="gear-option" id="switchProfileBtn">👤 Switch Player</button>
-                <button class="gear-option gear-option-danger" id="resetBtn">🔄 New Session</button>
-            </div>
+    <div class="gear-menu-wrapper" id="gearMenuWrapper" style="display: none;">
+        <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
+        <div class="gear-dropdown" id="gearDropdown">
+            <button class="gear-option" id="modeToggleBtn">📖 Practice Mode</button>
+            <button class="gear-option" id="viewReportsBtn">📊 Reports</button>
+            <button class="gear-option" id="practiceWordsToggle">📝 All Words</button>
+            <button class="gear-option" id="celebrationToggle">🎉 Celebration</button>
+            <button class="gear-option" id="wordListsBtn">📝 Word Lists</button>
+            <button class="gear-option" id="switchProfileBtn">👤 Switch Player</button>
+            <button class="gear-option gear-option-danger" id="resetBtn">🔄 New Session</button>
         </div>
+    </div>
+    <div class="score-display" id="scoreDisplay" style="display: none;">
         <div class="donut-wrapper">
             <svg class="donut" viewBox="0 0 36 36">
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
@@ -52,11 +53,6 @@
     <div class="container" style="display: none;">
         <div class="main-content" id="mainContent">
             <div class="word-section">
-            </div>
-
-            <div class="mode-toggle">
-                <button class="mode-btn" id="practiceModeBtn">Practice</button>
-                <button class="mode-btn active" id="testModeBtn">Test</button>
             </div>
 
             <!-- Test mode content -->

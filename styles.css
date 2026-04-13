@@ -97,7 +97,7 @@ body {
 .score-display {
     position: fixed;
     top: 20px;
-    left: 20px;
+    left: 60px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -131,9 +131,10 @@ body {
 }
 
 .gear-menu-wrapper {
-    position: relative;
+    position: fixed;
+    top: 20px;
+    left: 20px;
     z-index: 200;
-    margin-right: 4px;
 }
 
 .menu-btn {
@@ -361,13 +362,6 @@ body {
     text-align: center;
 }
 
-.mode-toggle {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 10px;
-}
-
 .hear-btn {
     display: none;
     align-items: center;
@@ -393,36 +387,6 @@ body {
 .hear-btn:active {
     transform: scale(0.96);
     background: #eee;
-}
-
-.mode-btn {
-    padding: 8px 24px;
-    font-size: 16px;
-    font-weight: 500;
-    border: 2px solid #000000;
-    background: #ffffff;
-    color: #000000;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-}
-
-.mode-btn:first-child {
-    border-radius: 4px 0 0 4px;
-}
-
-.mode-btn:last-child {
-    border-radius: 0 4px 4px 0;
-    border-left: none;
-}
-
-.mode-btn.active {
-    background: #000000;
-    color: #ffffff;
-}
-
-.mode-btn:hover:not(.active) {
-    background: #f0f0f0;
 }
 
 h1 {
@@ -928,7 +892,8 @@ h1 {
     }
 
     .gear-menu-wrapper {
-        margin-right: 2px;
+        top: 10px;
+        left: 10px;
     }
 
     .menu-btn {
@@ -942,15 +907,6 @@ h1 {
 
     .main-content {
         margin-top: 0;
-    }
-
-    .mode-toggle {
-        display: flex;
-    }
-
-    .mode-btn {
-        padding: 6px 18px;
-        font-size: 14px;
     }
 
     .hear-btn {

@@ -144,6 +144,7 @@ function selectProfile(profileId) {
     // Hide profile screen, show app
     document.getElementById('profileScreen').style.display = 'none';
     document.getElementById('scoreDisplay').style.display = '';
+    document.getElementById('gearMenuWrapper').style.display = '';
     document.querySelector('.container').style.display = '';
     ensureDefaultWordList(profileId)
         .then(() => updateMistakesList(profileId))
@@ -154,6 +155,7 @@ function selectProfile(profileId) {
 function showProfileScreen() {
     document.getElementById('profileScreen').style.display = '';
     document.getElementById('scoreDisplay').style.display = 'none';
+    document.getElementById('gearMenuWrapper').style.display = 'none';
     document.querySelector('.container').style.display = 'none';
     loadProfileList();
 }
@@ -239,8 +241,7 @@ const practiceWordsToggle = document.getElementById('practiceWordsToggle');
 const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
-const practiceModeBtn = document.getElementById('practiceModeBtn');
-const testModeBtn = document.getElementById('testModeBtn');
+const practiceModeBtn = document.getElementById('modeToggleBtn');
 const testContent = document.getElementById('testContent');
 const practiceContent = document.getElementById('practiceContent');
 const hearBtn = document.getElementById('hearBtn');
@@ -380,8 +381,7 @@ function setMode(mode) {
 
 function setAppMode(mode) {
     appMode = mode;
-    practiceModeBtn.classList.toggle('active', mode === 'practice');
-    testModeBtn.classList.toggle('active', mode === 'test');
+    practiceModeBtn.textContent = mode === 'test' ? '📖 Practice Mode' : '📝 Test Mode';
     testContent.style.display = mode === 'test' ? '' : 'none';
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
     scoreDisplay.style.display = mode === 'test' ? '' : 'none';
@@ -398,6 +398,11 @@ function setAppMode(mode) {
 }
 
 practiceModeBtn.addEventListener('click', () => {
+    if (appMode === 'practice') {
+        setAppMode('test');
+        gearDropdown.classList.remove('show');
+        return;
+    }
     // If test is in progress, require parent password to prevent peeking
     if (appMode === 'test' && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
         const password = prompt('Parent password to switch during a test:');
@@ -407,8 +412,8 @@ practiceModeBtn.addEventListener('click', () => {
         }
     }
     setAppMode('practice');
+    gearDropdown.classList.remove('show');
 });
-testModeBtn.addEventListener('click', () => setAppMode('test'));
 
 // Hear button
 hearBtn.addEventListener('click', () => {

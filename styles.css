@@ -181,7 +181,9 @@ body {
 }
 
 .gear-option {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     padding: 12px 16px;
     border: none;
@@ -191,6 +193,11 @@ body {
     cursor: pointer;
     text-align: left;
     transition: background 0.15s;
+    color: #333;
+}
+
+.gear-option svg {
+    flex-shrink: 0;
 }
 
 .gear-option:hover {

@@ -4,6 +4,7 @@ const defaultWords = [...words]; // immutable copy of the original Red Card Word
 
 // Profile management
 let currentProfile = localStorage.getItem('currentProfile') || '';
+let activeListName = 'Red Card Words';
 const profileAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋'];
 
 function getProfileName() {
@@ -26,6 +27,11 @@ function updateProfileIndicator(profileId) {
             if (p && p.avatar) avatarLabel.textContent = p.avatar;
         });
     }
+}
+
+function updateListFooter() {
+    const footer = document.getElementById('listFooter');
+    if (footer) footer.textContent = activeListName || '';
 }
 
 document.getElementById('profileIndicator').addEventListener('click', () => {
@@ -60,8 +66,13 @@ function renderProfiles(profiles) {
     Object.entries(profiles).forEach(([id, profile]) => {
         const card = document.createElement('div');
         card.className = 'profile-card';
-        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span>`;
-        card.addEventListener('click', () => selectProfile(id));
+        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit">✏️</button>`;
+        card.querySelector('.profile-avatar').addEventListener('click', () => selectProfile(id));
+        card.querySelector('.profile-name').addEventListener('click', () => selectProfile(id));
+        card.querySelector('.profile-card-edit').addEventListener('click', (e) => {
+            e.stopPropagation();
+            openProfileEdit(id, profile);
+        });
         profileList.appendChild(card);
     });
 }
@@ -89,6 +100,7 @@ async function ensureDefaultWordList(profileId) {
         const activeSnap = await ref.child(activeId).once('value');
         if (activeSnap.exists()) {
             loadedWords = firebaseToArray(activeSnap.val().words);
+            activeListName = activeSnap.val().name || 'Word List';
         }
     }
     if (!loadedWords) {
@@ -181,15 +193,7 @@ document.getElementById('addProfileBtn').addEventListener('click', () => {
         if (password !== null) alert('Incorrect password');
         return;
     }
-    const name = prompt('Player name:');
-    if (!name || !name.trim()) return;
-    const id = name.trim().toLowerCase();
-    const avatar = profileAvatars[Math.floor(Math.random() * profileAvatars.length)];
-    if (typeof db !== 'undefined') {
-        db.ref('profiles/' + id).set({ name: name.trim(), avatar: avatar }).then(() => {
-            loadProfileList();
-        });
-    }
+    openProfileEdit(null, null);
 });
 
 let currentWordIndex = 0;
@@ -429,6 +433,7 @@ practiceModeBtn.addEventListener('click', () => {
 
 // Hear button
 hearBtn.addEventListener('click', () => {
+    hearBtn.classList.remove('hear-pulse');
     handleInputAction();
 });
 
@@ -455,7 +460,7 @@ function getCurrentWord() {
 
 function updatePlaceholder() {
     if (!hasHeardWord) {
-        spellingInput.placeholder = isMobile ? "Type..." : "Hit Enter";
+        spellingInput.placeholder = isMobile ? "Tap the speaker" : "Hit Enter";
     } else if (!hasAnswered) {
         if (inputMode === 'speak' && !isMobile) {
             spellingInput.placeholder = hasSpeechRecognition ? "Speak or type..." : "Type...";
@@ -1108,6 +1113,12 @@ async function initApp() {
     updatePlaceholder();
     updateScoreDisplay();
     updateHearBtn();
+    updateListFooter();
+    // Flash speaker on mobile to guide user
+    if (isMobile) {
+        hearBtn.classList.add('hear-pulse');
+        setTimeout(() => hearBtn.classList.remove('hear-pulse'), 3000);
+    }
     spellingInput.focus();
 }
 
@@ -1923,12 +1934,14 @@ function doLoadWordList(id) {
         words = [...loadedWords];
         allWords.length = 0;
         loadedWords.forEach(w => allWords.push(w));
+        activeListName = list.name || 'Word List';
         practiceScope = 'all';
         localStorage.setItem(profileKey('practiceScope'), 'all');
         // Remember active list for next login
         db.ref('activeWordList/' + currentProfile).set(id);
         clearProgress();
         restartGame();
+        updateListFooter();
         wordlistsOverlay.style.display = 'none';
     });
 }
@@ -1974,5 +1987,79 @@ document.getElementById('deleteProfileBtn').addEventListener('click', () => {
             }
             loadProfileList();
         });
+    }
+});
+
+// ===== PROFILE EDIT MODAL =====
+const allAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋', '🐯', '🐰', '🐨', '🐵', '🐧', '🐙', '🦈', '🦉', '🐺', '🦖'];
+let editingProfileId = null;
+let selectedAvatar = '🦁';
+
+function openProfileEdit(id, profile) {
+    editingProfileId = id;
+    const overlay = document.getElementById('profileEditOverlay');
+    const nameInput = document.getElementById('profileEditName');
+    const title = document.getElementById('profileEditTitle');
+    const picker = document.getElementById('avatarPicker');
+
+    title.textContent = id ? 'Edit Player' : 'New Player';
+    nameInput.value = profile ? profile.name : '';
+    selectedAvatar = profile ? (profile.avatar || '🦁') : '🦁';
+
+    // Render avatar picker
+    picker.innerHTML = '';
+    allAvatars.forEach(a => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'avatar-option' + (a === selectedAvatar ? ' selected' : '');
+        btn.textContent = a;
+        btn.addEventListener('click', () => {
+            selectedAvatar = a;
+            picker.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+        picker.appendChild(btn);
+    });
+
+    overlay.style.display = '';
+    nameInput.focus();
+}
+
+document.getElementById('profileEditCloseBtn').addEventListener('click', () => {
+    document.getElementById('profileEditOverlay').style.display = 'none';
+});
+
+document.getElementById('cancelProfileEditBtn').addEventListener('click', () => {
+    document.getElementById('profileEditOverlay').style.display = 'none';
+});
+
+document.getElementById('saveProfileEditBtn').addEventListener('click', () => {
+    const name = document.getElementById('profileEditName').value.trim();
+    if (!name) { alert('Please enter a name'); return; }
+    if (typeof db === 'undefined') return;
+
+    if (editingProfileId) {
+        // Update existing profile
+        db.ref('profiles/' + editingProfileId).update({ name: name, avatar: selectedAvatar }).then(() => {
+            document.getElementById('profileEditOverlay').style.display = 'none';
+            loadProfileList();
+            if (editingProfileId === currentProfile) {
+                updateProfileIndicator(currentProfile);
+            }
+        });
+    } else {
+        // Create new profile
+        const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!id) { alert('Invalid name'); return; }
+        db.ref('profiles/' + id).set({ name: name, avatar: selectedAvatar }).then(() => {
+            document.getElementById('profileEditOverlay').style.display = 'none';
+            loadProfileList();
+        });
+    }
+});
+
+document.getElementById('profileEditOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('profileEditOverlay')) {
+        document.getElementById('profileEditOverlay').style.display = 'none';
     }
 });

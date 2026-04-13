@@ -135,10 +135,9 @@ function selectProfile(profileId) {
     currentProfile = profileId;
     localStorage.setItem('currentProfile', profileId);
     // Load profile-scoped settings
-    practiceScope = localStorage.getItem(profileKey('practiceScope')) || 'wrong';
+    practiceScope = 'all';
     showCelebration = localStorage.getItem(profileKey('showCelebration')) !== 'false';
     flashcardMuted = localStorage.getItem(profileKey('flashcardMuted')) === 'true';
-    updatePracticeToggleLabel();
     updateCelebrationToggleLabel();
     updateMuteButton();
     // Hide profile screen, show app
@@ -237,7 +236,6 @@ const resetBtn = document.getElementById('resetBtn');
 const gearBtn = document.getElementById('gearBtn');
 const gearDropdown = document.getElementById('gearDropdown');
 const viewReportsBtn = document.getElementById('viewReportsBtn');
-const practiceWordsToggle = document.getElementById('practiceWordsToggle');
 const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
@@ -247,13 +245,9 @@ const practiceContent = document.getElementById('practiceContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
-let practiceScope = localStorage.getItem('practiceScope') || 'wrong';
+let practiceScope = 'all';
 let showCelebration = localStorage.getItem('showCelebration') !== 'false';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
-
-function updatePracticeToggleLabel() {
-    practiceWordsToggle.textContent = practiceScope === 'all' ? '✅ All Words' : '📝 All Words';
-}
 
 // Initialize speech synthesis
 const synth = window.speechSynthesis;
@@ -381,7 +375,9 @@ function setMode(mode) {
 
 function setAppMode(mode) {
     appMode = mode;
-    practiceModeBtn.textContent = mode === 'test' ? '📖 Practice Mode' : '📝 Test Mode';
+    practiceModeBtn.innerHTML = mode === 'test'
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Practice Mode'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode';
     testContent.style.display = mode === 'test' ? '' : 'none';
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
     scoreDisplay.style.display = mode === 'test' ? '' : 'none';
@@ -1253,7 +1249,10 @@ document.getElementById('switchProfileBtn').addEventListener('click', () => {
 // Celebration toggle
 const celebrationToggle = document.getElementById('celebrationToggle');
 function updateCelebrationToggleLabel() {
-    celebrationToggle.textContent = showCelebration ? '✅ Celebration' : '❌ Celebration';
+    const checkIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.8"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg>';
+    celebrationToggle.innerHTML = showCelebration
+        ? checkIcon + ' Celebration ✓'
+        : checkIcon + ' Celebration';
 }
 updateCelebrationToggleLabel();
 celebrationToggle.addEventListener('click', () => {
@@ -1261,28 +1260,6 @@ celebrationToggle.addEventListener('click', () => {
     localStorage.setItem(profileKey('showCelebration'), showCelebration);
     updateCelebrationToggleLabel();
     gearDropdown.classList.remove('show');
-});
-
-// Practice scope toggle (All Words / Wrong Words)
-updatePracticeToggleLabel();
-practiceWordsToggle.addEventListener('click', () => {
-    gearDropdown.classList.remove('show');
-    const password = prompt('Parent password:');
-    if (password !== 'read123') {
-        if (password !== null) alert('Incorrect password');
-        return;
-    }
-    practiceScope = practiceScope === 'all' ? 'wrong' : 'all';
-    localStorage.setItem(profileKey('practiceScope'), practiceScope);
-    updatePracticeToggleLabel();
-    loadWordsForScope().then(() => {
-        if (appMode === 'practice') {
-            loadPracticeCards();
-        } else {
-            clearProgress();
-            restartGame();
-        }
-    });
 });
 
 // ===== PRACTICE MODE (Flashcards) =====

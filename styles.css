@@ -97,10 +97,10 @@ body {
 
 .list-footer {
     font-size: 13px;
-    color: #ccc;
+    color: #2196f3;
     text-align: left;
-    padding: 12px 0;
-    margin-top: 20px;
+    padding: 4px 0;
+    margin-top: 4px;
 }
 
 .score-display {

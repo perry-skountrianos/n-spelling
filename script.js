@@ -31,7 +31,7 @@ function updateProfileIndicator(profileId) {
 
 function updateListFooter() {
     const footer = document.getElementById('listFooter');
-    if (footer) footer.innerHTML = activeListName ? 'Practicing <strong>' + activeListName + '</strong>' : '';
+    if (footer) footer.textContent = activeListName ? 'Practicing ' + activeListName : '';
 }
 
 document.getElementById('profileIndicator').addEventListener('click', () => {

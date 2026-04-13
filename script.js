@@ -2,10 +2,16 @@
 const allWords = [...words]; // keep a copy of the full list
 const defaultWords = [...words]; // immutable copy of the original Red Card Words
 
+// Twemoji: render emoji as consistent images across platforms
+function emojiToImg(emoji, size) {
+    const cp = [...emoji].map(c => c.codePointAt(0).toString(16)).join('-');
+    const px = size || 48;
+    return `<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cp}.svg" alt="${emoji}" width="${px}" height="${px}" style="display:block;" draggable="false">`;
+}
+
 // Profile management
 let currentProfile = localStorage.getItem('currentProfile') || '';
 let activeListName = 'Red Card Words';
-const profileAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋'];
 
 function getProfileName() {
     return currentProfile.charAt(0).toUpperCase() + currentProfile.slice(1);
@@ -24,7 +30,7 @@ function updateProfileIndicator(profileId) {
     if (typeof db !== 'undefined') {
         db.ref('profiles/' + profileId).once('value').then(snap => {
             const p = snap.val();
-            if (p && p.avatar) avatarLabel.textContent = p.avatar;
+            if (p && p.avatar) avatarLabel.innerHTML = emojiToImg(p.avatar, 36);
         });
     }
 }
@@ -66,7 +72,7 @@ function renderProfiles(profiles) {
     Object.entries(profiles).forEach(([id, profile]) => {
         const card = document.createElement('div');
         card.className = 'profile-card';
-        card.innerHTML = `<span class="profile-avatar">${profile.avatar || '🦁'}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
+        card.innerHTML = `<span class="profile-avatar">${emojiToImg(profile.avatar || '🦁', 48)}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
         card.querySelector('.profile-avatar').addEventListener('click', () => selectProfile(id));
         card.querySelector('.profile-name').addEventListener('click', () => selectProfile(id));
         card.querySelector('.profile-card-edit').addEventListener('click', (e) => {
@@ -2013,7 +2019,7 @@ function openProfileEdit(id, profile) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'avatar-option' + (a === selectedAvatar ? ' selected' : '');
-        btn.textContent = a;
+        btn.innerHTML = emojiToImg(a, 28);
         btn.addEventListener('click', () => {
             selectedAvatar = a;
             picker.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));

@@ -907,32 +907,39 @@ h1 {
     .score-display {
         position: static;
         display: flex;
+        align-items: center;
         justify-content: flex-start;
         margin-bottom: 10px;
-        gap: 10px;
+        gap: 6px;
+        flex-wrap: nowrap;
     }
 
     .donut-wrapper {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
     }
 
     .donut-label {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     .profile-circle {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
     }
 
     .profile-circle-avatar {
-        font-size: 28px;
+        font-size: 24px;
     }
 
     .gear-menu-wrapper {
+        position: absolute;
         top: 10px;
         right: 10px;
+    }
+
+    .gear-dropdown {
+        right: 0;
     }
 
     .menu-btn {

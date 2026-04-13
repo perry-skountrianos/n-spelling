@@ -18,6 +18,23 @@ function profileRef(path) {
     return path + '/' + currentProfile;
 }
 
+function updateProfileIndicator(profileId) {
+    const nameLabel = document.getElementById('profileNameLabel');
+    const avatarLabel = document.getElementById('profileAvatar');
+    nameLabel.textContent = profileId.charAt(0).toUpperCase() + profileId.slice(1);
+    if (typeof db !== 'undefined') {
+        db.ref('profiles/' + profileId).once('value').then(snap => {
+            const p = snap.val();
+            if (p && p.avatar) avatarLabel.textContent = p.avatar;
+            if (p && p.name) nameLabel.textContent = p.name;
+        });
+    }
+}
+
+document.getElementById('profileIndicator').addEventListener('click', () => {
+    showProfileScreen();
+});
+
 function loadProfileList() {
     const profileScreen = document.getElementById('profileScreen');
     const profileList = document.getElementById('profileList');
@@ -140,6 +157,8 @@ function selectProfile(profileId) {
     flashcardMuted = localStorage.getItem(profileKey('flashcardMuted')) === 'true';
     updateCelebrationToggleLabel();
     updateMuteButton();
+    // Update profile indicator
+    updateProfileIndicator(profileId);
     // Hide profile screen, show app
     document.getElementById('profileScreen').style.display = 'none';
     document.getElementById('scoreDisplay').style.display = '';

@@ -1651,8 +1651,8 @@ h1 {
 
 .wordlist-words-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    gap: 2px;
     margin-bottom: 10px;
     min-height: 20px;
 }
@@ -1661,17 +1661,17 @@ h1 {
     background: #f5f5f5;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    padding: 4px 6px 4px 10px;
-    font-size: 14px;
+    padding: 6px 8px 6px 12px;
+    font-size: 15px;
     font-weight: 500;
     color: #000;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
 
 .wordlist-word-chip .chip-text {
-    cursor: default;
+    flex: 1;
 }
 
 .wordlist-word-chip .chip-edit-input {

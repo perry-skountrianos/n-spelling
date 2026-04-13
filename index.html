@@ -15,6 +15,25 @@
         <button class="profile-delete-btn" id="deleteProfileBtn">Delete a player</button>
     </div>
 
+    <!-- Profile Edit Modal -->
+    <div class="profile-edit-overlay" id="profileEditOverlay" style="display: none;">
+        <div class="profile-edit-panel">
+            <div class="profile-edit-header">
+                <h2 id="profileEditTitle">Edit Player</h2>
+                <button class="profile-edit-close" id="profileEditCloseBtn">✕</button>
+            </div>
+            <div class="profile-edit-form">
+                <input type="text" id="profileEditName" maxlength="20" placeholder="Player name">
+                <div class="avatar-picker-label">Choose an icon</div>
+                <div class="avatar-picker" id="avatarPicker"></div>
+            </div>
+            <div class="profile-edit-actions">
+                <button type="button" class="btn-cancel" id="cancelProfileEditBtn">Cancel</button>
+                <button type="button" class="btn-save" id="saveProfileEditBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div class="gear-menu-wrapper" id="gearMenuWrapper" style="display: none;">
         <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
         <div class="gear-dropdown" id="gearDropdown">
@@ -115,6 +134,8 @@
 
             <button class="restart-btn" id="restartBtn2">Try Again</button>
         </div>
+
+        <div class="list-footer" id="listFooter"></div>
     </div>
 
     <!-- Reports overlay -->

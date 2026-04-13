@@ -482,7 +482,7 @@ h1 {
 }
 
 .input-section {
-    margin-bottom: 30px;
+    margin-bottom: 0;
     display: flex;
     gap: 10px;
     flex-wrap: nowrap;
@@ -494,7 +494,7 @@ h1 {
 }
 
 .results-display {
-    margin-top: 40px;
+    margin-top: 10px;
     width: 100%;
     margin-left: 0;
     margin-right: auto;

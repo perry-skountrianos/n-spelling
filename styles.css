@@ -1156,6 +1156,24 @@ h1 {
         font-size: 15px;
         margin-bottom: 8px;
     }
+
+    .wordlists-overlay,
+    .wordlist-edit-overlay,
+    .reports-overlay {
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .wordlists-panel,
+    .reports-panel {
+        max-height: calc(100vh - 16px);
+        border-radius: 12px;
+    }
+
+    .wordlist-edit-panel {
+        max-height: calc(100vh - 16px);
+        border-radius: 12px;
+    }
 }
 
 /* Show hear button on all touch-capable devices */

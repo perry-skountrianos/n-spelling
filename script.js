@@ -1800,6 +1800,7 @@ function hideWordListEditModal() {
 
 function renderEditWords() {
     wordlistWordsList.innerHTML = '';
+    editingWordListWords.sort((a, b) => a.localeCompare(b));
     editingWordListWords.forEach((w, i) => {
         const chip = document.createElement('span');
         chip.className = 'wordlist-word-chip';

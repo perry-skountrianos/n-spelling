@@ -1997,6 +1997,298 @@ document.getElementById('deleteProfileBtn').addEventListener('click', () => {
     }
 });
 
+// ===== CAR MODE =====
+let carActive = false;
+let carWords = [];
+let carIndex = 0;
+let carLetters = '';
+let carCorrect = 0;
+let carWrong = 0;
+let carRecognition = null;
+let carListening = false;
+let carSpeaking = false;
+
+function carSpeak(text, rate, onDone) {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = rate || 0.9;
+    u.pitch = 1.0;
+    u.volume = 1;
+    const voice = getVoice();
+    if (voice) u.voice = voice;
+    carSpeaking = true;
+    u.onend = () => { carSpeaking = false; if (onDone) onDone(); };
+    u.onerror = () => { carSpeaking = false; if (onDone) onDone(); };
+    synth.speak(u);
+}
+
+function carSpeakLetters(word, onDone) {
+    const letters = word.split('');
+    let i = 0;
+    function next() {
+        if (i >= letters.length) { if (onDone) onDone(); return; }
+        const u = new SpeechSynthesisUtterance(letters[i]);
+        u.rate = 0.7;
+        u.pitch = 1.0;
+        u.volume = 1;
+        const voice = getVoice();
+        if (voice) u.voice = voice;
+        u.onend = () => { i++; next(); };
+        u.onerror = () => { i++; next(); };
+        synth.speak(u);
+    }
+    next();
+}
+
+function carUpdateUI() {
+    const el = document.getElementById('carLetters');
+    const prog = document.getElementById('carProgress');
+    const status = document.getElementById('carStatus');
+    const score = document.getElementById('carScore');
+    el.textContent = carLetters.toUpperCase();
+    el.className = 'car-letters';
+    prog.textContent = (carIndex + 1) + ' / ' + carWords.length;
+    status.textContent = carSpeaking ? '' : 'Listening...';
+    const done = carCorrect + carWrong;
+    score.textContent = done > 0 ? carCorrect + ' correct, ' + carWrong + ' wrong' : '';
+}
+
+function carStartRecognition() {
+    if (!SpeechRecognition || carRecognition) return;
+    carRecognition = new SpeechRecognition();
+    carRecognition.continuous = true;
+    carRecognition.interimResults = false;
+    carRecognition.lang = 'en-GB';
+
+    carRecognition.onresult = (event) => {
+        if (carSpeaking || !carActive) return;
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) continue;
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            const parts = transcript.split(/[\s,]+/);
+            for (const part of parts) {
+                if (part === 'check' || part === 'done' || part === 'submit') {
+                    carCheck();
+                    return;
+                }
+                if (part === 'repeat' || part === 'again') {
+                    carPresentWord();
+                    return;
+                }
+                if (part === 'clear' || part === 'reset') {
+                    carLetters = '';
+                    carUpdateUI();
+                    carSpeak('Cleared. Spell ' + carWords[carIndex], 0.9);
+                    return;
+                }
+                if (part === 'skip' || part === 'next') {
+                    carSkip();
+                    return;
+                }
+                if (part === 'score') {
+                    carAnnounceScore();
+                    return;
+                }
+                if (part === 'stop' || part === 'exit' || part === 'quit') {
+                    carExit();
+                    return;
+                }
+                // Letter recognition
+                if (part.length === 1 && /[a-z]/.test(part)) {
+                    carLetters += part;
+                    carUpdateUI();
+                    carSpeak(part, 1.0);
+                } else {
+                    const letter = spokenToLetter(part);
+                    if (letter) {
+                        carLetters += letter;
+                        carUpdateUI();
+                        carSpeak(letter, 1.0);
+                    }
+                }
+            }
+        }
+    };
+
+    carRecognition.onend = () => {
+        if (carActive && !carSpeaking) {
+            try { carRecognition.start(); } catch(e) {}
+        } else if (carActive) {
+            // Restart after speech finishes
+            setTimeout(() => {
+                if (carActive) try { carRecognition.start(); } catch(e) {}
+            }, 300);
+        }
+    };
+
+    carRecognition.onerror = (event) => {
+        if (event.error === 'no-speech' || event.error === 'aborted') return;
+    };
+
+    try { carRecognition.start(); carListening = true; } catch(e) {}
+    document.getElementById('carMicRing').classList.add('listening');
+}
+
+function carStopRecognition() {
+    carListening = false;
+    document.getElementById('carMicRing').classList.remove('listening');
+    if (carRecognition) {
+        try { carRecognition.abort(); } catch(e) {}
+        carRecognition = null;
+    }
+}
+
+function carPresentWord() {
+    if (carIndex >= carWords.length) { carFinish(); return; }
+    const word = carWords[carIndex];
+    const sentence = wordSentences[word] || '';
+    carLetters = '';
+    carUpdateUI();
+    document.getElementById('carWord').textContent = '';
+    carStopRecognition();
+
+    const total = carWords.length;
+    const num = carIndex + 1;
+    let speech = 'Word ' + num + ' of ' + total + '. ' + word + '. ';
+    if (sentence) speech += sentence + '. ';
+    speech += 'Spell ' + word + '.';
+
+    carSpeak(speech, 0.9, () => {
+        document.getElementById('carStatus').textContent = 'Listening...';
+        carStartRecognition();
+    });
+}
+
+function carCheck() {
+    if (!carActive) return;
+    const word = carWords[carIndex];
+    const attempt = carLetters.toLowerCase();
+    const el = document.getElementById('carLetters');
+
+    carStopRecognition();
+
+    if (attempt === word) {
+        carCorrect++;
+        el.className = 'car-letters correct';
+        carSpeak('Correct! ' + word + '.', 0.95, () => {
+            carAdvance();
+        });
+    } else {
+        carWrong++;
+        el.className = 'car-letters wrong';
+        const correctSpelling = word.split('').join(', ');
+        carSpeak('Wrong. The correct spelling is', 0.9, () => {
+            carSpeakLetters(word, () => {
+                carSpeak(word, 0.85, () => {
+                    carAdvance();
+                });
+            });
+        });
+    }
+    // Save result to main session too
+    resultsArray.push({ word: word, typed: attempt, isCorrect: attempt === word });
+    saveProgress();
+    updateScoreDisplay();
+    displayResults();
+}
+
+function carSkip() {
+    if (!carActive) return;
+    const word = carWords[carIndex];
+    carWrong++;
+    document.getElementById('carLetters').className = 'car-letters wrong';
+    resultsArray.push({ word: word, typed: '', isCorrect: false });
+    saveProgress();
+    updateScoreDisplay();
+    displayResults();
+    carStopRecognition();
+    carSpeak('Skipped. The word was ' + word + '.', 0.9, () => {
+        carAdvance();
+    });
+}
+
+function carAdvance() {
+    carIndex++;
+    if (carIndex >= carWords.length) { carFinish(); return; }
+    // Announce score every 5 words
+    if (carIndex % 5 === 0) {
+        const done = carCorrect + carWrong;
+        carSpeak(carCorrect + ' correct, ' + carWrong + ' wrong, ' + (carWords.length - done) + ' remaining.', 0.9, () => {
+            carPresentWord();
+        });
+    } else {
+        carPresentWord();
+    }
+}
+
+function carAnnounceScore() {
+    const done = carCorrect + carWrong;
+    const remaining = carWords.length - done;
+    carSpeak(carCorrect + ' correct, ' + carWrong + ' wrong, ' + remaining + ' remaining.', 0.9);
+}
+
+function carFinish() {
+    carStopRecognition();
+    const total = carCorrect + carWrong;
+    carSpeak('All done! You got ' + carCorrect + ' out of ' + total + ' correct. Great job ' + getProfileName() + '!', 0.95, () => {
+        carExit();
+    });
+}
+
+function carExit() {
+    carActive = false;
+    synth.cancel();
+    carStopRecognition();
+    document.getElementById('carOverlay').style.display = 'none';
+    // Restore main UI
+    if (currentWordIndex < words.length) {
+        currentWordIndex = resultsArray.length;
+    }
+}
+
+function startCarMode() {
+    // Use the current word list, shuffled fresh
+    carWords = [...words];
+    shuffleArray(carWords);
+    carIndex = 0;
+    carLetters = '';
+    carCorrect = 0;
+    carWrong = 0;
+    carActive = true;
+    carSpeaking = false;
+
+    // Reset main session for car mode results
+    resultsArray = [];
+    currentWordIndex = 0;
+
+    document.getElementById('carOverlay').style.display = 'flex';
+    document.getElementById('carWord').textContent = '';
+    document.getElementById('carScore').textContent = '';
+    carUpdateUI();
+    saveProgress();
+    updateScoreDisplay();
+
+    // Welcome message then start
+    carSpeak("Car Mode. I'll read each word and a sentence. Spell it letter by letter, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
+        carPresentWord();
+    });
+}
+
+document.getElementById('carStopBtn').addEventListener('click', () => {
+    carExit();
+});
+
+// Tap anywhere on car screen to repeat word
+document.getElementById('carScreen').addEventListener('click', (e) => {
+    if (e.target.closest('.car-stop')) return;
+    if (carActive && !carSpeaking) carPresentWord();
+});
+
+document.getElementById('carModeBtn').addEventListener('click', () => {
+    gearDropdown.classList.remove('show');
+    startCarMode();
+});
+
 // ===== PROFILE EDIT MODAL =====
 const allAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋', '🐯', '🐰', '🐨', '🐵', '🐧', '🐙', '🦈', '🦉', '🐺', '🦖'];
 let editingProfileId = null;

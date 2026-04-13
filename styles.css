@@ -104,32 +104,27 @@ body {
     z-index: 100;
 }
 
-.profile-indicator {
+.profile-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
     cursor: pointer;
-    padding: 4px 10px 4px 6px;
-    border-radius: 20px;
-    border: 2px solid #e0e0e0;
     background: #fff;
     transition: border-color 0.2s;
-    margin-right: 4px;
 }
 
-.profile-indicator:hover {
+.profile-circle:hover {
     border-color: #999;
 }
 
-.profile-indicator-avatar {
-    font-size: 20px;
+.profile-circle-avatar {
+    font-size: 36px;
     line-height: 1;
-}
-
-.profile-indicator-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
 }
 
 .donut-wrapper {
@@ -924,6 +919,15 @@ h1 {
 
     .donut-label {
         font-size: 16px;
+    }
+
+    .profile-circle {
+        width: 64px;
+        height: 64px;
+    }
+
+    .profile-circle-avatar {
+        font-size: 28px;
     }
 
     .gear-menu-wrapper {

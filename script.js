@@ -19,14 +19,11 @@ function profileRef(path) {
 }
 
 function updateProfileIndicator(profileId) {
-    const nameLabel = document.getElementById('profileNameLabel');
     const avatarLabel = document.getElementById('profileAvatar');
-    nameLabel.textContent = profileId.charAt(0).toUpperCase() + profileId.slice(1);
     if (typeof db !== 'undefined') {
         db.ref('profiles/' + profileId).once('value').then(snap => {
             const p = snap.val();
             if (p && p.avatar) avatarLabel.textContent = p.avatar;
-            if (p && p.name) nameLabel.textContent = p.name;
         });
     }
 }

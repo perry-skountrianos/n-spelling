@@ -1069,6 +1069,102 @@ h1 {
     }
 }
 
+/* Touch devices in landscape */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        padding: 8px;
+    }
+
+    .score-display {
+        position: static;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 6px;
+        gap: 6px;
+    }
+
+    .donut-wrapper {
+        width: 44px;
+        height: 44px;
+    }
+
+    .donut-label {
+        font-size: 12px;
+    }
+
+    .profile-circle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .profile-circle-avatar {
+        font-size: 20px;
+    }
+
+    .gear-menu-wrapper {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+
+    .container {
+        padding: 4px 10px;
+    }
+
+    .main-content {
+        margin-top: 0;
+    }
+
+    .hear-btn {
+        display: flex;
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+
+    .input-section {
+        margin-top: 1vh;
+        margin-bottom: 6px;
+    }
+
+    #spellingInput {
+        font-size: 36px;
+        letter-spacing: 4px;
+        padding: 4px 0;
+    }
+
+    .results-display {
+        margin-top: 8px;
+        padding-top: 6px;
+    }
+
+    .result-item {
+        font-size: 16px;
+        padding: 2px 0;
+    }
+
+    .flashcard-word {
+        font-size: 48px;
+    }
+
+    .flashcard {
+        padding: 16px 14px;
+    }
+
+    .flashcard-sentence {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+}
+
+/* Show hear button on all touch-capable devices */
+@media (hover: none) and (pointer: coarse) {
+    .hear-btn {
+        display: flex;
+    }
+}
+
 .wrong-words-dropdown {
     background: #fff;
     border-radius: 10px;

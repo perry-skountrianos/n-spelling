@@ -469,7 +469,7 @@ h1 {
     gap: 10px;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: 10vh;
     width: 100%;
     padding: 0;

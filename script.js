@@ -2325,8 +2325,38 @@ document.getElementById('carStopBtn').addEventListener('click', () => {
 
 // Tap anywhere on car screen to repeat word
 document.getElementById('carScreen').addEventListener('click', (e) => {
-    if (e.target.closest('.car-stop')) return;
+    if (e.target.closest('.car-stop') || e.target.closest('.car-cmd')) return;
     if (carActive && !carSpeaking) carPresentWord();
+});
+
+// Car mode command buttons
+document.getElementById('carCmdClear').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!carActive) return;
+    carLetters = '';
+    document.getElementById('carStatus').textContent = '';
+    carStopRecognition();
+    carSpeak('Cleared.', 1.0, () => { carStartRecognition(); });
+});
+document.getElementById('carCmdRepeat').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (carActive && !carSpeaking) carPresentWord();
+});
+document.getElementById('carCmdCheck').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!carActive || carSpeaking) return;
+    // Use whatever is currently displayed as the attempt
+    const displayed = document.getElementById('carStatus').textContent.trim().toLowerCase().replace(/[\s,.\-]+/g, '');
+    carLetters = displayed;
+    carCheck();
+});
+document.getElementById('carCmdSkip').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (carActive && !carSpeaking) carSkip();
+});
+document.getElementById('carCmdStop').addEventListener('click', (e) => {
+    e.stopPropagation();
+    carExit();
 });
 
 document.getElementById('carModeBtn').addEventListener('click', () => {

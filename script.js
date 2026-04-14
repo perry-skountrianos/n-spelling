@@ -2102,65 +2102,66 @@ function carStartRecognition() {
 
     const rec = new SpeechRecognition();
     carRecognition = rec;
-    rec.continuous = false;
+    rec.continuous = true;
     rec.interimResults = true;
     rec.lang = 'en-GB';
-    let handled = false;
+
+    const handledResults = new Set();
 
     rec.onresult = (event) => {
-        if (carSpeaking || !carActive || carRecognition !== rec || handled) return;
-        const transcript = event.results[0][0].transcript.trim().toLowerCase();
-        const parts = transcript.split(/[\s,.\-]+/);
+        if (carSpeaking || !carActive || carRecognition !== rec) return;
 
-        // Check commands — act immediately on interim
-        for (const part of parts) {
-            if (part === 'check' || part === 'done' || part === 'submit') {
-                handled = true; carCheck(); return;
-            }
-            if (part === 'repeat' || part === 'again') {
-                handled = true; carPresentWord(); return;
-            }
-            if (part === 'clear' || part === 'reset') {
-                handled = true; carLetters = '';
-                carUpdateUI();
-                carSpeak('Cleared.', 1.0);
-                return;
-            }
-            if (part === 'skip' || part === 'next') {
-                handled = true; carSkip(); return;
-            }
-            if (part === 'score') {
-                handled = true; carAnnounceScore(); return;
-            }
-            if (part === 'stop' || part === 'exit' || part === 'quit') {
-                handled = true; carExit(); return;
-            }
-        }
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (handledResults.has(i)) continue;
 
-        // Try to extract a letter — commit on first match
-        for (const part of parts) {
-            let letter = null;
-            if (part.length === 1 && /[a-z]/.test(part)) {
-                letter = part;
-            } else {
-                letter = spokenToLetter(part);
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            const parts = transcript.split(/[\s,.\-]+/);
+
+            // Commands — act immediately
+            for (const part of parts) {
+                if (part === 'check' || part === 'done' || part === 'submit') {
+                    handledResults.add(i); carCheck(); return;
+                }
+                if (part === 'repeat' || part === 'again') {
+                    handledResults.add(i); carPresentWord(); return;
+                }
+                if (part === 'clear' || part === 'reset') {
+                    handledResults.add(i); carLetters = '';
+                    carUpdateUI();
+                    carSpeak('Cleared.', 1.0);
+                    return;
+                }
+                if (part === 'skip' || part === 'next') {
+                    handledResults.add(i); carSkip(); return;
+                }
+                if (part === 'score') {
+                    handledResults.add(i); carAnnounceScore(); return;
+                }
+                if (part === 'stop' || part === 'exit' || part === 'quit') {
+                    handledResults.add(i); carExit(); return;
+                }
             }
-            if (letter) {
-                handled = true;
-                carLetters += letter;
-                document.getElementById('carLetters').textContent = carLetters.toUpperCase();
-                // Abort and restart for next letter
-                rec.onend = null;
-                try { rec.abort(); } catch(e) {}
-                carRecognition = null;
-                carStartRecognition();
-                return;
+
+            // Letters — grab first match, mark handled
+            for (const part of parts) {
+                let letter = null;
+                if (part.length === 1 && /[a-z]/.test(part)) {
+                    letter = part;
+                } else {
+                    letter = spokenToLetter(part);
+                }
+                if (letter) {
+                    handledResults.add(i);
+                    carLetters += letter;
+                    document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+                    break;
+                }
             }
         }
     };
 
     rec.onend = () => {
-        if (carActive && carRecognition === rec && !handled) {
+        if (carActive && carRecognition === rec) {
             try { rec.start(); } catch(e) {}
         }
     };

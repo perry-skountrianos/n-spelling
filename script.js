@@ -2051,7 +2051,7 @@ let carListening = false;
 let carSpeaking = false;
 
 function carSpeak(text, rate, onDone) {
-    synth.cancel();
+    if (synth.speaking) synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate || 0.9;
     u.pitch = 1.0;
@@ -2059,8 +2059,10 @@ function carSpeak(text, rate, onDone) {
     const voice = getVoice();
     if (voice) u.voice = voice;
     carSpeaking = true;
-    u.onend = () => { carSpeaking = false; if (onDone) onDone(); };
-    u.onerror = () => { carSpeaking = false; if (onDone) onDone(); };
+    let called = false;
+    function done() { if (called) return; called = true; carSpeaking = false; if (onDone) onDone(); }
+    u.onend = done;
+    u.onerror = done;
     synth.speak(u);
 }
 
@@ -2075,8 +2077,9 @@ function carSpeakLetters(word, onDone) {
         u.volume = 1;
         const voice = getVoice();
         if (voice) u.voice = voice;
-        u.onend = () => { i++; next(); };
-        u.onerror = () => { i++; next(); };
+        let called = false;
+        u.onend = () => { if (!called) { called = true; i++; next(); } };
+        u.onerror = () => { if (!called) { called = true; i++; next(); } };
         synth.speak(u);
     }
     next();

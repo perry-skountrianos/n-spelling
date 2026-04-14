@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Practice</title>
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
     <!-- Profile selector screen -->
@@ -70,9 +70,6 @@
                 <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
             </svg>
             <span class="donut-label" id="wrongCount">0</span>
-        </div>
-        <div class="car-circle" id="carCircleBtn" title="Car Mode">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
         </div>
     </div>
     <div class="container" style="display: none;">
@@ -151,15 +148,11 @@
             </div>
             <div class="car-word" id="carWord"></div>
             <div class="car-letters" id="carLetters"></div>
-            <div class="car-buttons" id="carButtons" style="display: none;">
-                <button class="car-btn car-btn-no" id="carNoBtn">✕ No</button>
-                <button class="car-btn car-btn-yes" id="carYesBtn">✓ Yes</button>
-            </div>
-            <div class="car-mic" id="carMicArea">
+            <div class="car-mic">
                 <div class="car-mic-ring" id="carMicRing"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
             </div>
-            <div class="car-status" id="carStatus"></div>
+            <div class="car-status" id="carStatus">Listening...</div>
             <div class="car-score" id="carScore"></div>
         </div>
     </div>
@@ -218,6 +211,6 @@
     <script src="firebase-config.js"></script>
     <script src="words.js"></script>
     <script src="quizzes.js"></script>
-    <script src="script.js?v=12"></script>
+    <script src="script.js?v=13"></script>
 </body>
 </html>

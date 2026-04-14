@@ -2066,13 +2066,16 @@ function carUpdateUI() {
 
 function carStartRecognition() {
     if (!SpeechRecognition) return;
-    if (carListening) return;
-    if (!carRecognition) {
-        carRecognition = new SpeechRecognition();
-        carRecognition.continuous = true;
-        carRecognition.interimResults = false;
-        carRecognition.lang = 'en-GB';
+    // Always stop first to avoid conflicts
+    if (carRecognition) {
+        try { carRecognition.abort(); } catch(e) {}
+        carRecognition = null;
     }
+
+    carRecognition = new SpeechRecognition();
+    carRecognition.continuous = true;
+    carRecognition.interimResults = false;
+    carRecognition.lang = 'en-GB';
 
     carRecognition.onresult = (event) => {
         if (carSpeaking || !carActive) return;
@@ -2111,13 +2114,11 @@ function carStartRecognition() {
                 if (part.length === 1 && /[a-z]/.test(part)) {
                     carLetters += part;
                     carUpdateUI();
-                    carEcho(part);
                 } else {
                     const letter = spokenToLetter(part);
                     if (letter) {
                         carLetters += letter;
                         carUpdateUI();
-                        carEcho(letter);
                     }
                 }
             }
@@ -2125,13 +2126,15 @@ function carStartRecognition() {
     };
 
     carRecognition.onend = () => {
-        if (carActive && !carSpeaking) {
-            try { carRecognition.start(); } catch(e) {}
-        } else if (carActive) {
-            // Restart after speech finishes
+        carListening = false;
+        if (carActive) {
+            // Always try to restart
             setTimeout(() => {
-                if (carActive) try { carRecognition.start(); } catch(e) {}
-            }, 300);
+                if (carActive) {
+                    carListening = true;
+                    try { carRecognition.start(); } catch(e) { carListening = false; }
+                }
+            }, 200);
         }
     };
 
@@ -2147,7 +2150,11 @@ function carStopRecognition() {
     carListening = false;
     document.getElementById('carMicRing').classList.remove('listening');
     if (carRecognition) {
+        carRecognition.onend = null;
+        carRecognition.onresult = null;
+        carRecognition.onerror = null;
         try { carRecognition.abort(); } catch(e) {}
+        carRecognition = null;
     }
 }
 

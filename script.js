@@ -2222,15 +2222,9 @@ function carCheck() {
     if (attempt === word) {
         carCorrect++;
         el.className = 'car-status correct';
-        if (word === 'talk') {
-            carSpeak('Correct!', 0.95, () => {
-                carAdvance();
-            });
-        } else {
-            carSpeak('Correct! ' + word + '.', 0.95, () => {
-                carAdvance();
-            });
-        }
+        carSpeak('Correct!', 0.95, () => {
+            carAdvance();
+        });
     } else {
         carWrong++;
         el.className = 'car-status wrong';

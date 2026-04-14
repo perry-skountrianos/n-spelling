@@ -2066,22 +2066,20 @@ function carUpdateUI() {
 
 function carStartRecognition() {
     if (!SpeechRecognition) return;
-    // Always stop first to avoid conflicts
-    if (carRecognition) {
-        try { carRecognition.abort(); } catch(e) {}
-        carRecognition = null;
-    }
+    carStopRecognition();
 
-    carRecognition = new SpeechRecognition();
-    carRecognition.continuous = true;
-    carRecognition.interimResults = false;
-    carRecognition.lang = 'en-GB';
+    const rec = new SpeechRecognition();
+    carRecognition = rec;
+    rec.continuous = true;
+    rec.interimResults = false;
+    rec.lang = 'en-GB';
 
-    carRecognition.onresult = (event) => {
-        if (carSpeaking || !carActive) return;
+    rec.onresult = (event) => {
+        if (carSpeaking || !carActive || carRecognition !== rec) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            document.getElementById('carStatus').textContent = 'Heard: ' + transcript;
             const parts = transcript.split(/[\s,]+/);
             for (const part of parts) {
                 if (part === 'check' || part === 'done' || part === 'submit') {
@@ -2125,24 +2123,23 @@ function carStartRecognition() {
         }
     };
 
-    carRecognition.onend = () => {
-        carListening = false;
-        if (carActive) {
-            // Always try to restart
+    rec.onend = () => {
+        // Only restart if this is still the active instance
+        if (carActive && carRecognition === rec) {
             setTimeout(() => {
-                if (carActive) {
-                    carListening = true;
-                    try { carRecognition.start(); } catch(e) { carListening = false; }
+                if (carActive && carRecognition === rec) {
+                    try { rec.start(); } catch(e) {}
                 }
             }, 200);
         }
     };
 
-    carRecognition.onerror = (event) => {
+    rec.onerror = (event) => {
         if (event.error === 'no-speech' || event.error === 'aborted') return;
+        console.error('Car recognition error:', event.error);
     };
 
-    try { carRecognition.start(); carListening = true; } catch(e) {}
+    try { rec.start(); carListening = true; } catch(e) { console.error('Car rec start failed:', e); }
     document.getElementById('carMicRing').classList.add('listening');
 }
 

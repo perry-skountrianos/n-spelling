@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Practice</title>
-    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
     <!-- Profile selector screen -->
@@ -151,11 +151,15 @@
             </div>
             <div class="car-word" id="carWord"></div>
             <div class="car-letters" id="carLetters"></div>
-            <div class="car-mic">
+            <div class="car-buttons" id="carButtons" style="display: none;">
+                <button class="car-btn car-btn-no" id="carNoBtn">✕ No</button>
+                <button class="car-btn car-btn-yes" id="carYesBtn">✓ Yes</button>
+            </div>
+            <div class="car-mic" id="carMicArea">
                 <div class="car-mic-ring" id="carMicRing"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
             </div>
-            <div class="car-status" id="carStatus">Listening...</div>
+            <div class="car-status" id="carStatus"></div>
             <div class="car-score" id="carScore"></div>
         </div>
     </div>
@@ -214,6 +218,6 @@
     <script src="firebase-config.js"></script>
     <script src="words.js"></script>
     <script src="quizzes.js"></script>
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>

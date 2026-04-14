@@ -2073,100 +2073,84 @@ function carStartRecognition() {
 
     const rec = new SpeechRecognition();
     carRecognition = rec;
-    rec.continuous = true;
-    rec.interimResults = true;
+    rec.continuous = !isMobile;
+    rec.interimResults = !isMobile;
     rec.lang = 'en-GB';
 
-    let lastProcessed = '';
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
             const isFinal = event.results[i].isFinal;
-            document.getElementById('carStatus').textContent = (isFinal ? '' : '... ') + transcript;
+            if (!isFinal && isMobile) continue; // Mobile: only process final results
+            document.getElementById('carStatus').textContent = transcript;
 
-            // For interim results, process new letters immediately
-            // For final results, process commands and any remaining letters
-            const parts = transcript.split(/[\s,]+/);
+            const parts = transcript.split(/[\s,.\-]+/);
+            let hasCommand = false;
+            let newLetters = [];
             for (const part of parts) {
-                // Commands only on final
-                if (isFinal) {
-                    if (part === 'check' || part === 'done' || part === 'submit') {
-                        lastProcessed = '';
-                        carCheck();
-                        return;
-                    }
-                    if (part === 'repeat' || part === 'again') {
-                        lastProcessed = '';
-                        carPresentWord();
-                        return;
-                    }
-                    if (part === 'clear' || part === 'reset') {
-                        lastProcessed = '';
-                        carLetters = '';
-                        carUpdateUI();
-                        carSpeak('Cleared. Spell ' + carWords[carIndex], 0.9);
-                        return;
-                    }
-                    if (part === 'skip' || part === 'next') {
-                        lastProcessed = '';
-                        carSkip();
-                        return;
-                    }
-                    if (part === 'score') {
-                        lastProcessed = '';
-                        carAnnounceScore();
-                        return;
-                    }
-                    if (part === 'stop' || part === 'exit' || part === 'quit') {
-                        lastProcessed = '';
-                        carExit();
-                        return;
-                    }
+                // Commands
+                if (part === 'check' || part === 'done' || part === 'submit') {
+                    carCheck(); return;
                 }
-                // Letters — process incrementally to avoid duplicates
+                if (part === 'repeat' || part === 'again') {
+                    carPresentWord(); return;
+                }
+                if (part === 'clear' || part === 'reset') {
+                    carLetters = '';
+                    carUpdateUI();
+                    carSpeak('Cleared.', 0.9);
+                    return;
+                }
+                if (part === 'skip' || part === 'next') {
+                    carSkip(); return;
+                }
+                if (part === 'score') {
+                    carAnnounceScore(); return;
+                }
+                if (part === 'stop' || part === 'exit' || part === 'quit') {
+                    carExit(); return;
+                }
+                // Letters
                 let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
                     letter = part;
                 } else {
                     letter = spokenToLetter(part);
                 }
-                if (letter) {
-                    const newLetters = carLetters + letter;
-                    // Only add if this extends beyond what we already have from interim
-                    if (!isFinal && newLetters.length > lastProcessed.length) {
-                        carLetters = newLetters;
-                        lastProcessed = newLetters;
-                        carUpdateUI();
-                    } else if (isFinal) {
-                        // On final, trust the result
-                        carLetters = newLetters;
-                        lastProcessed = '';
-                        carUpdateUI();
-                    }
-                }
+                if (letter) newLetters.push(letter);
             }
-            if (isFinal) lastProcessed = '';
+            // Add all recognized letters at once
+            if (newLetters.length > 0) {
+                if (isMobile) {
+                    // Mobile: batch — replace with all letters from this utterance
+                    carLetters += newLetters.join('');
+                } else {
+                    // Desktop: incremental
+                    carLetters += newLetters.join('');
+                }
+                carUpdateUI();
+            }
         }
     };
 
     rec.onend = () => {
-        // Only restart if this is still the active instance
         if (carActive && carRecognition === rec) {
+            // Auto-restart — immediately on mobile for quick turnaround
+            const delay = isMobile ? 50 : 200;
             setTimeout(() => {
                 if (carActive && carRecognition === rec) {
                     try { rec.start(); } catch(e) {}
                 }
-            }, 200);
+            }, delay);
         }
     };
 
     rec.onerror = (event) => {
         if (event.error === 'no-speech' || event.error === 'aborted') return;
-        console.error('Car recognition error:', event.error);
     };
 
-    try { rec.start(); carListening = true; } catch(e) { console.error('Car rec start failed:', e); }
+    try { rec.start(); carListening = true; } catch(e) {}
     document.getElementById('carMicRing').classList.add('listening');
 }
 
@@ -2315,7 +2299,7 @@ function startCarMode() {
     updateScoreDisplay();
 
     // Welcome message then start
-    carSpeak("Car Mode. I'll read each word and a sentence. Spell it letter by letter, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
+    carSpeak("Car Mode. I'll read each word and a sentence. Say all the letters, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
         carPresentWord();
     });
 }

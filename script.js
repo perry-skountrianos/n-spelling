@@ -2113,33 +2113,29 @@ function carStartRecognition() {
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
             const parts = transcript.split(/[\s,.\-]+/);
 
-            // Commands
+            // Extract letters first (before checking commands)
+            let hasCheck = false;
+            let hasCommand = null;
             for (const part of parts) {
                 if (part === 'check' || part === 'done' || part === 'submit') {
-                    carCheck(); return;
+                    hasCheck = true; continue;
                 }
                 if (part === 'repeat' || part === 'again') {
-                    carPresentWord(); return;
+                    hasCommand = 'repeat'; continue;
                 }
                 if (part === 'clear' || part === 'reset') {
-                    carLetters = '';
-                    carUpdateUI();
-                    carSpeak('Cleared.', 1.0);
-                    return;
+                    hasCommand = 'clear'; continue;
                 }
                 if (part === 'skip' || part === 'next') {
-                    carSkip(); return;
+                    hasCommand = 'skip'; continue;
                 }
                 if (part === 'score') {
-                    carAnnounceScore(); return;
+                    hasCommand = 'score'; continue;
                 }
                 if (part === 'stop' || part === 'exit' || part === 'quit') {
-                    carExit(); return;
+                    hasCommand = 'stop'; continue;
                 }
-            }
-
-            // Letters
-            for (const part of parts) {
+                // Not a command — try as letter
                 let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
                     letter = part;
@@ -2151,6 +2147,17 @@ function carStartRecognition() {
                 }
             }
             document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+
+            // Now handle commands (letters already added)
+            if (hasCheck) { carCheck(); return; }
+            if (hasCommand === 'repeat') { carPresentWord(); return; }
+            if (hasCommand === 'clear') {
+                carLetters = ''; carUpdateUI();
+                carSpeak('Cleared.', 1.0); return;
+            }
+            if (hasCommand === 'skip') { carSkip(); return; }
+            if (hasCommand === 'score') { carAnnounceScore(); return; }
+            if (hasCommand === 'stop') { carExit(); return; }
         }
     };
 

@@ -2146,9 +2146,8 @@ function carStartRecognition() {
                 }
             }
 
-            // Only add letters on final results (interim just updates status)
-            if (!isFinal) continue;
-
+            // Parse letters from this result
+            let resultLetters = '';
             for (const part of parts) {
                 let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
@@ -2156,10 +2155,15 @@ function carStartRecognition() {
                 } else {
                     letter = spokenToLetter(part);
                 }
-                if (letter) {
-                    carLetters += letter;
-                    document.getElementById('carLetters').textContent = carLetters.toUpperCase();
-                }
+                if (letter) resultLetters += letter;
+            }
+
+            // Show preview instantly (committed + interim)
+            document.getElementById('carLetters').textContent = (carLetters + resultLetters).toUpperCase();
+
+            // Commit letters only on final
+            if (isFinal && resultLetters) {
+                carLetters += resultLetters;
             }
         }
     };

@@ -2109,8 +2109,6 @@ function carStartRecognition() {
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
             const isFinal = event.results[i].isFinal;
 
-
-
             const parts = transcript.split(/[\s,.\-]+/);
 
             // Check commands on both interim and final
@@ -2143,8 +2141,9 @@ function carStartRecognition() {
                 }
             }
 
-            // Parse letters from this result
-            let resultLetters = '';
+            if (!isFinal) continue;
+
+            // Add letters on final results
             for (const part of parts) {
                 let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
@@ -2152,16 +2151,11 @@ function carStartRecognition() {
                 } else {
                     letter = spokenToLetter(part);
                 }
-                if (letter) resultLetters += letter;
+                if (letter) {
+                    carLetters += letter;
+                }
             }
-
-            // Show preview instantly (committed + interim)
-            document.getElementById('carLetters').textContent = (carLetters + resultLetters).toUpperCase();
-
-            // Commit letters only on final
-            if (isFinal && resultLetters) {
-                carLetters += resultLetters;
-            }
+            document.getElementById('carLetters').textContent = carLetters.toUpperCase();
         }
     };
 

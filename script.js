@@ -2102,15 +2102,21 @@ function carStartRecognition() {
     if (!SpeechRecognition || carRecognition) return;
     carRecognition = new SpeechRecognition();
     carRecognition.continuous = true;
-    carRecognition.interimResults = false;
+    carRecognition.interimResults = true;
     carRecognition.lang = 'en-GB';
+
+    let lastProcessedLength = 0;
 
     carRecognition.onresult = (event) => {
         if (carSpeaking || !carActive) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
-            const parts = transcript.split(/[\s,]+/);
+            const isFinal = event.results[i].isFinal;
+
+            // Show what's being heard in real time
+            document.getElementById('carStatus').textContent = transcript;
+
+            const parts = transcript.split(/[\s,.\-]+/);
             for (const part of parts) {
                 if (part === 'check' || part === 'done' || part === 'submit') {
                     carCheck();
@@ -2122,8 +2128,9 @@ function carStartRecognition() {
                 }
                 if (part === 'clear' || part === 'reset') {
                     carLetters = '';
+                    lastProcessedLength = 0;
                     carUpdateUI();
-                    carSpeak('Cleared. Spell ' + carWords[carIndex], 0.9);
+                    carSpeak('Cleared.', 1.0);
                     return;
                 }
                 if (part === 'skip' || part === 'next') {
@@ -2138,19 +2145,29 @@ function carStartRecognition() {
                     carExit();
                     return;
                 }
-                // Letter recognition
+            }
+
+            // Process letters from interim results for instant display
+            let newLetters = '';
+            for (const part of parts) {
+                let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
-                    carLetters += part;
-                    carUpdateUI();
-                    carSpeak(part, 1.0);
+                    letter = part;
                 } else {
-                    const letter = spokenToLetter(part);
-                    if (letter) {
-                        carLetters += letter;
-                        carUpdateUI();
-                        carSpeak(letter, 1.0);
-                    }
+                    letter = spokenToLetter(part);
                 }
+                if (letter) newLetters += letter;
+            }
+
+            if (newLetters.length > lastProcessedLength) {
+                const added = newLetters.slice(lastProcessedLength);
+                carLetters += added;
+                document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+                lastProcessedLength = newLetters.length;
+            }
+
+            if (isFinal) {
+                lastProcessedLength = 0;
             }
         }
     };

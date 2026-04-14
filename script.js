@@ -2086,11 +2086,11 @@ function carSpeakLetters(word, onDone) {
 }
 
 function carUpdateUI() {
-    const el = document.getElementById('carLetters');
+    const el = document.getElementById('carStatus');
     const prog = document.getElementById('carProgress');
     const score = document.getElementById('carScore');
     el.textContent = carLetters.toUpperCase();
-    el.className = 'car-letters';
+    el.className = 'car-status';
     prog.textContent = (carIndex + 1) + ' / ' + carWords.length;
     const done = carCorrect + carWrong;
     score.textContent = done > 0 ? carCorrect + ' correct, ' + carWrong + ' wrong' : '';
@@ -2108,56 +2108,51 @@ function carStartRecognition() {
 
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) return;
+
+        // Build full transcript from all results
+        let fullTranscript = '';
+        for (let ri = 0; ri < event.results.length; ri++) {
+            fullTranscript += event.results[ri][0].transcript + ' ';
+        }
+        fullTranscript = fullTranscript.trim().toLowerCase();
+
+        // Show live transcript instantly
+        const display = fullTranscript.replace(/\b(check|done|submit)\b/g, '').trim();
+        document.getElementById('carStatus').textContent = display.toUpperCase();
+
+        // Only act on final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript.trim().toLowerCase();
-
-            // Show live transcript instantly (interim or final)
-            document.getElementById('carStatus').textContent = transcript;
-
             if (!event.results[i].isFinal) continue;
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
             const parts = transcript.split(/[\s,.\-]+/);
 
-            // Extract letters first (before checking commands)
             let hasCheck = false;
             let hasCommand = null;
             for (const part of parts) {
                 if (part === 'check' || part === 'done' || part === 'submit') {
                     hasCheck = true; continue;
                 }
-                if (part === 'repeat' || part === 'again') {
-                    hasCommand = 'repeat'; continue;
-                }
-                if (part === 'clear' || part === 'reset') {
-                    hasCommand = 'clear'; continue;
-                }
-                if (part === 'skip' || part === 'next') {
-                    hasCommand = 'skip'; continue;
-                }
-                if (part === 'score') {
-                    hasCommand = 'score'; continue;
-                }
-                if (part === 'stop' || part === 'exit' || part === 'quit') {
-                    hasCommand = 'stop'; continue;
-                }
-                // Not a command — try as letter
-                let letter = null;
-                if (part.length === 1 && /[a-z]/.test(part)) {
-                    letter = part;
-                } else {
-                    letter = spokenToLetter(part);
-                }
-                if (letter) {
-                    carLetters += letter;
-                }
+                if (part === 'repeat' || part === 'again') { hasCommand = 'repeat'; }
+                if (part === 'clear' || part === 'reset') { hasCommand = 'clear'; }
+                if (part === 'skip' || part === 'next') { hasCommand = 'skip'; }
+                if (part === 'score') { hasCommand = 'score'; }
+                if (part === 'stop' || part === 'exit' || part === 'quit') { hasCommand = 'stop'; }
             }
-            document.getElementById('carLetters').textContent = carLetters.toUpperCase();
-            document.getElementById('carStatus').textContent = '';
 
-            // Now handle commands (letters already added)
-            if (hasCheck) { carCheck(); return; }
+            if (hasCheck) {
+                // Use full transcript minus commands as the attempt
+                const attempt = fullTranscript
+                    .replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '')
+                    .replace(/[\s,.\-]+/g, '')
+                    .trim();
+                carLetters = attempt;
+                carCheck();
+                return;
+            }
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
-                carLetters = ''; carUpdateUI();
+                carLetters = '';
+                document.getElementById('carStatus').textContent = '';
                 carSpeak('Cleared.', 1.0); return;
             }
             if (hasCommand === 'skip') { carSkip(); return; }
@@ -2199,6 +2194,8 @@ function carPresentWord() {
     carLetters = '';
     carUpdateUI();
     document.getElementById('carWord').textContent = '';
+    document.getElementById('carStatus').textContent = '';
+    document.getElementById('carStatus').className = 'car-status';
     carStopRecognition();
 
     let speech = word + '. ';
@@ -2214,19 +2211,19 @@ function carCheck() {
     if (!carActive) return;
     const word = carWords[carIndex];
     const attempt = carLetters.toLowerCase();
-    const el = document.getElementById('carLetters');
+    const el = document.getElementById('carStatus');
 
     carStopRecognition();
 
     if (attempt === word) {
         carCorrect++;
-        el.className = 'car-letters correct';
+        el.className = 'car-status correct';
         carSpeak('Correct! ' + word + '.', 0.95, () => {
             carAdvance();
         });
     } else {
         carWrong++;
-        el.className = 'car-letters wrong';
+        el.className = 'car-status wrong';
         carSpeak('Wrong. The correct spelling is', 0.9, () => {
             carSpeakLetters(word, () => {
                 carSpeak(word, 0.85, () => {
@@ -2245,7 +2242,7 @@ function carSkip() {
     if (!carActive) return;
     const word = carWords[carIndex];
     carWrong++;
-    document.getElementById('carLetters').className = 'car-letters wrong';
+    document.getElementById('carStatus').className = 'car-status wrong';
     resultsArray.push({ word: word, typed: '', isCorrect: false });
     saveProgress();
     updateScoreDisplay();

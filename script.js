@@ -2103,40 +2103,41 @@ function carStartRecognition() {
     const rec = new SpeechRecognition();
     carRecognition = rec;
     rec.continuous = false;
-    rec.interimResults = false;
+    rec.interimResults = true;
     rec.lang = 'en-GB';
+    let handled = false;
 
     rec.onresult = (event) => {
-        if (carSpeaking || !carActive || carRecognition !== rec) return;
+        if (carSpeaking || !carActive || carRecognition !== rec || handled) return;
         const transcript = event.results[0][0].transcript.trim().toLowerCase();
         const parts = transcript.split(/[\s,.\-]+/);
 
-        // Check commands
+        // Check commands — act immediately on interim
         for (const part of parts) {
             if (part === 'check' || part === 'done' || part === 'submit') {
-                carCheck(); return;
+                handled = true; carCheck(); return;
             }
             if (part === 'repeat' || part === 'again') {
-                carPresentWord(); return;
+                handled = true; carPresentWord(); return;
             }
             if (part === 'clear' || part === 'reset') {
-                carLetters = '';
+                handled = true; carLetters = '';
                 carUpdateUI();
                 carSpeak('Cleared.', 1.0);
                 return;
             }
             if (part === 'skip' || part === 'next') {
-                carSkip(); return;
+                handled = true; carSkip(); return;
             }
             if (part === 'score') {
-                carAnnounceScore(); return;
+                handled = true; carAnnounceScore(); return;
             }
             if (part === 'stop' || part === 'exit' || part === 'quit') {
-                carExit(); return;
+                handled = true; carExit(); return;
             }
         }
 
-        // Add letters
+        // Try to extract a letter — commit on first match
         for (const part of parts) {
             let letter = null;
             if (part.length === 1 && /[a-z]/.test(part)) {
@@ -2145,14 +2146,21 @@ function carStartRecognition() {
                 letter = spokenToLetter(part);
             }
             if (letter) {
+                handled = true;
                 carLetters += letter;
+                document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+                // Abort and restart for next letter
+                rec.onend = null;
+                try { rec.abort(); } catch(e) {}
+                carRecognition = null;
+                carStartRecognition();
+                return;
             }
         }
-        document.getElementById('carLetters').textContent = carLetters.toUpperCase();
     };
 
     rec.onend = () => {
-        if (carActive && carRecognition === rec) {
+        if (carActive && carRecognition === rec && !handled) {
             try { rec.start(); } catch(e) {}
         }
     };

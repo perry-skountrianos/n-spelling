@@ -2116,8 +2116,8 @@ function carStartRecognition() {
         }
         fullTranscript = fullTranscript.trim().toLowerCase();
 
-        // Show live transcript instantly
-        const display = fullTranscript.replace(/\b(check|done|submit)\b/g, '').trim();
+        // Show live transcript instantly (strip all command words)
+        const display = fullTranscript.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
         document.getElementById('carStatus').textContent = display.toUpperCase();
 
         // Only act on final results
@@ -2153,7 +2153,10 @@ function carStartRecognition() {
             if (hasCommand === 'clear') {
                 carLetters = '';
                 document.getElementById('carStatus').textContent = '';
-                carSpeak('Cleared.', 1.0); return;
+                carStopRecognition();
+                carSpeak('Cleared.', 1.0, () => {
+                    carStartRecognition();
+                }); return;
             }
             if (hasCommand === 'skip') { carSkip(); return; }
             if (hasCommand === 'score') { carAnnounceScore(); return; }

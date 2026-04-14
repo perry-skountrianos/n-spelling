@@ -2097,83 +2097,71 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    if (!SpeechRecognition || carRecognition) return;
-    carRecognition = new SpeechRecognition();
-    carRecognition.continuous = true;
-    carRecognition.interimResults = true;
-    carRecognition.lang = 'en-GB';
+    if (!SpeechRecognition) return;
+    carStopRecognition();
 
-    carRecognition.onresult = (event) => {
-        if (carSpeaking || !carActive) return;
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript.trim().toLowerCase();
-            const isFinal = event.results[i].isFinal;
+    const rec = new SpeechRecognition();
+    carRecognition = rec;
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.lang = 'en-GB';
 
-            const parts = transcript.split(/[\s,.\-]+/);
+    rec.onresult = (event) => {
+        if (carSpeaking || !carActive || carRecognition !== rec) return;
+        const transcript = event.results[0][0].transcript.trim().toLowerCase();
+        const parts = transcript.split(/[\s,.\-]+/);
 
-            // Check commands on both interim and final
-            for (const part of parts) {
-                if (part === 'check' || part === 'done' || part === 'submit') {
-                    carCheck();
-                    return;
-                }
-                if (part === 'repeat' || part === 'again') {
-                    carPresentWord();
-                    return;
-                }
-                if (part === 'clear' || part === 'reset') {
-                    carLetters = '';
-                    carUpdateUI();
-                    carSpeak('Cleared.', 1.0);
-                    return;
-                }
-                if (part === 'skip' || part === 'next') {
-                    carSkip();
-                    return;
-                }
-                if (part === 'score') {
-                    carAnnounceScore();
-                    return;
-                }
-                if (part === 'stop' || part === 'exit' || part === 'quit') {
-                    carExit();
-                    return;
-                }
+        // Check commands
+        for (const part of parts) {
+            if (part === 'check' || part === 'done' || part === 'submit') {
+                carCheck(); return;
             }
-
-            if (!isFinal) continue;
-
-            // Add letters on final results
-            for (const part of parts) {
-                let letter = null;
-                if (part.length === 1 && /[a-z]/.test(part)) {
-                    letter = part;
-                } else {
-                    letter = spokenToLetter(part);
-                }
-                if (letter) {
-                    carLetters += letter;
-                }
+            if (part === 'repeat' || part === 'again') {
+                carPresentWord(); return;
             }
-            document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+            if (part === 'clear' || part === 'reset') {
+                carLetters = '';
+                carUpdateUI();
+                carSpeak('Cleared.', 1.0);
+                return;
+            }
+            if (part === 'skip' || part === 'next') {
+                carSkip(); return;
+            }
+            if (part === 'score') {
+                carAnnounceScore(); return;
+            }
+            if (part === 'stop' || part === 'exit' || part === 'quit') {
+                carExit(); return;
+            }
+        }
+
+        // Add letters
+        for (const part of parts) {
+            let letter = null;
+            if (part.length === 1 && /[a-z]/.test(part)) {
+                letter = part;
+            } else {
+                letter = spokenToLetter(part);
+            }
+            if (letter) {
+                carLetters += letter;
+            }
+        }
+        document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+    };
+
+    rec.onend = () => {
+        if (carActive && carRecognition === rec) {
+            try { rec.start(); } catch(e) {}
         }
     };
 
-    carRecognition.onend = () => {
-        if (carActive && !carSpeaking) {
-            try { carRecognition.start(); } catch(e) {}
-        } else if (carActive) {
-            setTimeout(() => {
-                if (carActive) try { carRecognition.start(); } catch(e) {}
-            }, 300);
-        }
-    };
-
-    carRecognition.onerror = (event) => {
+    rec.onerror = (event) => {
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 
-    try { carRecognition.start(); carListening = true; } catch(e) {}
+    try { rec.start(); carListening = true; } catch(e) {}
     document.getElementById('carMicRing').classList.add('listening');
 }
 
@@ -2181,6 +2169,9 @@ function carStopRecognition() {
     carListening = false;
     document.getElementById('carMicRing').classList.remove('listening');
     if (carRecognition) {
+        carRecognition.onend = null;
+        carRecognition.onresult = null;
+        carRecognition.onerror = null;
         try { carRecognition.abort(); } catch(e) {}
         carRecognition = null;
     }

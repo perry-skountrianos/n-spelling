@@ -2103,14 +2103,18 @@ function carStartRecognition() {
     const rec = new SpeechRecognition();
     carRecognition = rec;
     rec.continuous = true;
-    rec.interimResults = false;
+    rec.interimResults = true;
     rec.lang = 'en-GB';
 
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
+
+            // Show live transcript instantly (interim or final)
+            document.getElementById('carStatus').textContent = transcript;
+
+            if (!event.results[i].isFinal) continue;
             const parts = transcript.split(/[\s,.\-]+/);
 
             // Extract letters first (before checking commands)
@@ -2147,6 +2151,7 @@ function carStartRecognition() {
                 }
             }
             document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+            document.getElementById('carStatus').textContent = '';
 
             // Now handle commands (letters already added)
             if (hasCheck) { carCheck(); return; }

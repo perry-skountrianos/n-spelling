@@ -2164,11 +2164,8 @@ function carPresentWord() {
     document.getElementById('carWord').textContent = '';
     carStopRecognition();
 
-    const total = carWords.length;
-    const num = carIndex + 1;
-    let speech = 'Word ' + num + ' of ' + total + '. ' + word + '. ';
-    if (sentence) speech += sentence + '. ';
-    speech += 'Spell ' + word + '.';
+    let speech = word + '. ';
+    if (sentence) speech += sentence;
 
     carSpeak(speech, 0.9, () => {
         document.getElementById('carStatus').textContent = 'Listening...';

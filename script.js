@@ -2191,7 +2191,7 @@ function carPresentWord() {
 
     let speech = word + '. ';
     if (sentence) speech += sentence + '. ';
-    speech += 'Spell ' + word + '.';
+    speech += 'Spell ' + word + '. Say all the letters, then say check.';
 
     carSpeak(speech, 0.9, () => {
         carStartRecognition();
@@ -2301,7 +2301,7 @@ function startCarMode() {
     saveProgress();
     updateScoreDisplay();
 
-    carSpeak("Car Mode. I'll read each word and a sentence. Spell it letter by letter, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
+    carSpeak("Car Mode. I'll read each word and a sentence. Say all the letters at once, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
         carPresentWord();
     });
 }

@@ -2200,7 +2200,8 @@ function carPresentWord() {
 
     let speech = word + '. ';
     if (sentence) speech += sentence + '. ';
-    speech += 'Spell ' + word + '. Say all the letters, then say check.';
+    speech += 'Spell ' + word + '.';
+    if (carIndex === 0) speech += ' Say all the letters, then say check.';
 
     carSpeak(speech, 0.9, () => {
         carStartRecognition();

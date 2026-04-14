@@ -2105,8 +2105,6 @@ function carStartRecognition() {
     carRecognition.interimResults = true;
     carRecognition.lang = 'en-GB';
 
-    let lastProcessedLength = 0;
-
     carRecognition.onresult = (event) => {
         if (carSpeaking || !carActive) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -2117,6 +2115,8 @@ function carStartRecognition() {
             document.getElementById('carStatus').textContent = transcript;
 
             const parts = transcript.split(/[\s,.\-]+/);
+
+            // Check commands on both interim and final
             for (const part of parts) {
                 if (part === 'check' || part === 'done' || part === 'submit') {
                     carCheck();
@@ -2128,7 +2128,6 @@ function carStartRecognition() {
                 }
                 if (part === 'clear' || part === 'reset') {
                     carLetters = '';
-                    lastProcessedLength = 0;
                     carUpdateUI();
                     carSpeak('Cleared.', 1.0);
                     return;
@@ -2147,8 +2146,9 @@ function carStartRecognition() {
                 }
             }
 
-            // Process letters from interim results for instant display
-            let newLetters = '';
+            // Only add letters on final results (interim just updates status)
+            if (!isFinal) continue;
+
             for (const part of parts) {
                 let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
@@ -2156,18 +2156,10 @@ function carStartRecognition() {
                 } else {
                     letter = spokenToLetter(part);
                 }
-                if (letter) newLetters += letter;
-            }
-
-            if (newLetters.length > lastProcessedLength) {
-                const added = newLetters.slice(lastProcessedLength);
-                carLetters += added;
-                document.getElementById('carLetters').textContent = carLetters.toUpperCase();
-                lastProcessedLength = newLetters.length;
-            }
-
-            if (isFinal) {
-                lastProcessedLength = 0;
+                if (letter) {
+                    carLetters += letter;
+                    document.getElementById('carLetters').textContent = carLetters.toUpperCase();
+                }
             }
         }
     };

@@ -2027,7 +2027,7 @@ let carSpeaking = false;
 let carWaitingAnswer = false; // mobile: waiting for yes/no
 
 function carSpeak(text, rate, onDone) {
-    synth.cancel();
+    if (synth.speaking) synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate || 0.9;
     u.pitch = 1.0;
@@ -2084,26 +2084,24 @@ function carMobilePresentWord() {
 
     let speech = word + '. ';
     if (sentence) speech += sentence;
+    speech += ' . . . The answer is.';
 
     carSpeak(speech, 0.9, () => {
-        // Pause, then reveal the spelling
-        setTimeout(() => {
+        if (!carActive) return;
+        document.getElementById('carStatus').textContent = 'The answer is...';
+        document.getElementById('carLetters').textContent = word.toUpperCase();
+        // Speak the letters
+        carSpeakLetters(word, () => {
             if (!carActive) return;
-            document.getElementById('carStatus').textContent = 'The answer is...';
-            document.getElementById('carLetters').textContent = word.toUpperCase();
-            // Speak the letters
-            carSpeakLetters(word, () => {
+            // Speak the word once more
+            carSpeak(word, 0.85, () => {
                 if (!carActive) return;
-                // Speak the word once more
-                carSpeak(word, 0.85, () => {
-                    if (!carActive) return;
-                    // Show yes/no buttons
-                    carWaitingAnswer = true;
-                    document.getElementById('carButtons').style.display = 'flex';
-                    document.getElementById('carStatus').textContent = 'Did you get it right?';
-                });
+                // Show yes/no buttons
+                carWaitingAnswer = true;
+                document.getElementById('carButtons').style.display = 'flex';
+                document.getElementById('carStatus').textContent = 'Did you get it right?';
             });
-        }, 3000);
+        });
     });
 }
 

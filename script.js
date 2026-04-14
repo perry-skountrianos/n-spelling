@@ -2017,8 +2017,10 @@ function carSpeak(text, rate, onDone) {
     const voice = getVoice();
     if (voice) u.voice = voice;
     carSpeaking = true;
-    u.onend = () => { carSpeaking = false; if (onDone) onDone(); };
-    u.onerror = () => { carSpeaking = false; if (onDone) onDone(); };
+    let called = false;
+    function done() { if (called) return; called = true; carSpeaking = false; if (onDone) onDone(); }
+    u.onend = done;
+    u.onerror = done;
     synth.speak(u);
 }
 

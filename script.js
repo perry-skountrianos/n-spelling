@@ -673,8 +673,9 @@ async function loadProgress() {
 function getVoice() {
     const voices = synth.getVoices();
     if (voices.length === 0) return null;
-    const enGBVoices = voices.filter(v => v.lang === 'en-GB');
+    const enGBVoices = voices.filter(v => v.lang === 'en-GB' || v.lang === 'en_GB');
     const britFemaleNames = [
+        'Martha', 'Kate', 'Stephanie',
         'Hazel', 'Susan', 'Libby', 'Maisie', 'Sonia',
         'Google UK English Female'
     ];
@@ -685,7 +686,7 @@ function getVoice() {
     if (!selected) selected = voices.find(v => v.name.includes('Google UK English Female'));
     if (!selected) {
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        selected = enVoices[0] || voices[0];
+        selected = enVoices.find(v => britFemaleNames.some(n => v.name.includes(n))) || enVoices[0] || voices[0];
     }
     return selected;
 }
@@ -2073,55 +2074,79 @@ function carStartRecognition() {
     const rec = new SpeechRecognition();
     carRecognition = rec;
     rec.continuous = true;
-    rec.interimResults = false;
+    rec.interimResults = true;
     rec.lang = 'en-GB';
 
+    let lastProcessed = '';
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
-            document.getElementById('carStatus').textContent = 'Heard: ' + transcript;
+            const isFinal = event.results[i].isFinal;
+            document.getElementById('carStatus').textContent = (isFinal ? '' : '... ') + transcript;
+
+            // For interim results, process new letters immediately
+            // For final results, process commands and any remaining letters
             const parts = transcript.split(/[\s,]+/);
             for (const part of parts) {
-                if (part === 'check' || part === 'done' || part === 'submit') {
-                    carCheck();
-                    return;
+                // Commands only on final
+                if (isFinal) {
+                    if (part === 'check' || part === 'done' || part === 'submit') {
+                        lastProcessed = '';
+                        carCheck();
+                        return;
+                    }
+                    if (part === 'repeat' || part === 'again') {
+                        lastProcessed = '';
+                        carPresentWord();
+                        return;
+                    }
+                    if (part === 'clear' || part === 'reset') {
+                        lastProcessed = '';
+                        carLetters = '';
+                        carUpdateUI();
+                        carSpeak('Cleared. Spell ' + carWords[carIndex], 0.9);
+                        return;
+                    }
+                    if (part === 'skip' || part === 'next') {
+                        lastProcessed = '';
+                        carSkip();
+                        return;
+                    }
+                    if (part === 'score') {
+                        lastProcessed = '';
+                        carAnnounceScore();
+                        return;
+                    }
+                    if (part === 'stop' || part === 'exit' || part === 'quit') {
+                        lastProcessed = '';
+                        carExit();
+                        return;
+                    }
                 }
-                if (part === 'repeat' || part === 'again') {
-                    carPresentWord();
-                    return;
-                }
-                if (part === 'clear' || part === 'reset') {
-                    carLetters = '';
-                    carUpdateUI();
-                    carSpeak('Cleared. Spell ' + carWords[carIndex], 0.9);
-                    return;
-                }
-                if (part === 'skip' || part === 'next') {
-                    carSkip();
-                    return;
-                }
-                if (part === 'score') {
-                    carAnnounceScore();
-                    return;
-                }
-                if (part === 'stop' || part === 'exit' || part === 'quit') {
-                    carExit();
-                    return;
-                }
-                // Letter recognition
+                // Letters — process incrementally to avoid duplicates
+                let letter = null;
                 if (part.length === 1 && /[a-z]/.test(part)) {
-                    carLetters += part;
-                    carUpdateUI();
+                    letter = part;
                 } else {
-                    const letter = spokenToLetter(part);
-                    if (letter) {
-                        carLetters += letter;
+                    letter = spokenToLetter(part);
+                }
+                if (letter) {
+                    const newLetters = carLetters + letter;
+                    // Only add if this extends beyond what we already have from interim
+                    if (!isFinal && newLetters.length > lastProcessed.length) {
+                        carLetters = newLetters;
+                        lastProcessed = newLetters;
+                        carUpdateUI();
+                    } else if (isFinal) {
+                        // On final, trust the result
+                        carLetters = newLetters;
+                        lastProcessed = '';
                         carUpdateUI();
                     }
                 }
             }
+            if (isFinal) lastProcessed = '';
         }
     };
 

@@ -2088,12 +2088,10 @@ function carSpeakLetters(word, onDone) {
 function carUpdateUI() {
     const el = document.getElementById('carLetters');
     const prog = document.getElementById('carProgress');
-    const status = document.getElementById('carStatus');
     const score = document.getElementById('carScore');
     el.textContent = carLetters.toUpperCase();
     el.className = 'car-letters';
     prog.textContent = (carIndex + 1) + ' / ' + carWords.length;
-    status.textContent = carSpeaking ? '' : 'Listening...';
     const done = carCorrect + carWrong;
     score.textContent = done > 0 ? carCorrect + ' correct, ' + carWrong + ' wrong' : '';
 }
@@ -2111,8 +2109,7 @@ function carStartRecognition() {
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
             const isFinal = event.results[i].isFinal;
 
-            // Show what's being heard in real time
-            document.getElementById('carStatus').textContent = transcript;
+
 
             const parts = transcript.split(/[\s,.\-]+/);
 
@@ -2209,7 +2206,6 @@ function carPresentWord() {
     speech += 'Spell ' + word + '.';
 
     carSpeak(speech, 0.9, () => {
-        document.getElementById('carStatus').textContent = 'Listening...';
         carStartRecognition();
     });
 }

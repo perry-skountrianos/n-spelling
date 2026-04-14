@@ -2022,6 +2022,17 @@ function carSpeak(text, rate, onDone) {
     synth.speak(u);
 }
 
+// Quick echo without stopping recognition
+function carEcho(letter) {
+    const u = new SpeechSynthesisUtterance(letter);
+    u.rate = 1.1;
+    u.pitch = 1.0;
+    u.volume = 1;
+    const voice = getVoice();
+    if (voice) u.voice = voice;
+    synth.speak(u);
+}
+
 function carSpeakLetters(word, onDone) {
     const letters = word.split('');
     let i = 0;
@@ -2054,11 +2065,14 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    if (!SpeechRecognition || carRecognition) return;
-    carRecognition = new SpeechRecognition();
-    carRecognition.continuous = true;
-    carRecognition.interimResults = false;
-    carRecognition.lang = 'en-GB';
+    if (!SpeechRecognition) return;
+    if (carListening) return;
+    if (!carRecognition) {
+        carRecognition = new SpeechRecognition();
+        carRecognition.continuous = true;
+        carRecognition.interimResults = false;
+        carRecognition.lang = 'en-GB';
+    }
 
     carRecognition.onresult = (event) => {
         if (carSpeaking || !carActive) return;
@@ -2097,13 +2111,13 @@ function carStartRecognition() {
                 if (part.length === 1 && /[a-z]/.test(part)) {
                     carLetters += part;
                     carUpdateUI();
-                    carSpeak(part, 1.0);
+                    carEcho(part);
                 } else {
                     const letter = spokenToLetter(part);
                     if (letter) {
                         carLetters += letter;
                         carUpdateUI();
-                        carSpeak(letter, 1.0);
+                        carEcho(letter);
                     }
                 }
             }
@@ -2134,7 +2148,6 @@ function carStopRecognition() {
     document.getElementById('carMicRing').classList.remove('listening');
     if (carRecognition) {
         try { carRecognition.abort(); } catch(e) {}
-        carRecognition = null;
     }
 }
 
@@ -2239,6 +2252,7 @@ function carExit() {
     carActive = false;
     synth.cancel();
     carStopRecognition();
+    carRecognition = null;
     document.getElementById('carOverlay').style.display = 'none';
     // Restore main UI
     if (currentWordIndex < words.length) {
@@ -2247,6 +2261,10 @@ function carExit() {
 }
 
 function startCarMode() {
+    // Stop the main speech recognition so it doesn't compete
+    stopListening();
+    if (recognition) { try { recognition.abort(); } catch(e) {} }
+
     // Use the current word list, shuffled fresh
     carWords = [...words];
     shuffleArray(carWords);

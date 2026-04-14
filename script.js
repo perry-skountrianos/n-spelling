@@ -2324,6 +2324,10 @@ document.getElementById('carModeBtn').addEventListener('click', () => {
     startCarMode();
 });
 
+document.getElementById('carCircleBtn').addEventListener('click', () => {
+    startCarMode();
+});
+
 // ===== PROFILE EDIT MODAL =====
 const allAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋', '🐯', '🐰', '🐨', '🐵', '🐧', '🐙', '🦈', '🦉', '🐺', '🦖'];
 let editingProfileId = null;

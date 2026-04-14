@@ -670,41 +670,66 @@ async function loadProgress() {
     return false;
 }
 
+let cachedVoice = null;
+let voicesLoaded = false;
+
 function getVoice() {
+    if (cachedVoice && voicesLoaded) return cachedVoice;
     const voices = synth.getVoices();
     if (voices.length === 0) return null;
-    // Prefer female en-GB voices
+    voicesLoaded = true;
+
+    // Prefer female en-GB voices, prioritize enhanced/premium
     const enGBVoices = voices.filter(v => v.lang === 'en-GB' || v.lang === 'en_GB');
+    const avoidNames = ['Daniel', 'Arthur', 'Oliver', 'Thomas', 'Gordon', 'Malcolm', 'Aaron', 'Albert'];
+
+    // 1. Try enhanced/premium female en-GB voices first (best quality on iOS)
+    let selected = enGBVoices.find(v =>
+        (v.name.includes('Enhanced') || v.name.includes('Premium')) &&
+        !avoidNames.some(n => v.name.includes(n))
+    );
+
+    // 2. Specific preferred female names
     const preferredNames = [
         'Martha', 'Kate', 'Stephanie', 'Serena', 'Fiona',
         'Hazel', 'Susan', 'Libby', 'Maisie', 'Sonia',
         'Google UK English Female'
     ];
-    // Explicitly avoid male voices
-    const avoidNames = ['Daniel', 'Arthur', 'Oliver', 'Thomas', 'Gordon', 'Malcolm'];
-    let selected = enGBVoices.find(v =>
-        preferredNames.some(name => v.name.includes(name))
-    );
     if (!selected) {
-        selected = enGBVoices.find(v => !avoidNames.some(name => v.name.includes(name)));
+        selected = enGBVoices.find(v => preferredNames.some(name => v.name.includes(name)));
+    }
+
+    // 3. Any non-male en-GB
+    if (!selected) {
+        selected = enGBVoices.find(v => !avoidNames.some(n => v.name.includes(n)));
     }
     if (!selected) selected = enGBVoices[0];
-    if (!selected) selected = voices.find(v => v.name.includes('Google UK English Female'));
+
+    // 4. Fall back to any English female
+    if (!selected) {
+        selected = voices.find(v => v.name.includes('Google UK English Female'));
+    }
     if (!selected) {
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        // Try female en voices
         selected = enVoices.find(v => preferredNames.some(n => v.name.includes(n)));
         if (!selected) selected = enVoices.find(v => v.name.includes('Samantha'));
         if (!selected) selected = enVoices.find(v => !avoidNames.some(n => v.name.includes(n)));
         if (!selected) selected = enVoices[0] || voices[0];
     }
+
+    cachedVoice = selected;
+    console.log('Selected voice:', selected ? selected.name + ' (' + selected.lang + ')' : 'none');
     return selected;
 }
 
 // Pre-load voices (needed for iOS Safari)
 synth.getVoices();
 if (synth.onvoiceschanged !== undefined) {
-    synth.onvoiceschanged = () => { synth.getVoices(); };
+    synth.onvoiceschanged = () => {
+        cachedVoice = null;
+        voicesLoaded = false;
+        getVoice();
+    };
 }
 
 function speakWord() {

@@ -2109,22 +2109,34 @@ function carMobilePresentWord() {
 
     let speech = word + '. ';
     if (sentence) speech += sentence;
-    speech += ' . . . The answer is.';
 
+    // Step 1: Say the word and sentence
     carSpeak(speech, 0.9, () => {
         if (!carActive) return;
-        document.getElementById('carStatus').textContent = 'The answer is...';
-        document.getElementById('carLetters').textContent = word.toUpperCase();
-        // Speak the letters
-        carSpeakLetters(word, () => {
+        document.getElementById('carStatus').textContent = 'Spell it in your head...';
+
+        // Step 2: Give them time to think with a slow prompt
+        carSpeak('Now, spell it in your head.', 0.65, () => {
             if (!carActive) return;
-            // Speak the word once more
-            carSpeak(word, 0.85, () => {
+
+            // Step 3: Another pause before revealing
+            carSpeak('Ready? The answer is.', 0.7, () => {
                 if (!carActive) return;
-                // Show yes/no buttons
-                carWaitingAnswer = true;
-                document.getElementById('carButtons').style.display = 'flex';
-                document.getElementById('carStatus').textContent = 'Did you get it right?';
+                document.getElementById('carStatus').textContent = 'The answer is...';
+                document.getElementById('carLetters').textContent = word.toUpperCase();
+
+                // Step 4: Speak the letters
+                carSpeakLetters(word, () => {
+                    if (!carActive) return;
+                    // Step 5: Speak the word once more
+                    carSpeak(word, 0.85, () => {
+                        if (!carActive) return;
+                        // Show yes/no buttons
+                        carWaitingAnswer = true;
+                        document.getElementById('carButtons').style.display = 'flex';
+                        document.getElementById('carStatus').textContent = 'Did you get it right?';
+                    });
+                });
             });
         });
     });

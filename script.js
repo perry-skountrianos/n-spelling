@@ -2103,72 +2103,59 @@ function carStartRecognition() {
     const rec = new SpeechRecognition();
     carRecognition = rec;
     rec.continuous = true;
-    rec.interimResults = true;
+    rec.interimResults = false;
     rec.lang = 'en-GB';
-
-    let committedLetterCount = 0;
 
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) return;
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) continue;
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            const parts = transcript.split(/[\s,.\-]+/);
 
-        // Build full transcript from all results
-        let fullTranscript = '';
-        for (let i = 0; i < event.results.length; i++) {
-            fullTranscript += event.results[i][0].transcript + ' ';
-        }
-        fullTranscript = fullTranscript.trim().toLowerCase();
-        const parts = fullTranscript.split(/[\s,.\-]+/);
+            // Commands
+            for (const part of parts) {
+                if (part === 'check' || part === 'done' || part === 'submit') {
+                    carCheck(); return;
+                }
+                if (part === 'repeat' || part === 'again') {
+                    carPresentWord(); return;
+                }
+                if (part === 'clear' || part === 'reset') {
+                    carLetters = '';
+                    carUpdateUI();
+                    carSpeak('Cleared.', 1.0);
+                    return;
+                }
+                if (part === 'skip' || part === 'next') {
+                    carSkip(); return;
+                }
+                if (part === 'score') {
+                    carAnnounceScore(); return;
+                }
+                if (part === 'stop' || part === 'exit' || part === 'quit') {
+                    carExit(); return;
+                }
+            }
 
-        // Commands — act immediately
-        for (const part of parts) {
-            if (part === 'check' || part === 'done' || part === 'submit') {
-                carCheck(); return;
+            // Letters
+            for (const part of parts) {
+                let letter = null;
+                if (part.length === 1 && /[a-z]/.test(part)) {
+                    letter = part;
+                } else {
+                    letter = spokenToLetter(part);
+                }
+                if (letter) {
+                    carLetters += letter;
+                }
             }
-            if (part === 'repeat' || part === 'again') {
-                carPresentWord(); return;
-            }
-            if (part === 'clear' || part === 'reset') {
-                carLetters = '';
-                committedLetterCount = 0;
-                carUpdateUI();
-                carSpeak('Cleared.', 1.0);
-                return;
-            }
-            if (part === 'skip' || part === 'next') {
-                carSkip(); return;
-            }
-            if (part === 'score') {
-                carAnnounceScore(); return;
-            }
-            if (part === 'stop' || part === 'exit' || part === 'quit') {
-                carExit(); return;
-            }
-        }
-
-        // Extract all letters from full transcript
-        let allLetters = '';
-        for (const part of parts) {
-            let letter = null;
-            if (part.length === 1 && /[a-z]/.test(part)) {
-                letter = part;
-            } else {
-                letter = spokenToLetter(part);
-            }
-            if (letter) allLetters += letter;
-        }
-
-        // Only add new letters beyond what we've already committed
-        if (allLetters.length > committedLetterCount) {
-            const newLetters = allLetters.slice(committedLetterCount);
-            carLetters += newLetters;
-            committedLetterCount = allLetters.length;
             document.getElementById('carLetters').textContent = carLetters.toUpperCase();
         }
     };
 
     rec.onend = () => {
         if (carActive && carRecognition === rec) {
-            committedLetterCount = 0;
             try { rec.start(); } catch(e) {}
         }
     };

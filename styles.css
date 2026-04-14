@@ -134,6 +134,23 @@ body {
     border-color: #999;
 }
 
+.car-circle {
+    display: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.2s;
+    color: #666;
+}
+.car-circle:hover {
+    border-color: #999;
+}
+
 .profile-circle-avatar {
     font-size: 0;
     line-height: 1;
@@ -952,6 +969,12 @@ h1 {
         height: 56px;
     }
 
+    .car-circle {
+        display: flex;
+        width: 56px;
+        height: 56px;
+    }
+
     .profile-circle-avatar {
         font-size: 24px;
     }
@@ -1120,6 +1143,16 @@ h1 {
     .profile-circle {
         width: 44px;
         height: 44px;
+    }
+
+    .car-circle {
+        display: flex;
+        width: 44px;
+        height: 44px;
+    }
+    .car-circle svg {
+        width: 20px;
+        height: 20px;
     }
 
     .profile-circle-avatar {

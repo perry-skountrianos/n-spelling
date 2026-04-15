@@ -1942,6 +1942,7 @@ h1 {
     align-items: center;
     justify-content: center;
     margin-top: 12px;
+    padding-bottom: 18px;
 }
 .car-cmd {
     width: 44px;
@@ -1951,11 +1952,23 @@ h1 {
     background: transparent;
     color: #aaa;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.15s;
     padding: 0;
+    gap: 0;
+    position: relative;
+}
+.car-cmd-label {
+    position: absolute;
+    bottom: -16px;
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    pointer-events: none;
 }
 .car-cmd:active {
     transform: scale(0.92);

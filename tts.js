@@ -142,12 +142,20 @@
         function cleanup() { if (url) { URL.revokeObjectURL(url); url = null; } done(); }
         audio.onended = cleanup;
         audio.onerror = cleanup;
-        // Fallback: detect end via timeupdate (Edge sometimes misses onended)
+        // Fallback: detect end via timeupdate
         audio.ontimeupdate = () => {
             if (audio.currentTime > 0 && audio.duration > 0 && audio.currentTime >= audio.duration - 0.05) {
                 cleanup();
             }
         };
+        // iOS stall detection: if audio hasn't started playing within 500ms, give up
+        let stallTimer = setTimeout(() => {
+            if (!called && audio.currentTime === 0) {
+                console.warn('cloudTTS: audio stalled, calling done');
+                cleanup();
+            }
+        }, 500);
+        audio.onplaying = () => { clearTimeout(stallTimer); };
         audio.play().catch(cleanup);
     }
 

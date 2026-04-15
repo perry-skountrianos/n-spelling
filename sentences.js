@@ -3,7 +3,6 @@
 // Supports both mouse and touch (iPad-friendly).
 
 (function () {
-    var synth = window.speechSynthesis;
     var items = [];
     var index = 0;
     var correct = 0;
@@ -11,7 +10,7 @@
     var ROUND_SIZE = 10;
 
     // DOM refs
-    var pictureEmoji = document.getElementById('pictureEmoji');
+    var pictureImg = document.getElementById('pictureImg');
     var dropArea = document.getElementById('dropArea');
     var wordBank = document.getElementById('wordBank');
     var placeholderText = document.getElementById('placeholderText');
@@ -19,7 +18,6 @@
     var scoreEl = document.getElementById('score');
     var checkBtn = document.getElementById('checkBtn');
     var clearBtn = document.getElementById('clearBtn');
-    var listenBtn = document.getElementById('listenBtn');
     var feedback = document.getElementById('feedback');
     var feedbackIcon = document.getElementById('feedbackIcon');
     var feedbackText = document.getElementById('feedbackText');
@@ -40,15 +38,6 @@
         return a;
     }
 
-    // --- TTS ---
-    function speak(text, rate) {
-        synth.cancel();
-        var u = new SpeechSynthesisUtterance(text);
-        u.rate = rate || 0.85;
-        u.lang = 'en-GB';
-        synth.speak(u);
-    }
-
     // --- Start game ---
     function startGame() {
         items = shuffle(SENTENCE_DATA).slice(0, ROUND_SIZE);
@@ -63,7 +52,8 @@
     // --- Present a sentence ---
     function presentSentence() {
         var item = items[index];
-        pictureEmoji.textContent = item.emoji;
+        pictureImg.src = item.image;
+        pictureImg.alt = item.words.filter(function(w) { return w !== '.'; }).join(' ');
 
         // Build shuffled word list (correct words + distractors)
         var allWords = item.words.concat(item.distractors || []);
@@ -83,11 +73,6 @@
         });
 
         updateProgress();
-
-        // Read the sentence aloud after a short delay
-        setTimeout(function () {
-            speak(item.words.filter(function(w) { return w !== '.'; }).join(' ') + '.');
-        }, 500);
     }
 
     // --- Create a draggable word tile ---
@@ -260,14 +245,12 @@
             dropArea.className = 'drop-area correct';
             feedbackIcon.textContent = '⭐';
             feedbackText.textContent = 'Great job!';
-            speak('Great job!');
         } else {
             wrong++;
             dropArea.className = 'drop-area wrong';
             feedbackIcon.textContent = '🤔';
             var correctSentence = item.words.join(' ').replace(' .', '.').replace(' !', '!').replace(' ?', '?');
             feedbackText.textContent = 'The answer is: ' + correctSentence;
-            speak('The answer is: ' + correctSentence);
         }
 
         updateProgress();
@@ -291,7 +274,6 @@
     function showEnd() {
         endScreen.style.display = '';
         endScore.textContent = correct + ' out of ' + items.length + ' correct';
-        speak('All done! You got ' + correct + ' out of ' + items.length + ' correct.');
     }
 
     // --- Clear drop zone ---
@@ -299,12 +281,6 @@
         var tiles = Array.from(dropArea.querySelectorAll('.word-tile'));
         tiles.forEach(function (t) { removeFromDropZone(t); });
         dropArea.className = 'drop-area';
-    }
-
-    // --- Listen: read the correct sentence ---
-    function listenSentence() {
-        var item = items[index];
-        speak(item.words.filter(function(w) { return w !== '.'; }).join(' ') + '.');
     }
 
     // --- Update progress display ---
@@ -317,7 +293,6 @@
     // --- Wire up buttons ---
     checkBtn.addEventListener('click', checkAnswer);
     clearBtn.addEventListener('click', clearDrop);
-    listenBtn.addEventListener('click', listenSentence);
     nextBtn.addEventListener('click', nextSentence);
     againBtn.addEventListener('click', startGame);
     homeBtn.addEventListener('click', function () { window.location.href = 'index.html'; });

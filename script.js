@@ -2117,7 +2117,7 @@ function carSpeak(text, rate, onDone) {
         done();
     }, timeout);
 
-    if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+    if (useCloud) {
         carLog('using cloudTTS');
         cloudTTS.speak(text, done).then(ok => {
             carLog('cloudTTS resolved: ' + ok);

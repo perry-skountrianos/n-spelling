@@ -2150,7 +2150,10 @@ function carStartRecognition() {
 
     const rec = new SpeechRecognition();
     carRecognition = rec;
-    rec.continuous = true;
+    // iOS Safari doesn't support continuous mode well — sessions die immediately.
+    // We restart on onend anyway, so only use continuous on non-iOS.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    rec.continuous = !isIOS;
     rec.interimResults = true;
     rec.lang = 'en-GB';
 
@@ -2251,6 +2254,9 @@ function carStartRecognition() {
             console.log('[car] onend: preserved display as confirmed:', carConfirmedLetters);
         }
         if (carActive && carRecognition === rec) {
+            // Clear reference so carStopRecognition() won't abort the dead object
+            // (iOS Safari breaks if you abort an already-ended recognition)
+            carRecognition = null;
             if (carRecErrorCount > 3) {
                 carRecRetries++;
                 carRecErrorCount = 0;
@@ -2260,16 +2266,15 @@ function carStartRecognition() {
                     document.getElementById('carMicRing').classList.remove('listening');
                     return;
                 }
-                // Longer delay after errors
                 setTimeout(() => {
                     if (carActive) carStartRecognition();
                 }, 2000);
             } else {
-                // Create a fresh SpeechRecognition object (iOS Safari can't reuse ended ones)
-                // Small delay gives iOS time to release the audio session
+                // Restart quickly — carRecognition is already null so
+                // carStartRecognition won't try to abort a dead object
                 setTimeout(() => {
                     if (carActive) carStartRecognition();
-                }, 150);
+                }, 50);
             }
         }
     };

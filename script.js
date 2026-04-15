@@ -2050,6 +2050,7 @@ let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
 let carSavedLetters = ''; // Letters preserved across recognition restarts (iOS Safari kills sessions frequently)
+const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 function carLog(msg) {
     console.log('[car] ' + msg);
@@ -2071,9 +2072,8 @@ function carSpeakBrowser(text, rate, done) {
 
 function carSpeak(text, rate, onDone) {
     carLog('speak: ' + text.substring(0, 30));
-    // Only cancel browser synth if cloud TTS is NOT active — calling synth on iOS
-    // steals audio focus from Bluetooth/CarPlay media channel
-    const useCloud = typeof cloudTTS !== 'undefined' && cloudTTS.enabled();
+    // iOS: cloudTTS audio element never fires onended — skip it entirely
+    const useCloud = !carIsIOS && typeof cloudTTS !== 'undefined' && cloudTTS.enabled();
     if (!useCloud && synth.speaking) synth.cancel();
     if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carSpeaking = true;
@@ -2131,7 +2131,7 @@ function carSpeakLetters(word, onDone) {
         if (i >= letters.length) { if (onDone) onDone(); return; }
         const letter = letters[i];
         i++;
-        if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+        if (!carIsIOS && typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
             cloudTTS.speakLetter(letter, next).then(ok => {
                 if (!ok) carSpeakLetterBrowser(letter, next);
             }).catch(() => carSpeakLetterBrowser(letter, next));
@@ -2439,7 +2439,7 @@ function carRunExample(onDone) {
             el.textContent = exWord.substring(0, i + 1).toLowerCase();
             const currentLetter = letters[i];
             function afterLetter() { i++; setTimeout(showNext, 300); }
-            if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+            if (!carIsIOS && typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
                 cloudTTS.speakLetter(currentLetter, afterLetter).then(ok => {
                     if (!ok) carSpeakLetterBrowser(currentLetter, afterLetter);
                 }).catch(() => carSpeakLetterBrowser(currentLetter, afterLetter));

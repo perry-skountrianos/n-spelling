@@ -2356,6 +2356,9 @@ function carRunExample(onDone) {
 }
 
 function startCarMode() {
+    // Unlock audio element on iOS Safari from this user gesture
+    if (typeof cloudTTS !== 'undefined') cloudTTS.unlockAudio();
+
     carWords = shuffleArray([...words]);
     carIndex = 0;
     carLetters = '';

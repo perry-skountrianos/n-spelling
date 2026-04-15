@@ -2086,8 +2086,8 @@ function carSpeak(text, rate, onDone) {
         carSpeaking = false;
         if (onDone) onDone();
     }
-    // Safety: if onended never fires, force done after a generous timeout
-    const timeout = Math.max(3000, text.length * 120);
+    // Safety: if onended never fires, force done quickly
+    const timeout = Math.max(2000, text.length * 80);
     safetyTimer = setTimeout(() => {
         carLog('SAFETY TIMEOUT: ' + text.substring(0, 30));
         done();

@@ -2403,17 +2403,42 @@ function carRunExample(onDone) {
     el.textContent = '';
     el.className = 'car-status';
     document.getElementById('carWord').textContent = '';
+
+    let skipped = false;
+    const skipBtn = document.getElementById('carSkipIntro');
+    skipBtn.style.display = 'block';
+    function doSkip() {
+        if (skipped) return;
+        skipped = true;
+        skipBtn.style.display = 'none';
+        skipBtn.removeEventListener('click', doSkip);
+        // Stop any ongoing speech
+        if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
+        window.speechSynthesis && window.speechSynthesis.cancel();
+        carSpeaking = false;
+        el.textContent = '';
+        el.className = 'car-status';
+        if (onDone) onDone();
+    }
+    skipBtn.addEventListener('click', doSkip);
+
     carSpeak("Welcome to Car Mode! Let me show you how it works. I'll say a word, and you spell it by saying the letters. Let's try the word: cat.", 0.95, () => {
+        if (skipped) return;
         // Simulate letters appearing one by one
         const letters = exWord.split('');
         let i = 0;
         function showNext() {
+            if (skipped) return;
             if (i >= letters.length) {
                 // All letters shown, now explain check
                 carSpeak("Great! Now say check, or tap the green check button. You can also say skip, clear, repeat, or stop.", 0.95, () => {
+                    if (skipped) return;
                     el.textContent = '';
                     el.className = 'car-status';
                     carSpeak("OK, let's start for real!", 0.95, () => {
+                        if (skipped) return;
+                        skipBtn.style.display = 'none';
+                        skipBtn.removeEventListener('click', doSkip);
                         if (onDone) onDone();
                     });
                 });

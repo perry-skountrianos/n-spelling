@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Builder</title>
+    <link rel="stylesheet" href="sentences.css?v=1">
+</head>
+<body>
+    <div id="mainContent" style="display:none;">
+
+        <!-- Top bar -->
+        <div class="top-bar">
+            <button class="back-btn" id="backBtn">← Home</button>
+            <div class="progress" id="progress">1 / 10</div>
+            <div class="score" id="score"></div>
+        </div>
+
+        <!-- Picture prompt -->
+        <div class="picture-area" id="pictureArea">
+            <span class="picture-emoji" id="pictureEmoji"></span>
+        </div>
+
+        <!-- Sentence drop zone -->
+        <div class="sentence-zone" id="sentenceZone">
+            <div class="drop-area" id="dropArea">
+                <span class="placeholder-text" id="placeholderText">Drag words here to build a sentence</span>
+            </div>
+        </div>
+
+        <!-- Word bank -->
+        <div class="word-bank" id="wordBank"></div>
+
+        <!-- Action buttons -->
+        <div class="actions">
+            <button class="btn btn-clear" id="clearBtn">Clear</button>
+            <button class="btn btn-listen" id="listenBtn">🔊 Listen</button>
+            <button class="btn btn-check" id="checkBtn">Check ✓</button>
+        </div>
+
+        <!-- Feedback overlay -->
+        <div class="feedback" id="feedback" style="display:none;">
+            <div class="feedback-icon" id="feedbackIcon"></div>
+            <div class="feedback-text" id="feedbackText"></div>
+            <button class="btn btn-next" id="nextBtn">Next →</button>
+        </div>
+
+        <!-- End screen -->
+        <div class="end-screen" id="endScreen" style="display:none;">
+            <div class="end-icon">🎉</div>
+            <div class="end-title">All done!</div>
+            <div class="end-score" id="endScore"></div>
+            <button class="btn btn-again" id="againBtn">Play Again</button>
+            <button class="btn btn-home" id="homeBtn">Home</button>
+        </div>
+
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="sentence-data.js?v=1"></script>
+    <script src="sentences.js?v=1"></script>
+</body>
+</html>

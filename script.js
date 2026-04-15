@@ -2063,6 +2063,7 @@ function carSpeakBrowser(text, rate, done) {
 }
 
 function carSpeak(text, rate, onDone) {
+    console.log('[car] carSpeak:', text.substring(0, 40));
     if (synth.speaking) synth.cancel();
     if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carSpeaking = true;
@@ -2071,21 +2072,25 @@ function carSpeak(text, rate, onDone) {
     function done() {
         if (called) return; called = true;
         if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
+        console.log('[car] carSpeak done:', text.substring(0, 40), 'carSpeaking→false');
         carSpeaking = false;
         if (onDone) onDone();
     }
     // Safety: if onended never fires, force done after a generous timeout
     const timeout = Math.max(3000, text.length * 120);
     safetyTimer = setTimeout(() => {
-        console.warn('carSpeak safety timeout for:', text);
+        console.warn('[car] carSpeak SAFETY TIMEOUT for:', text.substring(0, 40));
         done();
     }, timeout);
 
     if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+        console.log('[car] using cloudTTS');
         cloudTTS.speak(text, done).then(ok => {
-            if (!ok) carSpeakBrowser(text, rate, done);
-        }).catch(() => carSpeakBrowser(text, rate, done));
+            console.log('[car] cloudTTS.speak resolved:', ok);
+            if (!ok) { console.log('[car] falling back to browser TTS'); carSpeakBrowser(text, rate, done); }
+        }).catch((e) => { console.warn('[car] cloudTTS.speak error:', e); carSpeakBrowser(text, rate, done); });
     } else {
+        console.log('[car] using browser TTS');
         carSpeakBrowser(text, rate, done);
     }
 }
@@ -2133,6 +2138,7 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
+    console.log('[car] carStartRecognition called, SpeechRecognition:', !!SpeechRecognition);
     if (!SpeechRecognition) return;
     carStopRecognition();
 
@@ -2143,7 +2149,10 @@ function carStartRecognition() {
     rec.lang = 'en-GB';
 
     rec.onresult = (event) => {
-        if (carSpeaking || !carActive || carRecognition !== rec) return;
+        if (carSpeaking || !carActive || carRecognition !== rec) {
+            console.log('[car] onresult SKIPPED: carSpeaking=', carSpeaking, 'carActive=', carActive, 'sameRec=', carRecognition === rec);
+            return;
+        }
 
         // Build full transcript from all results
         let fullTranscript = '';
@@ -2207,6 +2216,7 @@ function carStartRecognition() {
     };
 
     rec.onerror = (event) => {
+        console.warn('[car] recognition error:', event.error);
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 

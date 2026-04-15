@@ -2051,6 +2051,12 @@ let carListening = false;
 let carSpeaking = false;
 let carSavedLetters = ''; // Letters preserved across recognition restarts (iOS Safari kills sessions frequently)
 
+function carLog(msg) {
+    console.log('[car] ' + msg);
+    const el = document.getElementById('carDebug');
+    if (el) { el.textContent = msg + '\n' + el.textContent.substring(0, 500); }
+}
+
 function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate || 0.9;
@@ -2064,7 +2070,7 @@ function carSpeakBrowser(text, rate, done) {
 }
 
 function carSpeak(text, rate, onDone) {
-    console.log('[car] carSpeak:', text.substring(0, 40));
+    carLog('speak: ' + text.substring(0, 30));
     // Only cancel browser synth if cloud TTS is NOT active — calling synth on iOS
     // steals audio focus from Bluetooth/CarPlay media channel
     const useCloud = typeof cloudTTS !== 'undefined' && cloudTTS.enabled();
@@ -2076,25 +2082,25 @@ function carSpeak(text, rate, onDone) {
     function done() {
         if (called) return; called = true;
         if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
-        console.log('[car] carSpeak done:', text.substring(0, 40), 'carSpeaking→false');
+        carLog('speak done: ' + text.substring(0, 30));
         carSpeaking = false;
         if (onDone) onDone();
     }
     // Safety: if onended never fires, force done after a generous timeout
     const timeout = Math.max(3000, text.length * 120);
     safetyTimer = setTimeout(() => {
-        console.warn('[car] carSpeak SAFETY TIMEOUT for:', text.substring(0, 40));
+        carLog('SAFETY TIMEOUT: ' + text.substring(0, 30));
         done();
     }, timeout);
 
     if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
-        console.log('[car] using cloudTTS');
+        carLog('using cloudTTS');
         cloudTTS.speak(text, done).then(ok => {
-            console.log('[car] cloudTTS.speak resolved:', ok);
-            if (!ok) { console.log('[car] falling back to browser TTS'); carSpeakBrowser(text, rate, done); }
-        }).catch((e) => { console.warn('[car] cloudTTS.speak error:', e); carSpeakBrowser(text, rate, done); });
+            carLog('cloudTTS resolved: ' + ok);
+            if (!ok) { carLog('fallback browser'); carSpeakBrowser(text, rate, done); }
+        }).catch((e) => { carLog('cloudTTS err: ' + e); carSpeakBrowser(text, rate, done); });
     } else {
-        console.log('[car] using browser TTS');
+        carLog('using browser TTS');
         carSpeakBrowser(text, rate, done);
     }
 }
@@ -2142,7 +2148,7 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    console.log('[car] carStartRecognition called');
+    carLog('startRec, SR=' + !!SpeechRecognition);
     if (!SpeechRecognition) return;
     carStopRecognition();
 
@@ -2153,7 +2159,10 @@ function carStartRecognition() {
     rec.lang = 'en-GB';
 
     rec.onresult = (event) => {
-        if (carSpeaking || !carActive || carRecognition !== rec) return;
+        if (carSpeaking || !carActive || carRecognition !== rec) {
+            carLog('result SKIP: speaking=' + carSpeaking);
+            return;
+        }
 
         // Convert spoken letter names to actual letters
         function transcriptToLetters(text) {
@@ -2184,6 +2193,7 @@ function carStartRecognition() {
         const sessionLetters = transcriptToLetters(fullTranscript);
         const display = carSavedLetters + sessionLetters;
         document.getElementById('carStatus').textContent = display.toLowerCase();
+        carLog('show: saved=' + carSavedLetters + ' +session=' + sessionLetters);
 
         // Only act on commands from final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -2226,15 +2236,19 @@ function carStartRecognition() {
     };
 
     rec.onend = () => {
-        if (carActive && carRecognition === rec) {
-            // Save whatever is on screen so it persists across restarts
+        if (carActive) {
+            carLog('onend, saving: ' + document.getElementById('carStatus').textContent.trim());
             // (iOS Safari kills sessions and event.results resets)
             carSavedLetters = document.getElementById('carStatus').textContent.trim();
-            try { rec.start(); } catch(e) {}
+            // Must create a fresh SpeechRecognition — iOS Safari cannot
+            // restart an ended recognition object with rec.start()
+            carRecognition = null;
+            carStartRecognition();
         }
     };
 
     rec.onerror = (event) => {
+        carLog('rec error: ' + event.error);
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 

@@ -2049,6 +2049,7 @@ let carWrong = 0;
 let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
+let carSavedLetters = ''; // Letters preserved across recognition restarts (iOS Safari kills sessions frequently)
 
 function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
@@ -2179,8 +2180,9 @@ function carStartRecognition() {
         }
         fullTranscript = fullTranscript.trim().toLowerCase();
 
-        // Show live letters instantly
-        const display = transcriptToLetters(fullTranscript);
+        // Show saved letters from previous sessions + current session letters
+        const sessionLetters = transcriptToLetters(fullTranscript);
+        const display = carSavedLetters + sessionLetters;
         document.getElementById('carStatus').textContent = display.toLowerCase();
 
         // Only act on commands from final results
@@ -2210,6 +2212,7 @@ function carStartRecognition() {
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
                 carLetters = '';
+                carSavedLetters = '';
                 document.getElementById('carStatus').textContent = '';
                 carStopRecognition();
                 carSpeak('Cleared.', 1.0, () => {
@@ -2224,6 +2227,9 @@ function carStartRecognition() {
 
     rec.onend = () => {
         if (carActive && carRecognition === rec) {
+            // Save whatever is on screen so it persists across restarts
+            // (iOS Safari kills sessions and event.results resets)
+            carSavedLetters = document.getElementById('carStatus').textContent.trim();
             try { rec.start(); } catch(e) {}
         }
     };
@@ -2253,6 +2259,7 @@ function carPresentWord() {
     const word = carWords[carIndex];
     const sentence = wordSentences[word] || '';
     carLetters = '';
+    carSavedLetters = '';
     carUpdateUI();
     document.getElementById('carWord').textContent = '';
     document.getElementById('carStatus').textContent = '';
@@ -2467,6 +2474,7 @@ document.getElementById('carCmdClear').addEventListener('click', (e) => {
     e.stopPropagation();
     if (!carActive) return;
     carLetters = '';
+    carSavedLetters = '';
     document.getElementById('carStatus').textContent = '';
     carStopRecognition();
     carSpeak('Cleared.', 1.0, () => { carStartRecognition(); });

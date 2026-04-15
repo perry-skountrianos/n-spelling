@@ -2237,16 +2237,28 @@ function carStartRecognition() {
         document.getElementById('carStatus').textContent = display.toLowerCase();
         console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
     };
-    };
 
+    let carRecErrorCount = 0;
     rec.onend = () => {
         if (carActive && carRecognition === rec) {
-            try { rec.start(); } catch(e) {}
+            if (carRecErrorCount > 3) {
+                console.warn('[car] too many recognition errors, stopping restart loop');
+                carRecErrorCount = 0;
+                // Try again after a longer delay
+                setTimeout(() => {
+                    if (carActive && carRecognition === rec) {
+                        try { rec.start(); } catch(e) {}
+                    }
+                }, 2000);
+            } else {
+                try { rec.start(); } catch(e) {}
+            }
         }
     };
 
     rec.onerror = (event) => {
         console.warn('[car] recognition error:', event.error);
+        if (event.error === 'network') { carRecErrorCount++; return; }
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 

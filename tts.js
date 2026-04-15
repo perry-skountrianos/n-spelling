@@ -127,23 +127,28 @@
             currentAudio = null;
             if (onDone) onDone();
         }
-        audio.onended = done;
-        audio.onerror = done;
-        // Use blob URL instead of data URI for better cross-browser compatibility
+        // Use blob URL for cross-browser compat
+        let url = null;
         try {
             const byteChars = atob(base64);
             const byteArray = new Uint8Array(byteChars.length);
             for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
             const blob = new Blob([byteArray], { type: 'audio/mpeg' });
-            const url = URL.createObjectURL(blob);
+            url = URL.createObjectURL(blob);
             audio.src = url;
-            audio.onended = () => { URL.revokeObjectURL(url); done(); };
-            audio.onerror = () => { URL.revokeObjectURL(url); done(); };
         } catch(e) {
-            // Fallback to data URI
             audio.src = 'data:audio/mp3;base64,' + base64;
         }
-        audio.play().catch(done);
+        function cleanup() { if (url) { URL.revokeObjectURL(url); url = null; } done(); }
+        audio.onended = cleanup;
+        audio.onerror = cleanup;
+        // Fallback: detect end via timeupdate (Edge sometimes misses onended)
+        audio.ontimeupdate = () => {
+            if (audio.currentTime > 0 && audio.duration > 0 && audio.currentTime >= audio.duration - 0.05) {
+                cleanup();
+            }
+        };
+        audio.play().catch(cleanup);
     }
 
     function stop() {

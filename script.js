@@ -334,31 +334,31 @@ if (SpeechRecognition) {
 
 function spokenToLetter(word) {
     const map = {
-        'ay': 'a', 'eh': 'a',
+        'ay': 'a', 'eh': 'a', 'hey': 'a',
         'bee': 'b', 'be': 'b',
         'see': 'c', 'sea': 'c', 'cee': 'c',
-        'dee': 'd',
-        'ee': 'e',
+        'dee': 'd', 'de': 'd',
+        'ee': 'e', 'he': 'e',
         'ef': 'f', 'eff': 'f',
         'gee': 'g',
-        'aitch': 'h', 'age': 'h', 'ach': 'h', 'each': 'h', 'h.': 'h',
+        'aitch': 'h', 'age': 'h', 'ach': 'h', 'each': 'h', 'h.': 'h', 'eight': 'h', 'ache': 'h', 'etch': 'h',
         'eye': 'i', 'aye': 'i',
-        'jay': 'j',
-        'kay': 'k', 'okay': 'k',
-        'el': 'l', 'ell': 'l',
+        'jay': 'j', 'jade': 'j',
+        'kay': 'k', 'okay': 'k', 'cape': 'k',
+        'el': 'l', 'ell': 'l', 'ale': 'l',
         'em': 'm',
         'en': 'n',
         'oh': 'o',
-        'pee': 'p',
+        'pee': 'p', 'pe': 'p',
         'queue': 'q', 'cue': 'q', 'kew': 'q', 'que': 'q',
-        'are': 'r', 'ar': 'r',
+        'are': 'r', 'ar': 'r', 'our': 'r',
         'es': 's', 'ess': 's', 'ass': 's',
         'tee': 't', 'tea': 't',
-        'you': 'u', 'yu': 'u',
-        'vee': 'v',
+        'you': 'u', 'yu': 'u', 'new': 'u',
+        'vee': 'v', 've': 'v',
         'double you': 'w', 'doubleyou': 'w', 'dub': 'w',
-        'ex': 'x',
-        'why': 'y', 'wie': 'y', 'wye': 'y',
+        'ex': 'x', 'eggs': 'x',
+        'why': 'y', 'wie': 'y', 'wye': 'y', 'white': 'y',
         'zed': 'z', 'zee': 'z', 'set': 'z', 'said': 'z',
     };
     return map[word] || null;
@@ -2193,9 +2193,18 @@ function carStartRecognition() {
 
     const rec = new SpeechRecognition();
     carRecognition = rec;
-    rec.continuous = true;
-    rec.interimResults = true;
     rec.lang = 'en-GB';
+
+    if (carIsIOS) {
+        // iOS: one letter per recognition session.
+        // continuous+interimResults causes iOS to constantly revise the entire
+        // transcript, turning individual letters into gibberish words.
+        rec.continuous = false;
+        rec.interimResults = false;
+    } else {
+        rec.continuous = true;
+        rec.interimResults = true;
+    }
 
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) {
@@ -2221,87 +2230,101 @@ function carStartRecognition() {
             return letters;
         }
 
-        // Build full transcript from ALL results (interim + final)
-        let fullTranscript = '';
-        for (let ri = 0; ri < event.results.length; ri++) {
-            fullTranscript += event.results[ri][0].transcript + ' ';
-        }
-        fullTranscript = fullTranscript.trim().toLowerCase();
+        if (carIsIOS) {
+            // ---- iOS path: one result per session, always final ----
+            for (let i = 0; i < event.results.length; i++) {
+                if (!event.results[i].isFinal) continue;
+                const transcript = event.results[i][0].transcript.trim().toLowerCase();
+                carLog('heard: ' + transcript);
 
-        // Show saved letters from previous sessions + current session letters
-        // NEVER shrink the display — iOS sends empty interims that would erase letters
-        const sessionLetters = transcriptToLetters(fullTranscript);
-        const display = carSavedLetters + sessionLetters;
-        const currentDisplay = document.getElementById('carStatus').textContent.trim();
-        if (display.length >= currentDisplay.length) {
-            document.getElementById('carStatus').textContent = display.toLowerCase();
-            carLog('show: ' + display);
-        }
-
-        // Only act on commands from final results
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) continue;
-            const transcript = event.results[i][0].transcript.trim().toLowerCase();
-            const parts = transcript.split(/[\s,.\-]+/);
-
-            let hasCheck = false;
-            let hasCommand = null;
-            for (const part of parts) {
-                if (part === 'check' || part === 'done' || part === 'submit') {
-                    hasCheck = true; continue;
+                // Check for commands first
+                const parts = transcript.split(/[\s,.\-]+/);
+                let hasCheck = false;
+                let hasStop = false;
+                for (const part of parts) {
+                    if (part === 'check' || part === 'done' || part === 'submit') hasCheck = true;
+                    if (part === 'stop' || part === 'exit' || part === 'quit') hasStop = true;
                 }
-                if (part === 'repeat' || part === 'again') { hasCommand = 'repeat'; }
-                if (part === 'clear' || part === 'reset') { hasCommand = 'clear'; }
-                if (part === 'skip' || part === 'next') { hasCommand = 'skip'; }
-                if (part === 'score') { hasCommand = 'score'; }
-                if (part === 'stop' || part === 'exit' || part === 'quit') { hasCommand = 'stop'; }
+                if (hasStop) { carLog('cmd: stop'); carExit(); return; }
+                if (hasCheck && carSavedLetters.length >= 2) {
+                    carLog('cmd: check (' + carSavedLetters + ')');
+                    carLetters = carSavedLetters;
+                    carCheck();
+                    return;
+                }
+
+                // Extract letters and append to saved
+                const letters = transcriptToLetters(transcript);
+                if (letters) {
+                    carSavedLetters += letters;
+                    document.getElementById('carStatus').textContent = carSavedLetters;
+                    carLog('show: ' + carSavedLetters);
+                }
+            }
+            // Recognition auto-stops (continuous=false), onend will restart
+        } else {
+            // ---- Desktop path: continuous with interim results ----
+            let fullTranscript = '';
+            for (let ri = 0; ri < event.results.length; ri++) {
+                fullTranscript += event.results[ri][0].transcript + ' ';
+            }
+            fullTranscript = fullTranscript.trim().toLowerCase();
+
+            const sessionLetters = transcriptToLetters(fullTranscript);
+            const display = carSavedLetters + sessionLetters;
+            const currentDisplay = document.getElementById('carStatus').textContent.trim();
+            if (display.length >= currentDisplay.length) {
+                document.getElementById('carStatus').textContent = display.toLowerCase();
+                carLog('show: ' + display);
             }
 
-            // iOS Safari misrecognises spoken letters as command words
-            // (e.g. "C" → "clear", "S" → "skip", "R" → "repeat")
-            // On iOS: only allow "check" and "stop" via voice; other commands are button-only
-            if (carIsIOS && hasCommand && hasCommand !== 'stop') {
-                carLog('iOS: ignoring voice cmd "' + hasCommand + '" (use button)');
-                hasCommand = null;
-            }
+            // Only act on commands from final results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (!event.results[i].isFinal) continue;
+                const transcript = event.results[i][0].transcript.trim().toLowerCase();
+                const parts = transcript.split(/[\s,.\-]+/);
 
-            if (hasCheck) {
-                // Require at least 2 letters before accepting check
-                // to avoid iOS mishearing a letter as "check"/"done"
-                const dispLen = document.getElementById('carStatus').textContent.trim().length;
-                if (dispLen < 2) {
-                    carLog('check ignored: only ' + dispLen + ' letters');
-                } else {
+                let hasCheck = false;
+                let hasCommand = null;
+                for (const part of parts) {
+                    if (part === 'check' || part === 'done' || part === 'submit') {
+                        hasCheck = true; continue;
+                    }
+                    if (part === 'repeat' || part === 'again') { hasCommand = 'repeat'; }
+                    if (part === 'clear' || part === 'reset') { hasCommand = 'clear'; }
+                    if (part === 'skip' || part === 'next') { hasCommand = 'skip'; }
+                    if (part === 'score') { hasCommand = 'score'; }
+                    if (part === 'stop' || part === 'exit' || part === 'quit') { hasCommand = 'stop'; }
+                }
+
+                if (hasCheck) {
                     carLog('cmd: check (' + display + ')');
                     carLetters = display;
                     carCheck();
                     return;
                 }
+                if (hasCommand === 'repeat') { carLog('cmd: repeat'); carPresentWord(); return; }
+                if (hasCommand === 'clear') {
+                    carLog('cmd: clear');
+                    carLetters = '';
+                    carSavedLetters = '';
+                    document.getElementById('carStatus').textContent = '';
+                    carStopRecognition();
+                    carSpeak('Cleared.', 1.0, () => {
+                        carStartRecognition();
+                    }); return;
+                }
+                if (hasCommand === 'skip') { carLog('cmd: skip'); carSkip(); return; }
+                if (hasCommand === 'score') { carLog('cmd: score'); carAnnounceScore(); return; }
+                if (hasCommand === 'stop') { carLog('cmd: stop'); carExit(); return; }
             }
-            if (hasCommand === 'repeat') { carLog('cmd: repeat'); carPresentWord(); return; }
-            if (hasCommand === 'clear') {
-                carLog('cmd: clear');
-                carLetters = '';
-                carSavedLetters = '';
-                document.getElementById('carStatus').textContent = '';
-                carStopRecognition();
-                carSpeak('Cleared.', 1.0, () => {
-                    carStartRecognition();
-                }); return;
-            }
-            if (hasCommand === 'skip') { carLog('cmd: skip'); carSkip(); return; }
-            if (hasCommand === 'score') { carLog('cmd: score'); carAnnounceScore(); return; }
-            if (hasCommand === 'stop') { carLog('cmd: stop'); carExit(); return; }
         }
     };
 
     rec.onend = () => {
         if (carActive) {
             carLog('onend, saving: ' + document.getElementById('carStatus').textContent.trim());
-            // (iOS Safari kills sessions and event.results resets)
             carSavedLetters = document.getElementById('carStatus').textContent.trim();
-            // Must create a fresh SpeechRecognition — iOS Safari cannot
-            // restart an ended recognition object with rec.start()
             carRecognition = null;
             carStartRecognition();
         }

@@ -54,18 +54,64 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+        /* Auth gate */
+        .auth-gate {
+            text-align: center;
+            padding: 2rem;
+        }
+        .auth-gate input {
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+            border: 2px solid #d2d2d7;
+            border-radius: 10px;
+            outline: none;
+            width: 200px;
+            text-align: center;
+        }
+        .auth-gate input:focus {
+            border-color: #0071e3;
+        }
+        .auth-gate button {
+            display: block;
+            margin: 1rem auto 0;
+            font-size: 1rem;
+            padding: 0.6rem 2rem;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .auth-gate button:hover {
+            background: #0077ed;
+        }
+        .auth-error {
+            color: #ff3b30;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Auth gate -->
+    <div class="auth-gate" id="authGate">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
+        <input type="password" id="authPassword" placeholder="Password" autocomplete="off">
+        <button id="authSubmit">Enter</button>
+        <div class="auth-error" id="authError"></div>
+    </div>
+
+    <!-- Main content (hidden until authenticated) -->
+    <div class="container" id="mainContent" style="display:none;">
         <div class="apps">
             <a href="spelling.html" class="app-link">
                 <div class="app-card">
-                    <span class="app-icon">ðŸ“</span>
+                    <span class="app-icon">ðŸ"</span>
                     <span class="app-name">Spelling</span>
                 </div>
             </a>
         </div>
     </div>
+    <script src="auth.js"></script>
 </body>
 </html>

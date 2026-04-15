@@ -2163,15 +2163,37 @@ function carStartRecognition() {
             fullTranscript += event.results[ri][0].transcript + ' ';
         }
         fullTranscript = fullTranscript.trim().toLowerCase();
+        console.log('[car] transcript:', fullTranscript);
 
-        // Show live transcript instantly (strip all command words and spaces)
-        const display = fullTranscript.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').replace(/[\s,.\-]+/g, '').trim();
+        // Convert spoken letter names to actual letters (e.g. "double you" → "w")
+        function transcriptToLetters(text) {
+            // Strip command words first
+            let clean = text.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
+            // Handle multi-word letter names first (e.g., "double you")
+            clean = clean.replace(/double you/g, 'w');
+            const parts = clean.split(/[\s,.\-]+/);
+            let letters = '';
+            for (const part of parts) {
+                if (!part) continue;
+                if (part.length === 1 && /[a-z]/.test(part)) {
+                    letters += part;
+                } else {
+                    const l = spokenToLetter(part);
+                    if (l) letters += l;
+                }
+            }
+            return letters;
+        }
+
+        // Show live transcript as letters
+        const display = transcriptToLetters(fullTranscript);
         document.getElementById('carStatus').textContent = display.toLowerCase();
 
         // Only act on final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            console.log('[car] final transcript:', transcript);
             const parts = transcript.split(/[\s,.\-]+/);
 
             let hasCheck = false;
@@ -2188,11 +2210,7 @@ function carStartRecognition() {
             }
 
             if (hasCheck) {
-                // Use full transcript minus commands as the attempt
-                const attempt = fullTranscript
-                    .replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '')
-                    .replace(/[\s,.\-]+/g, '')
-                    .trim();
+                const attempt = transcriptToLetters(fullTranscript);
                 carLetters = attempt;
                 carCheck();
                 return;

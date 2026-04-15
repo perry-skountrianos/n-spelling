@@ -2049,8 +2049,11 @@ let carWrong = 0;
 let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
-let carSavedLetters = ''; // Letters preserved across recognition restarts (iOS Safari kills sessions frequently)
-const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let carSavedLetters = '';
+// Detect iOS/iPadOS: covers iPhone UA, old iPad UA, and modern iPadOS (reports as Mac with touch)
+const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Macintosh|MacIntel/.test(navigator.userAgent)) ||
+    (/Safari/.test(navigator.userAgent) && /Apple/.test(navigator.vendor) && 'ontouchstart' in window);
 
 function carLog(msg) {
     console.log('[car] ' + msg);
@@ -2169,7 +2172,7 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    carLog('startRec, SR=' + !!SpeechRecognition);
+    carLog('startRec, SR=' + !!SpeechRecognition + ' iOS=' + carIsIOS);
     if (!SpeechRecognition) return;
     carStopRecognition();
 

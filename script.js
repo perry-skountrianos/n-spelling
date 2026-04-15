@@ -2067,7 +2067,19 @@ function carSpeak(text, rate, onDone) {
     if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carSpeaking = true;
     let called = false;
-    function done() { if (called) return; called = true; carSpeaking = false; if (onDone) onDone(); }
+    let safetyTimer = null;
+    function done() {
+        if (called) return; called = true;
+        if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
+        carSpeaking = false;
+        if (onDone) onDone();
+    }
+    // Safety: if onended never fires, force done after a generous timeout
+    const timeout = Math.max(3000, text.length * 120);
+    safetyTimer = setTimeout(() => {
+        console.warn('carSpeak safety timeout for:', text);
+        done();
+    }, timeout);
 
     if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
         cloudTTS.speak(text, done).then(ok => {

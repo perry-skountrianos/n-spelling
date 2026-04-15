@@ -128,7 +128,20 @@
         }
         audio.onended = done;
         audio.onerror = done;
-        audio.src = 'data:audio/mp3;base64,' + base64;
+        // Use blob URL instead of data URI for better cross-browser compatibility
+        try {
+            const byteChars = atob(base64);
+            const byteArray = new Uint8Array(byteChars.length);
+            for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+            const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+            const url = URL.createObjectURL(blob);
+            audio.src = url;
+            audio.onended = () => { URL.revokeObjectURL(url); done(); };
+            audio.onerror = () => { URL.revokeObjectURL(url); done(); };
+        } catch(e) {
+            // Fallback to data URI
+            audio.src = 'data:audio/mp3;base64,' + base64;
+        }
         audio.play().catch(done);
     }
 

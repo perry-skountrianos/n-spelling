@@ -2190,10 +2190,14 @@ function carStartRecognition() {
         fullTranscript = fullTranscript.trim().toLowerCase();
 
         // Show saved letters from previous sessions + current session letters
+        // NEVER shrink the display — iOS sends empty interims that would erase letters
         const sessionLetters = transcriptToLetters(fullTranscript);
         const display = carSavedLetters + sessionLetters;
-        document.getElementById('carStatus').textContent = display.toLowerCase();
-        carLog('show: saved=' + carSavedLetters + ' +session=' + sessionLetters);
+        const currentDisplay = document.getElementById('carStatus').textContent.trim();
+        if (display.length >= currentDisplay.length) {
+            document.getElementById('carStatus').textContent = display.toLowerCase();
+            carLog('show: ' + display);
+        }
 
         // Only act on commands from final results
         for (let i = event.resultIndex; i < event.results.length; i++) {

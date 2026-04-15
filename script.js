@@ -2055,12 +2055,6 @@ const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.maxTouchPoints > 1 && /Macintosh|MacIntel/.test(navigator.userAgent)) ||
     (/Safari/.test(navigator.userAgent) && /Apple/.test(navigator.vendor) && 'ontouchstart' in window);
 
-function carLog(msg) {
-    console.log('[car] ' + msg);
-    const el = document.getElementById('carDebug');
-    if (el) { el.textContent = msg + '\n' + el.textContent.substring(0, 500); }
-}
-
 function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate || 0.9;
@@ -2093,7 +2087,6 @@ function carSpeakBrowser(text, rate, done) {
 }
 
 function carSpeak(text, rate, onDone) {
-    carLog('speak: ' + text.substring(0, 30));
     // iOS: cloudTTS audio element never fires onended — skip it entirely
     const useCloud = !carIsIOS && typeof cloudTTS !== 'undefined' && cloudTTS.enabled();
     if (!useCloud && synth.speaking) synth.cancel();
@@ -2104,7 +2097,6 @@ function carSpeak(text, rate, onDone) {
     function done() {
         if (called) return; called = true;
         if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
-        carLog('speak done: ' + text.substring(0, 30));
         carSpeaking = false;
         if (onDone) onDone();
     }
@@ -2113,20 +2105,15 @@ function carSpeak(text, rate, onDone) {
         // Browser TTS has its own polling timeout, so no safety needed there
         const timeout = Math.max(3000, text.length * 100);
         safetyTimer = setTimeout(() => {
-            carLog('SAFETY TIMEOUT: ' + text.substring(0, 30));
             if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
-                carLog('disabling cloudTTS (audio not finishing)');
                 cloudTTS.disable();
             }
             done();
         }, timeout);
-        carLog('using cloudTTS');
         cloudTTS.speak(text, done).then(ok => {
-            carLog('cloudTTS resolved: ' + ok);
-            if (!ok) { carLog('fallback browser'); carSpeakBrowser(text, rate, done); }
-        }).catch((e) => { carLog('cloudTTS err: ' + e); carSpeakBrowser(text, rate, done); });
+            if (!ok) { carSpeakBrowser(text, rate, done); }
+        }).catch(() => { carSpeakBrowser(text, rate, done); });
     } else {
-        carLog('using browser TTS');
         carSpeakBrowser(text, rate, done);
     }
 }
@@ -2187,7 +2174,6 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    carLog('startRec, SR=' + !!SpeechRecognition + ' iOS=' + carIsIOS);
     if (!SpeechRecognition) return;
     carStopRecognition();
 
@@ -2209,7 +2195,6 @@ function carStartRecognition() {
 
     rec.onresult = (event) => {
         if (carSpeaking || !carActive || carRecognition !== rec) {
-            carLog('result SKIP: speaking=' + carSpeaking);
             return;
         }
 
@@ -2241,14 +2226,12 @@ function carStartRecognition() {
             for (let i = 0; i < event.results.length; i++) {
                 if (!event.results[i].isFinal) continue;
                 const transcript = event.results[i][0].transcript.trim().toLowerCase();
-                carLog('heard: ' + transcript);
 
                 // Treat everything as letters — no command parsing
                 const letters = transcriptToLetters(transcript);
                 if (letters) {
                     carSavedLetters += letters;
                     document.getElementById('carStatus').textContent = carSavedLetters;
-                    carLog('show: ' + carSavedLetters);
                 }
             }
         } else {
@@ -2264,7 +2247,6 @@ function carStartRecognition() {
             const currentDisplay = document.getElementById('carStatus').textContent.trim();
             if (display.length >= currentDisplay.length) {
                 document.getElementById('carStatus').textContent = display.toLowerCase();
-                carLog('show: ' + display);
             }
 
             // Only act on commands from final results
@@ -2287,14 +2269,12 @@ function carStartRecognition() {
                 }
 
                 if (hasCheck) {
-                    carLog('cmd: check (' + display + ')');
                     carLetters = display;
                     carCheck();
                     return;
                 }
-                if (hasCommand === 'repeat') { carLog('cmd: repeat'); carPresentWord(); return; }
+                if (hasCommand === 'repeat') { carPresentWord(); return; }
                 if (hasCommand === 'clear') {
-                    carLog('cmd: clear');
                     carLetters = '';
                     carSavedLetters = '';
                     document.getElementById('carStatus').textContent = '';
@@ -2303,16 +2283,15 @@ function carStartRecognition() {
                         carStartRecognition();
                     }); return;
                 }
-                if (hasCommand === 'skip') { carLog('cmd: skip'); carSkip(); return; }
-                if (hasCommand === 'score') { carLog('cmd: score'); carAnnounceScore(); return; }
-                if (hasCommand === 'stop') { carLog('cmd: stop'); carExit(); return; }
+                if (hasCommand === 'skip') { carSkip(); return; }
+                if (hasCommand === 'score') { carAnnounceScore(); return; }
+                if (hasCommand === 'stop') { carExit(); return; }
             }
         }
     };
 
     rec.onend = () => {
         if (carActive) {
-            carLog('onend, saving: ' + document.getElementById('carStatus').textContent.trim());
             carSavedLetters = document.getElementById('carStatus').textContent.trim();
             carRecognition = null;
             carStartRecognition();
@@ -2320,7 +2299,6 @@ function carStartRecognition() {
     };
 
     rec.onerror = (event) => {
-        carLog('rec error: ' + event.error);
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 

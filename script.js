@@ -2152,7 +2152,12 @@ function carStartRecognition() {
     rec.interimResults = true;
     rec.lang = 'en-GB';
 
+    let carRecErrorCount = 0;
+    let carRecRetries = 0;
+
     rec.onresult = (event) => {
+        carRecErrorCount = 0;
+        carRecRetries = 0;
         if (carSpeaking || !carActive || carRecognition !== rec) {
             console.log('[car] onresult SKIPPED: carSpeaking=', carSpeaking, 'carActive=', carActive, 'sameRec=', carRecognition === rec);
             return;
@@ -2238,13 +2243,18 @@ function carStartRecognition() {
         console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
     };
 
-    let carRecErrorCount = 0;
     rec.onend = () => {
         if (carActive && carRecognition === rec) {
             if (carRecErrorCount > 3) {
-                console.warn('[car] too many recognition errors, stopping restart loop');
+                carRecRetries++;
                 carRecErrorCount = 0;
-                // Try again after a longer delay
+                if (carRecRetries >= 3) {
+                    // Persistent failure — show message, stop retrying
+                    console.warn('[car] speech recognition unavailable');
+                    document.getElementById('carWord').textContent = 'Voice input unavailable — use the buttons below';
+                    document.getElementById('carMicRing').classList.remove('listening');
+                    return;
+                }
                 setTimeout(() => {
                     if (carActive && carRecognition === rec) {
                         try { rec.start(); } catch(e) {}

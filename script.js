@@ -2050,6 +2050,8 @@ let carWrong = 0;
 let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
+let carRecErrorCount = 0;
+let carRecRetries = 0;
 
 function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
@@ -2152,9 +2154,6 @@ function carStartRecognition() {
     rec.interimResults = true;
     rec.lang = 'en-GB';
 
-    let carRecErrorCount = 0;
-    let carRecRetries = 0;
-
     rec.onresult = (event) => {
         carRecErrorCount = 0;
         carRecRetries = 0;
@@ -2243,6 +2242,7 @@ function carStartRecognition() {
     };
 
     rec.onend = () => {
+        console.log('[car] rec.onend fired, carActive:', carActive, 'sameRec:', carRecognition === rec);
         // iOS Safari: preserve whatever is on screen when the session dies
         // (catches interim letters that never finalized)
         const onScreen = document.getElementById('carStatus').textContent.trim();
@@ -2255,19 +2255,21 @@ function carStartRecognition() {
                 carRecRetries++;
                 carRecErrorCount = 0;
                 if (carRecRetries >= 3) {
-                    // Persistent failure — show message, stop retrying
                     console.warn('[car] speech recognition unavailable');
                     document.getElementById('carWord').textContent = 'Voice input unavailable — use the buttons below';
                     document.getElementById('carMicRing').classList.remove('listening');
                     return;
                 }
+                // Longer delay after errors
                 setTimeout(() => {
-                    if (carActive && carRecognition === rec) {
-                        try { rec.start(); } catch(e) {}
-                    }
+                    if (carActive) carStartRecognition();
                 }, 2000);
             } else {
-                try { rec.start(); } catch(e) {}
+                // Create a fresh SpeechRecognition object (iOS Safari can't reuse ended ones)
+                // Small delay gives iOS time to release the audio session
+                setTimeout(() => {
+                    if (carActive) carStartRecognition();
+                }, 150);
             }
         }
     };
@@ -2278,7 +2280,9 @@ function carStartRecognition() {
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 
-    try { rec.start(); carListening = true; } catch(e) {}
+    try { rec.start(); carListening = true; } catch(e) {
+        console.warn('[car] rec.start() failed:', e);
+    }
     document.getElementById('carMicRing').classList.add('listening');
 }
 
@@ -2300,6 +2304,8 @@ function carPresentWord() {
     const sentence = wordSentences[word] || '';
     carLetters = '';
     carConfirmedLetters = '';
+    carRecErrorCount = 0;
+    carRecRetries = 0;
     carUpdateUI();
     document.getElementById('carWord').textContent = '';
     document.getElementById('carStatus').textContent = '';

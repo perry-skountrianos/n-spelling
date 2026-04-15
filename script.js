@@ -2044,14 +2044,11 @@ let carActive = false;
 let carWords = [];
 let carIndex = 0;
 let carLetters = '';
-let carConfirmedLetters = ''; // Accumulated letters across recognition restarts
 let carCorrect = 0;
 let carWrong = 0;
 let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
-let carRecErrorCount = 0;
-let carRecRetries = 0;
 
 function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
@@ -2144,28 +2141,20 @@ function carUpdateUI() {
 }
 
 function carStartRecognition() {
-    console.log('[car] carStartRecognition called, SpeechRecognition:', !!SpeechRecognition);
+    console.log('[car] carStartRecognition called');
     if (!SpeechRecognition) return;
     carStopRecognition();
 
     const rec = new SpeechRecognition();
     carRecognition = rec;
-    // iOS Safari doesn't support continuous mode well — sessions die immediately.
-    // We restart on onend anyway, so only use continuous on non-iOS.
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    rec.continuous = !isIOS;
+    rec.continuous = true;
     rec.interimResults = true;
     rec.lang = 'en-GB';
 
     rec.onresult = (event) => {
-        carRecErrorCount = 0;
-        carRecRetries = 0;
-        if (carSpeaking || !carActive || carRecognition !== rec) {
-            console.log('[car] onresult SKIPPED: carSpeaking=', carSpeaking, 'carActive=', carActive, 'sameRec=', carRecognition === rec);
-            return;
-        }
+        if (carSpeaking || !carActive || carRecognition !== rec) return;
 
-        // Convert spoken letter names to actual letters (e.g. "double you" → "w")
+        // Convert spoken letter names to actual letters
         function transcriptToLetters(text) {
             let clean = text.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
             clean = clean.replace(/double you/g, 'w');
@@ -2183,11 +2172,21 @@ function carStartRecognition() {
             return letters;
         }
 
-        // Check for commands and commit letters from final results
+        // Build full transcript from ALL results (interim + final)
+        let fullTranscript = '';
+        for (let ri = 0; ri < event.results.length; ri++) {
+            fullTranscript += event.results[ri][0].transcript + ' ';
+        }
+        fullTranscript = fullTranscript.trim().toLowerCase();
+
+        // Show live letters instantly
+        const display = transcriptToLetters(fullTranscript);
+        document.getElementById('carStatus').textContent = display.toLowerCase();
+
+        // Only act on commands from final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
-            console.log('[car] final transcript:', transcript);
             const parts = transcript.split(/[\s,.\-]+/);
 
             let hasCheck = false;
@@ -2204,15 +2203,12 @@ function carStartRecognition() {
             }
 
             if (hasCheck) {
-                const newLetters = transcriptToLetters(transcript);
-                carConfirmedLetters += newLetters;
-                carLetters = carConfirmedLetters;
+                carLetters = display;
                 carCheck();
                 return;
             }
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
-                carConfirmedLetters = '';
                 carLetters = '';
                 document.getElementById('carStatus').textContent = '';
                 carStopRecognition();
@@ -2223,71 +2219,20 @@ function carStartRecognition() {
             if (hasCommand === 'skip') { carSkip(); return; }
             if (hasCommand === 'score') { carAnnounceScore(); return; }
             if (hasCommand === 'stop') { carExit(); return; }
-
-            // No command — commit these final letters
-            const newLetters = transcriptToLetters(transcript);
-            if (newLetters) {
-                carConfirmedLetters += newLetters;
-                console.log('[car] confirmed letters:', carConfirmedLetters);
-            }
         }
-
-        // Build display: confirmed letters + any interim letters from current results
-        let interimLetters = '';
-        for (let i = 0; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) {
-                interimLetters += transcriptToLetters(event.results[i][0].transcript.trim().toLowerCase());
-            }
-        }
-        const display = carConfirmedLetters + interimLetters;
-        document.getElementById('carStatus').textContent = display.toLowerCase();
-        console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
     };
 
     rec.onend = () => {
-        console.log('[car] rec.onend fired, carActive:', carActive, 'sameRec:', carRecognition === rec);
-        // iOS Safari: preserve whatever is on screen when the session dies
-        // (catches interim letters that never finalized)
-        const onScreen = document.getElementById('carStatus').textContent.trim();
-        if (onScreen && onScreen.length > carConfirmedLetters.length) {
-            carConfirmedLetters = onScreen;
-            console.log('[car] onend: preserved display as confirmed:', carConfirmedLetters);
-        }
         if (carActive && carRecognition === rec) {
-            // Clear reference so carStopRecognition() won't abort the dead object
-            // (iOS Safari breaks if you abort an already-ended recognition)
-            carRecognition = null;
-            if (carRecErrorCount > 3) {
-                carRecRetries++;
-                carRecErrorCount = 0;
-                if (carRecRetries >= 3) {
-                    console.warn('[car] speech recognition unavailable');
-                    document.getElementById('carWord').textContent = 'Voice input unavailable — use the buttons below';
-                    document.getElementById('carMicRing').classList.remove('listening');
-                    return;
-                }
-                setTimeout(() => {
-                    if (carActive) carStartRecognition();
-                }, 2000);
-            } else {
-                // Restart quickly — carRecognition is already null so
-                // carStartRecognition won't try to abort a dead object
-                setTimeout(() => {
-                    if (carActive) carStartRecognition();
-                }, 50);
-            }
+            try { rec.start(); } catch(e) {}
         }
     };
 
     rec.onerror = (event) => {
-        console.warn('[car] recognition error:', event.error);
-        if (event.error === 'network') { carRecErrorCount++; return; }
         if (event.error === 'no-speech' || event.error === 'aborted') return;
     };
 
-    try { rec.start(); carListening = true; } catch(e) {
-        console.warn('[car] rec.start() failed:', e);
-    }
+    try { rec.start(); carListening = true; } catch(e) {}
     document.getElementById('carMicRing').classList.add('listening');
 }
 
@@ -2308,9 +2253,6 @@ function carPresentWord() {
     const word = carWords[carIndex];
     const sentence = wordSentences[word] || '';
     carLetters = '';
-    carConfirmedLetters = '';
-    carRecErrorCount = 0;
-    carRecRetries = 0;
     carUpdateUI();
     document.getElementById('carWord').textContent = '';
     document.getElementById('carStatus').textContent = '';
@@ -2525,7 +2467,6 @@ document.getElementById('carCmdClear').addEventListener('click', (e) => {
     e.stopPropagation();
     if (!carActive) return;
     carLetters = '';
-    carConfirmedLetters = '';
     document.getElementById('carStatus').textContent = '';
     carStopRecognition();
     carSpeak('Cleared.', 1.0, () => { carStartRecognition(); });

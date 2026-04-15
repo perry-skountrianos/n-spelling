@@ -2064,7 +2064,10 @@ function carSpeakBrowser(text, rate, done) {
 
 function carSpeak(text, rate, onDone) {
     console.log('[car] carSpeak:', text.substring(0, 40));
-    if (synth.speaking) synth.cancel();
+    // Only cancel browser synth if cloud TTS is NOT active — calling synth on iOS
+    // steals audio focus from Bluetooth/CarPlay media channel
+    const useCloud = typeof cloudTTS !== 'undefined' && cloudTTS.enabled();
+    if (!useCloud && synth.speaking) synth.cancel();
     if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carSpeaking = true;
     let called = false;
@@ -2161,8 +2164,8 @@ function carStartRecognition() {
         }
         fullTranscript = fullTranscript.trim().toLowerCase();
 
-        // Show live transcript instantly (strip all command words)
-        const display = fullTranscript.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
+        // Show live transcript instantly (strip all command words and spaces)
+        const display = fullTranscript.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').replace(/[\s,.\-]+/g, '').trim();
         document.getElementById('carStatus').textContent = display.toUpperCase();
 
         // Only act on final results
@@ -2331,8 +2334,8 @@ function carFinish() {
 
 function carExit() {
     carActive = false;
-    synth.cancel();
     if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
+    else synth.cancel();
     carStopRecognition();
     document.getElementById('carOverlay').style.display = 'none';
     if (currentWordIndex < words.length) {

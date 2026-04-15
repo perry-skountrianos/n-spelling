@@ -2215,9 +2215,13 @@ function carStartRecognition() {
 
         // Convert spoken letter names to actual letters
         function transcriptToLetters(text) {
-            let clean = text.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
-            clean = clean.replace(/double you/g, 'w');
-            const parts = clean.split(/[\s,.\-]+/);
+            // On desktop, strip command words so they aren't treated as letters
+            if (!carIsIOS) {
+                text = text.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '');
+            }
+            text = text.trim();
+            text = text.replace(/double you/g, 'w');
+            const parts = text.split(/[\s,.\-]+/);
             let letters = '';
             for (const part of parts) {
                 if (!part) continue;
@@ -2232,29 +2236,14 @@ function carStartRecognition() {
         }
 
         if (carIsIOS) {
-            // ---- iOS path: one result per session, always final ----
+            // ---- iOS path: no voice commands, letters only ----
+            // All commands (clear, check, skip, repeat, stop) are button-only on iOS
             for (let i = 0; i < event.results.length; i++) {
                 if (!event.results[i].isFinal) continue;
                 const transcript = event.results[i][0].transcript.trim().toLowerCase();
                 carLog('heard: ' + transcript);
 
-                // Check for commands first
-                const parts = transcript.split(/[\s,.\-]+/);
-                let hasCheck = false;
-                let hasStop = false;
-                for (const part of parts) {
-                    if (part === 'check' || part === 'done' || part === 'submit') hasCheck = true;
-                    if (part === 'stop' || part === 'exit' || part === 'quit') hasStop = true;
-                }
-                if (hasStop) { carLog('cmd: stop'); carExit(); return; }
-                if (hasCheck && carSavedLetters.length >= 2) {
-                    carLog('cmd: check (' + carSavedLetters + ')');
-                    carLetters = carSavedLetters;
-                    carCheck();
-                    return;
-                }
-
-                // Extract letters and append to saved
+                // Treat everything as letters — no command parsing
                 const letters = transcriptToLetters(transcript);
                 if (letters) {
                     carSavedLetters += letters;
@@ -2262,7 +2251,6 @@ function carStartRecognition() {
                     carLog('show: ' + carSavedLetters);
                 }
             }
-            // Recognition auto-stops (continuous=false), onend will restart
         } else {
             // ---- Desktop path: continuous with interim results ----
             let fullTranscript = '';

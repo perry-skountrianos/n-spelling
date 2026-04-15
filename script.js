@@ -2154,7 +2154,6 @@ function carStartRecognition() {
 
     let carRecErrorCount = 0;
     let carRecRetries = 0;
-    let committedPerResult = {}; // Track which result indices already had letters committed
 
     rec.onresult = (event) => {
         carRecErrorCount = 0;
@@ -2182,22 +2181,7 @@ function carStartRecognition() {
             return letters;
         }
 
-        // 1. Immediately commit letters from any result not yet committed (interim or final)
-        //    This prevents iOS flash: once a letter is seen, it stays even if iOS
-        //    reinterprets the result or kills the session before finalizing.
-        for (let i = 0; i < event.results.length; i++) {
-            if (committedPerResult[i]) continue;
-            const t = event.results[i][0].transcript.trim().toLowerCase();
-            const letters = transcriptToLetters(t);
-            if (letters) {
-                carConfirmedLetters += letters;
-                committedPerResult[i] = true;
-                console.log('[car] committed result[' + i + ']:', letters, '→ total:', carConfirmedLetters);
-            }
-        }
-        document.getElementById('carStatus').textContent = carConfirmedLetters.toLowerCase();
-
-        // 2. Check for commands in final results
+        // Check for commands and commit letters from final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
@@ -2218,6 +2202,8 @@ function carStartRecognition() {
             }
 
             if (hasCheck) {
+                const newLetters = transcriptToLetters(transcript);
+                carConfirmedLetters += newLetters;
                 carLetters = carConfirmedLetters;
                 carCheck();
                 return;
@@ -2225,7 +2211,6 @@ function carStartRecognition() {
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
                 carConfirmedLetters = '';
-                committedPerResult = {};
                 carLetters = '';
                 document.getElementById('carStatus').textContent = '';
                 carStopRecognition();
@@ -2236,12 +2221,35 @@ function carStartRecognition() {
             if (hasCommand === 'skip') { carSkip(); return; }
             if (hasCommand === 'score') { carAnnounceScore(); return; }
             if (hasCommand === 'stop') { carExit(); return; }
+
+            // No command — commit these final letters
+            const newLetters = transcriptToLetters(transcript);
+            if (newLetters) {
+                carConfirmedLetters += newLetters;
+                console.log('[car] confirmed letters:', carConfirmedLetters);
+            }
         }
+
+        // Build display: confirmed letters + any interim letters from current results
+        let interimLetters = '';
+        for (let i = 0; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) {
+                interimLetters += transcriptToLetters(event.results[i][0].transcript.trim().toLowerCase());
+            }
+        }
+        const display = carConfirmedLetters + interimLetters;
+        document.getElementById('carStatus').textContent = display.toLowerCase();
+        console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
     };
 
     rec.onend = () => {
-        committedPerResult = {}; // Reset for next recognition session
-        document.getElementById('carStatus').textContent = carConfirmedLetters.toLowerCase();
+        // iOS Safari: preserve whatever is on screen when the session dies
+        // (catches interim letters that never finalized)
+        const onScreen = document.getElementById('carStatus').textContent.trim();
+        if (onScreen && onScreen.length > carConfirmedLetters.length) {
+            carConfirmedLetters = onScreen;
+            console.log('[car] onend: preserved display as confirmed:', carConfirmedLetters);
+        }
         if (carActive && carRecognition === rec) {
             if (carRecErrorCount > 3) {
                 carRecRetries++;

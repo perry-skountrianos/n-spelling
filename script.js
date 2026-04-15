@@ -2154,6 +2154,7 @@ function carStartRecognition() {
 
     let carRecErrorCount = 0;
     let carRecRetries = 0;
+    let lastInterimLetters = ''; // Track unfinalized interim letters
 
     rec.onresult = (event) => {
         carRecErrorCount = 0;
@@ -2202,9 +2203,9 @@ function carStartRecognition() {
             }
 
             if (hasCheck) {
-                // Commit any letters from this final result before checking
                 const newLetters = transcriptToLetters(transcript);
                 carConfirmedLetters += newLetters;
+                lastInterimLetters = '';
                 carLetters = carConfirmedLetters;
                 carCheck();
                 return;
@@ -2212,6 +2213,7 @@ function carStartRecognition() {
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
                 carConfirmedLetters = '';
+                lastInterimLetters = '';
                 carLetters = '';
                 document.getElementById('carStatus').textContent = '';
                 carStopRecognition();
@@ -2227,6 +2229,7 @@ function carStartRecognition() {
             const newLetters = transcriptToLetters(transcript);
             if (newLetters) {
                 carConfirmedLetters += newLetters;
+                lastInterimLetters = '';
                 console.log('[car] confirmed letters:', carConfirmedLetters);
             }
         }
@@ -2238,12 +2241,20 @@ function carStartRecognition() {
                 interimLetters += transcriptToLetters(event.results[i][0].transcript.trim().toLowerCase());
             }
         }
+        lastInterimLetters = interimLetters;
         const display = carConfirmedLetters + interimLetters;
         document.getElementById('carStatus').textContent = display.toLowerCase();
         console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
     };
 
     rec.onend = () => {
+        // iOS Safari: commit any pending interim letters before restarting
+        if (lastInterimLetters) {
+            carConfirmedLetters += lastInterimLetters;
+            lastInterimLetters = '';
+            document.getElementById('carStatus').textContent = carConfirmedLetters.toLowerCase();
+            console.log('[car] committed interim on end:', carConfirmedLetters);
+        }
         if (carActive && carRecognition === rec) {
             if (carRecErrorCount > 3) {
                 carRecRetries++;

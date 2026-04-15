@@ -10,7 +10,7 @@
     const VOICE = 'en-GB-Neural2-C';
     const LANG = 'en-GB';
     const DB_NAME = 'spelling-tts';
-    const DB_VER = 1;
+    const DB_VER = 2;
     const STORE = 'audio';
 
     let db = null;
@@ -92,7 +92,7 @@
                     body: JSON.stringify({
                         input: { text },
                         voice: { languageCode: LANG, name: VOICE },
-                        audioConfig: { audioEncoding: 'MP3' }
+                        audioConfig: { audioEncoding: 'MP3', volumeGainDb: 6.0 }
                     })
                 }
             );
@@ -119,6 +119,7 @@
     function play(base64, onDone) {
         stop();
         const audio = getSharedAudio();
+        audio.volume = 1;
         currentAudio = audio;
         let called = false;
         function done() {

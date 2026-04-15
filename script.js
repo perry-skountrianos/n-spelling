@@ -2133,7 +2133,7 @@ function carUpdateUI() {
     const el = document.getElementById('carStatus');
     const prog = document.getElementById('carProgress');
     const score = document.getElementById('carScore');
-    el.textContent = carLetters.toUpperCase();
+    el.textContent = carLetters.toLowerCase();
     el.className = 'car-status';
     prog.textContent = (carIndex + 1) + ' / ' + carWords.length;
     const done = carCorrect + carWrong;
@@ -2166,7 +2166,7 @@ function carStartRecognition() {
 
         // Show live transcript instantly (strip all command words and spaces)
         const display = fullTranscript.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').replace(/[\s,.\-]+/g, '').trim();
-        document.getElementById('carStatus').textContent = display.toUpperCase();
+        document.getElementById('carStatus').textContent = display.toLowerCase();
 
         // Only act on final results
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -2277,6 +2277,9 @@ function carCheck() {
         carWrong++;
         el.className = 'car-status wrong';
         carSpeak('Wrong. The correct spelling is', 0.9, () => {
+            // Show correct word on screen
+            el.textContent = word;
+            el.className = 'car-status correct';
             carSpeakLetters(word, () => {
                 carSpeak(word, 0.85, () => {
                     carAdvance();
@@ -2301,6 +2304,9 @@ function carSkip() {
     displayResults();
     carStopRecognition();
     carSpeak('Skipped. The word was ' + word + '.', 0.9, () => {
+        // Show correct word on screen
+        document.getElementById('carStatus').textContent = word;
+        document.getElementById('carStatus').className = 'car-status correct';
         carAdvance();
     });
 }
@@ -2365,7 +2371,7 @@ function carRunExample(onDone) {
                 });
                 return;
             }
-            el.textContent = exWord.substring(0, i + 1).toUpperCase();
+            el.textContent = exWord.substring(0, i + 1).toLowerCase();
             const currentLetter = letters[i];
             function afterLetter() { i++; setTimeout(showNext, 300); }
             if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {

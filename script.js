@@ -2108,20 +2108,18 @@ function carSpeak(text, rate, onDone) {
         carSpeaking = false;
         if (onDone) onDone();
     }
-    // Safety: if onended never fires, force done quickly
-    // Also disable cloudTTS if it keeps failing (iOS Safari blob URLs don't fire onended)
-    const timeout = Math.max(2000, text.length * 80);
-    safetyTimer = setTimeout(() => {
-        carLog('SAFETY TIMEOUT: ' + text.substring(0, 30));
-        // Cloud TTS audio isn't completing — disable it so future calls use browser TTS
-        if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
-            carLog('disabling cloudTTS (audio not finishing)');
-            cloudTTS.disable();
-        }
-        done();
-    }, timeout);
-
     if (useCloud) {
+        // Safety timeout only for cloudTTS — its audio element can hang forever
+        // Browser TTS has its own polling timeout, so no safety needed there
+        const timeout = Math.max(3000, text.length * 100);
+        safetyTimer = setTimeout(() => {
+            carLog('SAFETY TIMEOUT: ' + text.substring(0, 30));
+            if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+                carLog('disabling cloudTTS (audio not finishing)');
+                cloudTTS.disable();
+            }
+            done();
+        }, timeout);
         carLog('using cloudTTS');
         cloudTTS.speak(text, done).then(ok => {
             carLog('cloudTTS resolved: ' + ok);

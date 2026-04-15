@@ -2050,7 +2050,7 @@ let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
 let carSavedLetters = ''; // Letters preserved across recognition restarts (iOS Safari kills sessions frequently)
-const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const carIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 function carLog(msg) {
     console.log('[car] ' + msg);
@@ -2295,7 +2295,8 @@ function carPresentWord() {
     speech += 'Spell ' + word + '.';
 
     carSpeak(speech, 0.9, () => {
-        carStartRecognition();
+        // Small delay before starting recognition to avoid picking up TTS echo
+        setTimeout(() => { carStartRecognition(); }, 300);
     });
 }
 

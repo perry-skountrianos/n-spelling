@@ -2204,7 +2204,6 @@ function carPresentWord() {
     let speech = word + '. ';
     if (sentence) speech += sentence + '. ';
     speech += 'Spell ' + word + '.';
-    if (carIndex === 0) speech += ' Say all the letters, then say check.';
 
     carSpeak(speech, 0.9, () => {
         carStartRecognition();
@@ -2294,9 +2293,44 @@ function carExit() {
     }
 }
 
+function carRunExample(onDone) {
+    const exWord = 'cat';
+    const el = document.getElementById('carStatus');
+    el.textContent = '';
+    el.className = 'car-status';
+    document.getElementById('carWord').textContent = '';
+    carSpeak("Welcome to Car Mode! Let me show you how it works. I'll say a word, and you spell it by saying the letters. Let's try the word: cat.", 0.95, () => {
+        // Simulate letters appearing one by one
+        const letters = exWord.split('');
+        let i = 0;
+        function showNext() {
+            if (i >= letters.length) {
+                // All letters shown, now explain check
+                carSpeak("Great! Now say check, or tap the green check button. You can also say skip, clear, repeat, or stop.", 0.95, () => {
+                    el.textContent = '';
+                    el.className = 'car-status';
+                    carSpeak("OK, let's start for real!", 0.95, () => {
+                        if (onDone) onDone();
+                    });
+                });
+                return;
+            }
+            el.textContent = exWord.substring(0, i + 1).toUpperCase();
+            const u = new SpeechSynthesisUtterance(letters[i]);
+            u.rate = 0.7; u.pitch = 1.0; u.volume = 1;
+            const voice = getVoice();
+            if (voice) u.voice = voice;
+            let called = false;
+            u.onend = () => { if (!called) { called = true; i++; setTimeout(showNext, 300); } };
+            u.onerror = () => { if (!called) { called = true; i++; setTimeout(showNext, 300); } };
+            synth.speak(u);
+        }
+        setTimeout(showNext, 500);
+    });
+}
+
 function startCarMode() {
-    carWords = [...words];
-    shuffleArray(carWords);
+    carWords = shuffleArray([...words]);
     carIndex = 0;
     carLetters = '';
     carCorrect = 0;
@@ -2314,9 +2348,14 @@ function startCarMode() {
     saveProgress();
     updateScoreDisplay();
 
-    carSpeak("Car Mode. I'll read each word and a sentence. Say all the letters at once, then say check. Say repeat to hear again, skip to skip, or stop to exit.", 0.95, () => {
-        carPresentWord();
-    });
+    // On first ever car mode, do an example; otherwise just start
+    const carExampleKey = profileKey('carExampleDone');
+    if (!localStorage.getItem(carExampleKey)) {
+        localStorage.setItem(carExampleKey, '1');
+        carRunExample(() => { carPresentWord(); });
+    } else {
+        carSpeak("Car Mode. Let's go!", 0.95, () => { carPresentWord(); });
+    }
 }
 
 document.getElementById('carStopBtn').addEventListener('click', () => {

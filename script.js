@@ -2196,10 +2196,11 @@ function carStartRecognition() {
     rec.lang = 'en-GB';
 
     if (carIsIOS) {
-        // iOS: one letter per recognition session.
-        // continuous+interimResults causes iOS to constantly revise the entire
+        // iOS: continuous listening but no interim results.
+        // interimResults causes iOS to constantly revise the entire
         // transcript, turning individual letters into gibberish words.
-        rec.continuous = false;
+        // With interimResults=false, iOS commits to each utterance before returning.
+        rec.continuous = true;
         rec.interimResults = false;
     } else {
         rec.continuous = true;

@@ -2044,6 +2044,7 @@ let carActive = false;
 let carWords = [];
 let carIndex = 0;
 let carLetters = '';
+let carConfirmedLetters = ''; // Accumulated letters across recognition restarts
 let carCorrect = 0;
 let carWrong = 0;
 let carRecognition = null;
@@ -2157,19 +2158,9 @@ function carStartRecognition() {
             return;
         }
 
-        // Build full transcript from all results
-        let fullTranscript = '';
-        for (let ri = 0; ri < event.results.length; ri++) {
-            fullTranscript += event.results[ri][0].transcript + ' ';
-        }
-        fullTranscript = fullTranscript.trim().toLowerCase();
-        console.log('[car] transcript:', fullTranscript);
-
         // Convert spoken letter names to actual letters (e.g. "double you" → "w")
         function transcriptToLetters(text) {
-            // Strip command words first
             let clean = text.replace(/\b(check|done|submit|repeat|again|clear|reset|skip|next|score|stop|exit|quit)\b/g, '').trim();
-            // Handle multi-word letter names first (e.g., "double you")
             clean = clean.replace(/double you/g, 'w');
             const parts = clean.split(/[\s,.\-]+/);
             let letters = '';
@@ -2185,11 +2176,7 @@ function carStartRecognition() {
             return letters;
         }
 
-        // Show live transcript as letters
-        const display = transcriptToLetters(fullTranscript);
-        document.getElementById('carStatus').textContent = display.toLowerCase();
-
-        // Only act on final results
+        // Check for commands in any final result
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
             const transcript = event.results[i][0].transcript.trim().toLowerCase();
@@ -2210,13 +2197,16 @@ function carStartRecognition() {
             }
 
             if (hasCheck) {
-                const attempt = transcriptToLetters(fullTranscript);
-                carLetters = attempt;
+                // Commit any letters from this final result before checking
+                const newLetters = transcriptToLetters(transcript);
+                carConfirmedLetters += newLetters;
+                carLetters = carConfirmedLetters;
                 carCheck();
                 return;
             }
             if (hasCommand === 'repeat') { carPresentWord(); return; }
             if (hasCommand === 'clear') {
+                carConfirmedLetters = '';
                 carLetters = '';
                 document.getElementById('carStatus').textContent = '';
                 carStopRecognition();
@@ -2227,7 +2217,26 @@ function carStartRecognition() {
             if (hasCommand === 'skip') { carSkip(); return; }
             if (hasCommand === 'score') { carAnnounceScore(); return; }
             if (hasCommand === 'stop') { carExit(); return; }
+
+            // No command — commit these letters
+            const newLetters = transcriptToLetters(transcript);
+            if (newLetters) {
+                carConfirmedLetters += newLetters;
+                console.log('[car] confirmed letters:', carConfirmedLetters);
+            }
         }
+
+        // Build display: confirmed letters + any interim letters from current result
+        let interimLetters = '';
+        for (let i = 0; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) {
+                interimLetters += transcriptToLetters(event.results[i][0].transcript.trim().toLowerCase());
+            }
+        }
+        const display = carConfirmedLetters + interimLetters;
+        document.getElementById('carStatus').textContent = display.toLowerCase();
+        console.log('[car] display:', display, '(confirmed:', carConfirmedLetters, 'interim:', interimLetters, ')');
+    };
     };
 
     rec.onend = () => {
@@ -2262,6 +2271,7 @@ function carPresentWord() {
     const word = carWords[carIndex];
     const sentence = wordSentences[word] || '';
     carLetters = '';
+    carConfirmedLetters = '';
     carUpdateUI();
     document.getElementById('carWord').textContent = '';
     document.getElementById('carStatus').textContent = '';
@@ -2451,6 +2461,7 @@ document.getElementById('carCmdClear').addEventListener('click', (e) => {
     e.stopPropagation();
     if (!carActive) return;
     carLetters = '';
+    carConfirmedLetters = '';
     document.getElementById('carStatus').textContent = '';
     carStopRecognition();
     carSpeak('Cleared.', 1.0, () => { carStartRecognition(); });

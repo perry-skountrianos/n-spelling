@@ -2050,19 +2050,44 @@ let carRecognition = null;
 let carListening = false;
 let carSpeaking = false;
 
-function carSpeak(text, rate, onDone) {
-    if (synth.speaking) synth.cancel();
+function carSpeakBrowser(text, rate, done) {
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate || 0.9;
     u.pitch = 1.0;
     u.volume = 1;
     const voice = getVoice();
     if (voice) u.voice = voice;
+    u.onend = done;
+    u.onerror = done;
+    synth.speak(u);
+}
+
+function carSpeak(text, rate, onDone) {
+    if (synth.speaking) synth.cancel();
+    if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carSpeaking = true;
     let called = false;
     function done() { if (called) return; called = true; carSpeaking = false; if (onDone) onDone(); }
-    u.onend = done;
-    u.onerror = done;
+
+    if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+        cloudTTS.speak(text, done).then(ok => {
+            if (!ok) carSpeakBrowser(text, rate, done);
+        }).catch(() => carSpeakBrowser(text, rate, done));
+    } else {
+        carSpeakBrowser(text, rate, done);
+    }
+}
+
+function carSpeakLetterBrowser(letter, onDone) {
+    const u = new SpeechSynthesisUtterance(letter);
+    u.rate = 0.7;
+    u.pitch = 1.0;
+    u.volume = 1;
+    const voice = getVoice();
+    if (voice) u.voice = voice;
+    let called = false;
+    u.onend = () => { if (!called) { called = true; if (onDone) onDone(); } };
+    u.onerror = () => { if (!called) { called = true; if (onDone) onDone(); } };
     synth.speak(u);
 }
 
@@ -2071,16 +2096,15 @@ function carSpeakLetters(word, onDone) {
     let i = 0;
     function next() {
         if (i >= letters.length) { if (onDone) onDone(); return; }
-        const u = new SpeechSynthesisUtterance(letters[i]);
-        u.rate = 0.7;
-        u.pitch = 1.0;
-        u.volume = 1;
-        const voice = getVoice();
-        if (voice) u.voice = voice;
-        let called = false;
-        u.onend = () => { if (!called) { called = true; i++; next(); } };
-        u.onerror = () => { if (!called) { called = true; i++; next(); } };
-        synth.speak(u);
+        const letter = letters[i];
+        i++;
+        if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+            cloudTTS.speakLetter(letter, next).then(ok => {
+                if (!ok) carSpeakLetterBrowser(letter, next);
+            }).catch(() => carSpeakLetterBrowser(letter, next));
+        } else {
+            carSpeakLetterBrowser(letter, next);
+        }
     }
     next();
 }
@@ -2286,6 +2310,7 @@ function carFinish() {
 function carExit() {
     carActive = false;
     synth.cancel();
+    if (typeof cloudTTS !== 'undefined') cloudTTS.stop();
     carStopRecognition();
     document.getElementById('carOverlay').style.display = 'none';
     if (currentWordIndex < words.length) {
@@ -2316,14 +2341,15 @@ function carRunExample(onDone) {
                 return;
             }
             el.textContent = exWord.substring(0, i + 1).toUpperCase();
-            const u = new SpeechSynthesisUtterance(letters[i]);
-            u.rate = 0.7; u.pitch = 1.0; u.volume = 1;
-            const voice = getVoice();
-            if (voice) u.voice = voice;
-            let called = false;
-            u.onend = () => { if (!called) { called = true; i++; setTimeout(showNext, 300); } };
-            u.onerror = () => { if (!called) { called = true; i++; setTimeout(showNext, 300); } };
-            synth.speak(u);
+            const currentLetter = letters[i];
+            function afterLetter() { i++; setTimeout(showNext, 300); }
+            if (typeof cloudTTS !== 'undefined' && cloudTTS.enabled()) {
+                cloudTTS.speakLetter(currentLetter, afterLetter).then(ok => {
+                    if (!ok) carSpeakLetterBrowser(currentLetter, afterLetter);
+                }).catch(() => carSpeakLetterBrowser(currentLetter, afterLetter));
+            } else {
+                carSpeakLetterBrowser(currentLetter, afterLetter);
+            }
         }
         setTimeout(showNext, 500);
     });

@@ -2076,13 +2076,17 @@ function carSpeakBrowser(text, rate, done) {
     // iOS Safari: onend often doesn't fire. Poll synth.speaking as fallback.
     if (carIsIOS) {
         let polls = 0;
+        let started = false;
         const poll = setInterval(() => {
             polls++;
-            // Wait for speech to start (up to 2s), then detect when it stops
-            if (polls > 10 && !synth.speaking) {
+            if (synth.speaking) started = true;
+            // Only detect completion AFTER speech has actually started
+            if (started && !synth.speaking) {
                 clearInterval(poll);
                 finish();
             }
+            // If speech never starts within 3s, give up
+            if (!started && polls > 30) { clearInterval(poll); finish(); }
             if (polls > 200) { clearInterval(poll); finish(); } // 20s max
         }, 100);
     }
@@ -2137,9 +2141,22 @@ function carSpeakLetterBrowser(letter, onDone) {
     const voice = getVoice();
     if (voice) u.voice = voice;
     let called = false;
-    u.onend = () => { if (!called) { called = true; if (onDone) onDone(); } };
-    u.onerror = () => { if (!called) { called = true; if (onDone) onDone(); } };
+    function finish() { if (!called) { called = true; if (onDone) onDone(); } }
+    u.onend = finish;
+    u.onerror = finish;
     synth.speak(u);
+    // iOS Safari: onend often doesn't fire for individual letters too
+    if (carIsIOS) {
+        let polls = 0;
+        let started = false;
+        const poll = setInterval(() => {
+            polls++;
+            if (synth.speaking) started = true;
+            if (started && !synth.speaking) { clearInterval(poll); finish(); }
+            if (!started && polls > 20) { clearInterval(poll); finish(); } // 2s max wait to start
+            if (polls > 50) { clearInterval(poll); finish(); } // 5s max total
+        }, 100);
+    }
 }
 
 function carSpeakLetters(word, onDone) {
@@ -2242,13 +2259,30 @@ function carStartRecognition() {
                 if (part === 'stop' || part === 'exit' || part === 'quit') { hasCommand = 'stop'; }
             }
 
-            if (hasCheck) {
-                carLetters = display;
-                carCheck();
-                return;
+            // iOS Safari misrecognises spoken letters as command words
+            // (e.g. "C" → "clear", "S" → "skip", "R" → "repeat")
+            // On iOS: only allow "check" and "stop" via voice; other commands are button-only
+            if (carIsIOS && hasCommand && hasCommand !== 'stop') {
+                carLog('iOS: ignoring voice cmd "' + hasCommand + '" (use button)');
+                hasCommand = null;
             }
-            if (hasCommand === 'repeat') { carPresentWord(); return; }
+
+            if (hasCheck) {
+                // Require at least 2 letters before accepting check
+                // to avoid iOS mishearing a letter as "check"/"done"
+                const dispLen = document.getElementById('carStatus').textContent.trim().length;
+                if (dispLen < 2) {
+                    carLog('check ignored: only ' + dispLen + ' letters');
+                } else {
+                    carLog('cmd: check (' + display + ')');
+                    carLetters = display;
+                    carCheck();
+                    return;
+                }
+            }
+            if (hasCommand === 'repeat') { carLog('cmd: repeat'); carPresentWord(); return; }
             if (hasCommand === 'clear') {
+                carLog('cmd: clear');
                 carLetters = '';
                 carSavedLetters = '';
                 document.getElementById('carStatus').textContent = '';
@@ -2257,9 +2291,9 @@ function carStartRecognition() {
                     carStartRecognition();
                 }); return;
             }
-            if (hasCommand === 'skip') { carSkip(); return; }
-            if (hasCommand === 'score') { carAnnounceScore(); return; }
-            if (hasCommand === 'stop') { carExit(); return; }
+            if (hasCommand === 'skip') { carLog('cmd: skip'); carSkip(); return; }
+            if (hasCommand === 'score') { carLog('cmd: score'); carAnnounceScore(); return; }
+            if (hasCommand === 'stop') { carLog('cmd: stop'); carExit(); return; }
         }
     };
 

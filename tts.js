@@ -186,6 +186,7 @@
     // ---- Public API ----
     window.cloudTTS = {
         enabled: () => enabled,
+        disable: function() { enabled = false; stop(); },
         stop: stop,
         unlockAudio: unlockAudio,
 

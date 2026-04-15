@@ -2065,9 +2065,24 @@ function carSpeakBrowser(text, rate, done) {
     u.volume = 1;
     const voice = getVoice();
     if (voice) u.voice = voice;
-    u.onend = done;
-    u.onerror = done;
+    let called = false;
+    function finish() { if (!called) { called = true; if (done) done(); } }
+    u.onend = finish;
+    u.onerror = finish;
     synth.speak(u);
+    // iOS Safari: onend often doesn't fire. Poll synth.speaking as fallback.
+    if (carIsIOS) {
+        let polls = 0;
+        const poll = setInterval(() => {
+            polls++;
+            // Wait for speech to start (up to 2s), then detect when it stops
+            if (polls > 10 && !synth.speaking) {
+                clearInterval(poll);
+                finish();
+            }
+            if (polls > 200) { clearInterval(poll); finish(); } // 20s max
+        }, 100);
+    }
 }
 
 function carSpeak(text, rate, onDone) {

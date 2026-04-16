@@ -1,8 +1,7 @@
-// Cloud Text-to-Speech for car mode
-// Uses Google Cloud TTS API → plays via <audio> elements → routes through CarPlay/Bluetooth media channel
+// Cloud Text-to-Speech
+// Uses Google Cloud TTS API → plays via <audio> elements
 // To enable: go to Google Cloud Console for your project and enable "Cloud Text-to-Speech API"
 // Falls back to browser speechSynthesis automatically if API is unavailable
-// To revert: remove tts.js script tag from index.html — everything falls back to browser TTS
 
 (function() {
     'use strict';

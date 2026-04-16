@@ -1,12 +1,13 @@
 /* Minimal additional styles for Quizes app, if needed */
 .quiz-app-container {
-    max-width: 500px;
+    max-width: 700px;
     margin: 100px auto 40px;
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    padding: 0 1.5rem 1rem;
+    padding: 1rem 1.5rem 1rem;
     text-align: center;
+    position: relative;
 }
 
 #quizContainer {
@@ -28,6 +29,25 @@
         padding: 1rem;
     }
 }
+
+.quiz-hear-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: none;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.quiz-hear-btn:hover {
+    border-color: #999;
 }
 
 .quiz-category-select {

@@ -124,12 +124,10 @@
             function showQuestion() {
                 const q = questions[current];
                 quizContainer.innerHTML = `
-                    <div class=\"quiz-question\" style=\"display:flex;align-items:center;justify-content:center;gap:10px;\">
-                        <span style=\"font-weight:700;font-size:1.2em;\">${q.question}</span>
-                        <button class=\"hear-btn\" id=\"hearBtn\" title=\"Read out loud\" style=\"display:flex;margin-left:10px;\">
-                            <svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#888\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"/><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14\"/></svg>
-                        </button>
-                    </div>
+                    <button class="quiz-hear-btn" id="hearBtn" title="Read out loud">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    </button>
+                    <div class="quiz-question" style="font-weight:700;font-size:1.2em;text-align:left;padding-right:60px;">${q.question}</div>
                 `;
                 document.getElementById('hearBtn').onclick = () => {
                     window.speechSynthesis.cancel();

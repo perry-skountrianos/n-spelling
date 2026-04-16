@@ -767,66 +767,6 @@ h1 {
     }
 }
 
-.snake-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.5);
-    animation: snakeFadeIn 0.3s ease;
-}
-
-.snake-overlay.fade-out {
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.snake-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-
-.snake-body {
-    font-size: 48px;
-    display: flex;
-    animation: snakeSlither 0.6s ease-in-out infinite alternate;
-}
-
-.snake-segment {
-    display: inline-block;
-    animation: snakeWave 0.5s ease-in-out infinite alternate;
-}
-
-.snake-speech {
-    background: #4caf50;
-    color: #fff;
-    font-size: 32px;
-    font-weight: 700;
-    padding: 12px 28px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
-    animation: snakeBounce 0.5s ease-in-out infinite alternate;
-}
-
-.snake-quiz {
-    background: #fff;
-    color: #333;
-    padding: 16px 20px;
-    border-radius: 14px;
-    max-width: 420px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
-    animation: snakeFadeIn 0.5s ease 0.3s both;
-}
-
 .quiz-question {
     font-size: 20px;
     font-weight: 700;
@@ -921,26 +861,6 @@ h1 {
 .quiz-not-right {
     color: #e53935;
     font-weight: 700;
-}
-
-@keyframes snakeFadeIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes snakeSlither {
-    from { transform: translateX(-8px); }
-    to { transform: translateX(8px); }
-}
-
-@keyframes snakeWave {
-    from { transform: translateY(-4px); }
-    to { transform: translateY(4px); }
-}
-
-@keyframes snakeBounce {
-    from { transform: translateY(0) scale(1); }
-    to { transform: translateY(-6px) scale(1.05); }
 }
 
 .next-btn,
@@ -1095,21 +1015,6 @@ h1 {
     .result-x {
         font-size: 20px;
         min-width: 28px;
-    }
-
-    .snake-body {
-        font-size: 28px;
-    }
-
-    .snake-speech {
-        font-size: 20px;
-        padding: 8px 18px;
-        border-radius: 12px;
-    }
-
-    .snake-quiz {
-        padding: 12px 14px;
-        max-width: 320px;
     }
 
     .quiz-question {

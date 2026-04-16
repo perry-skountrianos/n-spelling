@@ -1,0 +1,13 @@
+/* Minimal additional styles for Quizes app, if needed */
+.quiz-app-container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+#quizContainer {
+    margin-top: 2rem;
+}

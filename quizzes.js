@@ -1,4 +1,6 @@
-const animalQuizzes = [
+// Quiz data organized by category
+const quizData = {
+    "Wild Animals": [
     // ===== SNAKES (1-40) =====
     { question: "How do snakes smell?", options: ["With their nose", "With their tongue", "With their skin"], answer: 1, explanation: "Snakes flick their tongue out to taste the air and smell things around them!" },
     { question: "How many species of snakes are there?", options: ["About 300", "About 1,000", "Over 3,000"], answer: 2, explanation: "There are over 3,000 different species of snakes in the world!" },
@@ -320,4 +322,15 @@ const animalQuizzes = [
     { question: "What is the largest amphibian?", options: ["Giant toad", "Chinese giant salamander", "Goliath frog"], answer: 1, explanation: "The Chinese giant salamander can grow up to 1.8 metres long — it's the largest amphibian in the world!" },
     { question: "Do all lizards have legs?", options: ["Yes, that's what makes them lizards", "No, some are legless", "Only in cold climates"], answer: 1, explanation: "Some lizards, like glass lizards and slow worms, have no legs — but they're lizards, not snakes!" },
     { question: "How do Komodo dragons hunt?", options: ["They use speed to chase prey", "They bite once and track prey for days", "They set traps"], answer: 1, explanation: "Komodo dragons have venomous bites — they bite prey and then follow it for days until it weakens!" },
-];
+    ]
+    // Add more categories here in the future
+};
+
+// Utility to shuffle an array
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}

@@ -132,8 +132,22 @@
                     </div>
                 `;
                 document.getElementById('hearBtn').onclick = () => {
-                    const optionsText = q.options.map((o, i) => `${i + 1}: ${o}`).join('. ');
-                    speak(q.question + '. ' + optionsText);
+                    window.speechSynthesis.cancel();
+                    const parts = [q.question, ...q.options];
+                    let i = 0;
+                    function speakNext() {
+                        if (i >= parts.length) return;
+                        const u = new SpeechSynthesisUtterance(parts[i]);
+                        u.lang = 'en-US';
+                        u.onend = () => {
+                            i++;
+                            if (i < parts.length) {
+                                setTimeout(speakNext, 1000);
+                            }
+                        };
+                        window.speechSynthesis.speak(u);
+                    }
+                    speakNext();
                 };
                 const opts = document.createElement('div');
                 opts.className = 'quiz-options';

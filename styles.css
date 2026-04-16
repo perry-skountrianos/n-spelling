@@ -826,23 +826,6 @@ h1 {
     opacity: 1;
 }
 
-.quiz-option-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.quiz-option-wrap .quiz-option {
-    flex: 1;
-}
-
-.quiz-ans-tts {
-    display: flex;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-}
-
 .quiz-feedback {
     display: none;
     margin-top: 12px;

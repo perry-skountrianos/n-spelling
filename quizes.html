@@ -223,15 +223,39 @@
                         btn.disabled = true;
                         Array.from(opts.querySelectorAll('button')).forEach(b => b.disabled = true);
                         updateDonuts(correct, wrong, questions.length);
-                        setTimeout(() => {
-                            if (current < questions.length - 1) {
-                                current++;
-                                showQuestion();
-                            } else {
-                                quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
-                                updateDonuts(correct, wrong, questions.length);
-                            }
-                        }, 700);
+                        // Show and read explanation
+                        const expEl = quizContainer.querySelector('.quiz-explanation');
+                        let expDuration = 700;
+                        if (expEl && q.explanation) {
+                            expEl.style.display = '';
+                            window.speechSynthesis.cancel();
+                            const u = new SpeechSynthesisUtterance(q.explanation);
+                            u.rate = 1;
+                            const v = getQuizVoice();
+                            if (v) u.voice = v;
+                            u.onend = () => {
+                                setTimeout(() => {
+                                    if (current < questions.length - 1) {
+                                        current++;
+                                        showQuestion();
+                                    } else {
+                                        quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
+                                        updateDonuts(correct, wrong, questions.length);
+                                    }
+                                }, 1000);
+                            };
+                            window.speechSynthesis.speak(u);
+                        } else {
+                            setTimeout(() => {
+                                if (current < questions.length - 1) {
+                                    current++;
+                                    showQuestion();
+                                } else {
+                                    quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
+                                    updateDonuts(correct, wrong, questions.length);
+                                }
+                            }, 700);
+                        }
                     };
                     opts.appendChild(btn);
                 });

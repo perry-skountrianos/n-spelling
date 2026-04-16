@@ -133,12 +133,13 @@
                         </button>
                     </div>
                 `;
-                document.getElementById('hearBtn').onclick = () => speak(q.question);
+                document.getElementById('hearBtn').onclick = () => {
+                    const optionsText = q.options.map((o, i) => `${i + 1}: ${o}`).join('. ');
+                    speak(q.question + '. ' + optionsText);
+                };
                 const opts = document.createElement('div');
                 opts.className = 'quiz-options';
                 q.options.forEach((opt, i) => {
-                    const optWrap = document.createElement('div');
-                    optWrap.className = 'quiz-option-wrap';
                     const btn = document.createElement('button');
                     btn.textContent = opt;
                     btn.className = 'quiz-option';
@@ -163,15 +164,7 @@
                             }
                         }, 700);
                     };
-                    // Add TTS button for answer
-                    const ansTTS = document.createElement('button');
-                    ansTTS.className = 'hear-btn quiz-ans-tts';
-                    ansTTS.title = 'Read answer';
-                    ansTTS.innerHTML = `<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/><path d='M15.54 8.46a5 5 0 0 1 0 7.07'/><path d='M19.07 4.93a10 10 0 0 1 0 14.14'/></svg>`;
-                    ansTTS.onclick = (e) => { e.stopPropagation(); setTimeout(() => speak(opt), 100); };
-                    optWrap.appendChild(btn);
-                    optWrap.appendChild(ansTTS);
-                    opts.appendChild(optWrap);
+                    opts.appendChild(btn);
                 });
                 quizContainer.appendChild(opts);
                 if (q.explanation) {

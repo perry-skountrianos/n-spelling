@@ -8,8 +8,26 @@
     padding: 2rem 1.5rem;
     text-align: center;
 }
+.quiz-app-container {
+    padding-top: 100px;
+}
+
 #quizContainer {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .quiz-app-container {
+        padding-top: 60px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .quiz-app-container {
+        padding-top: 55px;
+    }
 }
 
 .quiz-category-select {

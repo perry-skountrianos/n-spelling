@@ -68,6 +68,7 @@
                     <select id="voiceSelect" class="quiz-category-select">
                         <option value="normal">🇬🇧 Female (default)</option>
                         <option value="maleGB">🇬🇧 Male</option>
+                        <option value="femaleUS">🇺🇸 Female</option>
                         <option value="maleUS">🇺🇸 Male</option>
                     </select>
                 </div>
@@ -167,9 +168,10 @@
 
         // Voice options: different Cloud TTS voices and browser fallback voices
         const _voiceOptions = {
-            normal:  { cloudVoice: 'en-GB-Neural2-C', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'female' },
-            maleGB:  { cloudVoice: 'en-GB-Neural2-D', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'male' },
-            maleUS:  { cloudVoice: 'en-US-Neural2-D', cloudLang: 'en-US', browserLang: 'en-US', browserGender: 'male' }
+            normal:    { cloudVoice: 'en-GB-Neural2-C', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'female' },
+            maleGB:    { cloudVoice: 'en-GB-Neural2-D', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'male' },
+            femaleUS:  { cloudVoice: 'en-US-Neural2-C', cloudLang: 'en-US', browserLang: 'en-US', browserGender: 'female' },
+            maleUS:    { cloudVoice: 'en-US-Neural2-D', cloudLang: 'en-US', browserLang: 'en-US', browserGender: 'male' }
         };
         function _getVoiceOption() {
             const sel = document.getElementById('voiceSelect');

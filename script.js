@@ -275,6 +275,59 @@ let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 // Initialize speech synthesis
 const synth = window.speechSynthesis;
 
+// ---- Unified TTS: Cloud TTS with browser fallback ----
+let _ttsCloudActive = false; // true while cloudTTS is playing
+
+function ttsCancel() {
+    synth.cancel();
+    if (window.cloudTTS) cloudTTS.stop();
+    _ttsCloudActive = false;
+}
+
+function ttsSpeaking() {
+    return synth.speaking || _ttsCloudActive;
+}
+
+// Speak text via Cloud TTS (if available), else browser speechSynthesis.
+// opts: { rate, pitch, volume, onend, onerror }
+function ttsSpeak(text, opts) {
+    opts = opts || {};
+    if (window.cloudTTS && cloudTTS.enabled()) {
+        _ttsCloudActive = true;
+        cloudTTS.speak(text, () => {
+            _ttsCloudActive = false;
+            if (opts.onend) opts.onend();
+        }).then(ok => {
+            if (!ok) {
+                // Cloud TTS failed — fall back to browser
+                _ttsCloudActive = false;
+                _ttsBrowserSpeak(text, opts);
+            }
+        });
+    } else {
+        _ttsBrowserSpeak(text, opts);
+    }
+}
+
+function _ttsBrowserSpeak(text, opts) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = opts.rate || 0.9;
+    u.pitch = opts.pitch || 1.0;
+    u.volume = opts.volume || 1;
+    u.lang = 'en-GB';
+    const v = getVoice();
+    if (v) u.voice = v;
+    if (opts.onend) u.onend = opts.onend;
+    if (opts.onerror) u.onerror = opts.onerror;
+    synth.speak(u);
+}
+
+// Unlock iOS audio on first user interaction
+document.addEventListener('click', function _unlockTTS() {
+    if (window.cloudTTS) cloudTTS.unlockAudio();
+    document.removeEventListener('click', _unlockTTS);
+}, { once: true });
+
 // Initialize speech recognition
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
@@ -410,7 +463,7 @@ function setAppMode(mode) {
     } else {
         slideshowPlaying = false;
         updatePlayButton();
-        synth.cancel();
+        ttsCancel();
         spellingInput.focus();
         if (inputMode === 'speak' && !isMobile) startListening();
     }
@@ -731,20 +784,12 @@ if (synth.onvoiceschanged !== undefined) {
 
 function speakWord() {
     // Cancel any ongoing speech
-    synth.cancel();
+    ttsCancel();
     
     const word = getCurrentWord();
     
     // Visual feedback - show word is speaking
     spellingInput.placeholder = "Listening...";
-    
-    // Speak the word
-    const wordUtterance = new SpeechSynthesisUtterance(word);
-    wordUtterance.rate = 0.85;
-    wordUtterance.pitch = 1.0;
-    wordUtterance.volume = 1;
-    const voice = getVoice();
-    if (voice) wordUtterance.voice = voice;
 
     // On desktop, allow typing immediately while word is being spoken
     if (!isMobile) {
@@ -753,41 +798,26 @@ function speakWord() {
         spellingInput.focus();
     }
 
-    // Speak the sentence after the word
-    const sentence = wordSentences[word];
-    if (sentence) {
-        wordUtterance.onend = () => {
-            const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
-            sentenceUtterance.rate = 0.9;
-            sentenceUtterance.pitch = 1.0;
-            sentenceUtterance.volume = 1;
-            if (voice) sentenceUtterance.voice = voice;
-
-            sentenceUtterance.onend = () => {
-                hasHeardWord = true;
-                updatePlaceholder();
-                spellingInput.focus();
-                if (inputMode === 'speak' && !isMobile) startListening();
-            };
-            sentenceUtterance.onerror = (event) => {
-                console.error('Speech error:', event.error);
-            };
-            synth.speak(sentenceUtterance);
-        };
-    } else {
-        wordUtterance.onend = () => {
-            hasHeardWord = true;
-            updatePlaceholder();
-            spellingInput.focus();
-            if (inputMode === 'speak' && !isMobile) startListening();
-        };
+    function afterWord() {
+        hasHeardWord = true;
+        updatePlaceholder();
+        spellingInput.focus();
+        if (inputMode === 'speak' && !isMobile) startListening();
     }
-    
-    wordUtterance.onerror = (event) => {
-        console.error('Speech error:', event.error);
-    };
-    
-    synth.speak(wordUtterance);
+
+    // Speak the word, then the sentence
+    const sentence = wordSentences[word];
+    ttsSpeak(word, {
+        rate: 0.85,
+        onend: () => {
+            if (sentence) {
+                ttsSpeak(sentence, { rate: 0.9, onend: afterWord, onerror: afterWord });
+            } else {
+                afterWord();
+            }
+        },
+        onerror: afterWord
+    });
 }
 
 function checkSpelling() {
@@ -832,24 +862,14 @@ function checkSpelling() {
         spellingInput.disabled = true;
 
         // Speak the explanation
-        synth.cancel();
+        ttsCancel();
         const explanation = explainMistake(userInput, correctWord);
         const spellOut = `The correct spelling is: ${correctWord.toLowerCase().split('').join(', ')}. ${explanation}`;
-        const feedbackUtterance = new SpeechSynthesisUtterance(spellOut);
-        feedbackUtterance.rate = 0.9;
-        feedbackUtterance.pitch = 1.0;
-        feedbackUtterance.volume = 1;
-        const voice = getVoice();
-        if (voice) feedbackUtterance.voice = voice;
-        feedbackUtterance.onend = () => {
+        function feedbackDone() {
             spellingInput.disabled = false;
             spellingInput.focus();
-        };
-        feedbackUtterance.onerror = () => {
-            spellingInput.disabled = false;
-            spellingInput.focus();
-        };
-        synth.speak(feedbackUtterance);
+        }
+        ttsSpeak(spellOut, { rate: 0.9, onend: feedbackDone, onerror: feedbackDone });
     }
 }
 
@@ -953,7 +973,7 @@ const handleInputAction = () => {
             checkSpelling();
         } else {
             // No text - repeat the word
-            synth.cancel();
+            ttsCancel();
             hasHeardWord = false;
             spellingInput.placeholder = "Listening...";
             speakWord();
@@ -1195,7 +1215,7 @@ resetBtn.addEventListener('click', () => {
 // Switch player
 document.getElementById('switchProfileBtn').addEventListener('click', () => {
     gearDropdown.classList.remove('show');
-    synth.cancel();
+    ttsCancel();
     showProfileScreen();
 });
 
@@ -1449,21 +1469,18 @@ function showFlashcard() {
 
 function speakFlashcard(word) {
     if (flashcardMuted) return;
-    synth.cancel();
+    ttsCancel();
     const letters = document.querySelectorAll('#flashcardWord .letter');
-    const voice = getVoice();
 
     // Speak the word first
-    const wordUtterance = new SpeechSynthesisUtterance(word);
-    wordUtterance.rate = 0.8;
-    wordUtterance.pitch = 1.0;
-    if (voice) wordUtterance.voice = voice;
-
-    wordUtterance.onend = () => {
-        // Spell letter by letter, chained via onend
-        letters.forEach(l => l.classList.remove('highlight'));
-        speakLetterAt(0);
-    };
+    ttsSpeak(word, {
+        rate: 0.8,
+        onend: () => {
+            // Spell letter by letter, chained via callbacks
+            letters.forEach(l => l.classList.remove('highlight'));
+            speakLetterAt(0);
+        }
+    });
 
     function speakLetterAt(i) {
         if (i >= letters.length) {
@@ -1471,35 +1488,26 @@ function speakFlashcard(word) {
             letters.forEach(l => l.classList.remove('highlight'));
             // Speak the word again
             setTimeout(() => {
-                const again = new SpeechSynthesisUtterance(word);
-                again.rate = 0.85;
-                if (voice) again.voice = voice;
-                again.onend = () => {
-                    // Speak the sentence
-                    const sentence = wordSentences[word];
-                    const tip = spellingTips[word];
-                    const speakTip = () => {
-                        if (tip) {
-                            const tipUtterance = new SpeechSynthesisUtterance(tip);
-                            tipUtterance.rate = 0.9;
-                            if (voice) tipUtterance.voice = voice;
-                            tipUtterance.onend = () => advanceSlideshow();
-                            synth.speak(tipUtterance);
+                ttsSpeak(word, {
+                    rate: 0.85,
+                    onend: () => {
+                        // Speak the sentence
+                        const sentence = wordSentences[word];
+                        const tip = spellingTips[word];
+                        const speakTip = () => {
+                            if (tip) {
+                                ttsSpeak(tip, { rate: 0.9, onend: () => advanceSlideshow() });
+                            } else {
+                                advanceSlideshow();
+                            }
+                        };
+                        if (sentence) {
+                            ttsSpeak(sentence, { rate: 0.9, onend: speakTip });
                         } else {
-                            advanceSlideshow();
+                            speakTip();
                         }
-                    };
-                    if (sentence) {
-                        const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
-                        sentenceUtterance.rate = 0.9;
-                        if (voice) sentenceUtterance.voice = voice;
-                        sentenceUtterance.onend = speakTip;
-                        synth.speak(sentenceUtterance);
-                    } else {
-                        speakTip();
                     }
-                };
-                synth.speak(again);
+                });
             }, 300);
             return;
         }
@@ -1507,14 +1515,8 @@ function speakFlashcard(word) {
         letters.forEach(l => l.classList.remove('highlight'));
         letters[i].classList.add('highlight');
         // Speak the letter
-        const letterUtterance = new SpeechSynthesisUtterance(word[i].toLowerCase());
-        letterUtterance.rate = 0.7;
-        if (voice) letterUtterance.voice = voice;
-        letterUtterance.onend = () => speakLetterAt(i + 1);
-        synth.speak(letterUtterance);
+        ttsSpeak(word[i].toLowerCase(), { rate: 0.7, onend: () => speakLetterAt(i + 1) });
     }
-
-    synth.speak(wordUtterance);
 }
 
 // Flashcard navigation
@@ -1563,11 +1565,11 @@ document.getElementById('flashcardPlay').addEventListener('click', () => {
     updatePlayButton();
     if (slideshowPlaying) {
         // If speech is not currently playing, start the current card
-        if (!synth.speaking) {
+        if (!ttsSpeaking()) {
             showFlashcard();
         }
     } else {
-        synth.cancel();
+        ttsCancel();
     }
 });
 
@@ -1586,7 +1588,7 @@ document.getElementById('flashcardSpeaker').addEventListener('click', () => {
     localStorage.setItem(profileKey('flashcardMuted'), flashcardMuted);
     updateMuteButton();
     if (flashcardMuted) {
-        synth.cancel();
+        ttsCancel();
     } else {
         // Unmuted — speak current card
         const card = practiceCards[practiceIndex];

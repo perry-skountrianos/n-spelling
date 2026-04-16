@@ -150,15 +150,44 @@
             synth.onvoiceschanged = () => { quizVoice = null; quizVoicesLoaded = false; getQuizVoice(); };
         }
 
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'en-GB';
-                const v = getQuizVoice();
-                if (v) u.voice = v;
-                window.speechSynthesis.speak(u);
+        // Unified TTS: Cloud TTS with browser fallback
+        let _quizCloudActive = false;
+        function quizTtsCancel() {
+            synth.cancel();
+            if (window.cloudTTS) cloudTTS.stop();
+            _quizCloudActive = false;
+        }
+        function quizTtsSpeak(text, opts) {
+            opts = opts || {};
+            if (window.cloudTTS && cloudTTS.enabled()) {
+                _quizCloudActive = true;
+                cloudTTS.speak(text, () => {
+                    _quizCloudActive = false;
+                    if (opts.onend) opts.onend();
+                }).then(ok => {
+                    if (!ok) {
+                        _quizCloudActive = false;
+                        _quizBrowserSpeak(text, opts);
+                    }
+                });
+            } else {
+                _quizBrowserSpeak(text, opts);
             }
         }
+        function _quizBrowserSpeak(text, opts) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = opts.rate || 1;
+            u.lang = 'en-GB';
+            const v = getQuizVoice();
+            if (v) u.voice = v;
+            if (opts.onend) u.onend = opts.onend;
+            synth.speak(u);
+        }
+        // Unlock iOS audio on first interaction
+        document.addEventListener('click', function _unlockQuizTTS() {
+            if (window.cloudTTS) cloudTTS.unlockAudio();
+            document.removeEventListener('click', _unlockQuizTTS);
+        }, { once: true });
 
         function renderQuiz(category) {
             const quizContainer = document.getElementById('quizContainer');
@@ -187,22 +216,19 @@
                     </div>
                 `;
                 document.getElementById('hearBtn').onclick = () => {
-                    window.speechSynthesis.cancel();
+                    quizTtsCancel();
                     const parts = [q.question, ...q.options];
                     let i = 0;
                     function speakNext() {
                         if (i >= parts.length) return;
-                        const u = new SpeechSynthesisUtterance(parts[i]);
-                        u.lang = 'en-GB';
-                        const v = getQuizVoice();
-                        if (v) u.voice = v;
-                        u.onend = () => {
-                            i++;
-                            if (i < parts.length) {
-                                setTimeout(speakNext, 500);
+                        quizTtsSpeak(parts[i], {
+                            onend: () => {
+                                i++;
+                                if (i < parts.length) {
+                                    setTimeout(speakNext, 500);
+                                }
                             }
-                        };
-                        window.speechSynthesis.speak(u);
+                        });
                     }
                     speakNext();
                 };
@@ -228,23 +254,20 @@
                         let expDuration = 700;
                         if (expEl && q.explanation) {
                             expEl.style.display = '';
-                            window.speechSynthesis.cancel();
-                            const u = new SpeechSynthesisUtterance(q.explanation);
-                            u.rate = 1;
-                            const v = getQuizVoice();
-                            if (v) u.voice = v;
-                            u.onend = () => {
-                                setTimeout(() => {
-                                    if (current < questions.length - 1) {
-                                        current++;
-                                        showQuestion();
-                                    } else {
-                                        quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
-                                        updateDonuts(correct, wrong, questions.length);
-                                    }
-                                }, 1000);
-                            };
-                            window.speechSynthesis.speak(u);
+                            quizTtsCancel();
+                            quizTtsSpeak(q.explanation, {
+                                onend: () => {
+                                    setTimeout(() => {
+                                        if (current < questions.length - 1) {
+                                            current++;
+                                            showQuestion();
+                                        } else {
+                                            quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
+                                            updateDonuts(correct, wrong, questions.length);
+                                        }
+                                    }, 1000);
+                                }
+                            });
                         } else {
                             setTimeout(() => {
                                 if (current < questions.length - 1) {
@@ -274,7 +297,7 @@
         }
         categorySelect.onchange = e => renderQuiz(e.target.value);
         document.getElementById('resetBtn').onclick = () => {
-            window.speechSynthesis.cancel();
+            quizTtsCancel();
             gearDropdown.classList.remove('show');
             renderQuiz(categorySelect.value);
         };

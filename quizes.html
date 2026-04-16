@@ -70,10 +70,57 @@
 </head>
 <body>
     <div class="quiz-app-container">
-        <h1 class="profile-title">Quizes</h1>
-        <div class="quiz-category-bar">
-            <select id="categorySelect" class="quiz-category-select"></select>
+        <div class="gear-menu-wrapper" id="gearMenuWrapper">
+            <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
+            <div class="gear-dropdown" id="gearDropdown">
+                <label for="categorySelect" style="font-weight:500;display:block;margin-bottom:0.5rem;">Category</label>
+                <select id="categorySelect" class="quiz-category-select" style="width:100%;margin-bottom:0.5rem;"></select>
+            </div>
         </div>
+        <h1 class="profile-title">Quizes</h1>
+                .gear-menu-wrapper {
+                    position: absolute;
+                    top: 24px;
+                    right: 24px;
+                    z-index: 200;
+                }
+                .menu-btn {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 8px;
+                    opacity: 0.7;
+                }
+                .menu-btn:hover {
+                    opacity: 1;
+                }
+                .menu-icon {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                    width: 24px;
+                }
+                .menu-icon span {
+                    display: block;
+                    height: 3px;
+                    background: #000;
+                    border-radius: 2px;
+                }
+                .gear-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: 36px;
+                    right: 0;
+                    background: #fff;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                    overflow: hidden;
+                    min-width: 180px;
+                    padding: 1rem 1rem 0.5rem 1rem;
+                }
+                .gear-dropdown.show {
+                    display: block;
+                }
         <div class="score-display" id="scoreDisplay">
             <div class="donut-wrapper">
                 <svg class="donut" viewBox="0 0 36 36">
@@ -108,6 +155,18 @@
         document.getElementById('backBtn').onclick = function() {
             window.location.href = 'index.html';
         };
+
+        // Hamburger menu logic
+        const gearBtn = document.getElementById('gearBtn');
+        const gearDropdown = document.getElementById('gearDropdown');
+        gearBtn.onclick = () => {
+            gearDropdown.classList.toggle('show');
+        };
+        document.addEventListener('click', (e) => {
+            if (!gearDropdown.contains(e.target) && !gearBtn.contains(e.target)) {
+                gearDropdown.classList.remove('show');
+            }
+        });
 
         // Render categories
         const categorySelect = document.getElementById('categorySelect');

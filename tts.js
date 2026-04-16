@@ -115,10 +115,11 @@
     }
 
     // ---- Playback (reuse shared audio element for iOS compatibility) ----
-    function play(base64, onDone) {
+    function play(base64, onDone, rate) {
         stop();
         const audio = getSharedAudio();
         audio.volume = 1;
+        audio.playbackRate = rate || 1;
         currentAudio = audio;
         let called = false;
         function done() {
@@ -189,10 +190,10 @@
         stop: stop,
         unlockAudio: unlockAudio,
 
-        speak: async function(text, onDone) {
+        speak: async function(text, onDone, rate) {
             if (!preCached) preCache();
             const b64 = await fetchAudio(text);
-            if (b64) { play(b64, onDone); return true; }
+            if (b64) { play(b64, onDone, rate); return true; }
             return false;
         },
 

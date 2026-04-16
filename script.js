@@ -168,9 +168,7 @@ function selectProfile(profileId) {
     localStorage.setItem('currentProfile', profileId);
     // Load profile-scoped settings
     practiceScope = 'all';
-    showCelebration = localStorage.getItem(profileKey('showCelebration')) !== 'false';
     flashcardMuted = localStorage.getItem(profileKey('flashcardMuted')) === 'true';
-    updateCelebrationToggleLabel();
     updateMuteButton();
     // Update profile indicator
     updateProfileIndicator(profileId);
@@ -272,7 +270,6 @@ const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let appMode = 'test'; // 'test' or 'practice'
 let practiceScope = 'all';
-let showCelebration = localStorage.getItem('showCelebration') !== 'false';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
 // Initialize speech synthesis
@@ -793,122 +790,6 @@ function speakWord() {
     synth.speak(wordUtterance);
 }
 
-function getRandomEncouragement() {
-    const name = getProfileName();
-    const phrases = [
-        `You're so smart ${name}!`,
-        "Your brain is amazing!",
-        "You should be so proud!",
-        `Look at you go ${name}!`,
-        "You never give up and it shows!",
-        "That was brilliant!",
-        `Wow ${name}, you're getting better every time!`,
-        "You worked so hard for that one!",
-        "I knew you could do it!",
-        `${name} the spelling superstar!`,
-        "Your hard work is paying off!",
-        "That's what practice looks like!",
-        `Absolutely perfect ${name}!`,
-        "You make it look easy!",
-        "Nothing can stop you!",
-        `You're unstoppable ${name}!`,
-        "Every word you learn makes you stronger!",
-        `Incredible effort ${name}!`,
-    ];
-    return phrases[Math.floor(Math.random() * phrases.length)];
-}
-
-function getRandomSnakeQuiz() {
-    return animalQuizzes[Math.floor(Math.random() * animalQuizzes.length)];
-}
-
-function showSnakeCelebration() {
-    const message = getRandomEncouragement();
-    const quiz = getRandomSnakeQuiz();
-    const overlay = document.createElement('div');
-    overlay.className = 'snake-overlay';
-    overlay.innerHTML = `
-        <div class="snake-container">
-            <div class="snake-body">
-                <span class="snake-segment" style="animation-delay:0s">🟢</span><span class="snake-segment" style="animation-delay:0.05s">🟢</span><span class="snake-segment" style="animation-delay:0.1s">🟢</span><span class="snake-segment" style="animation-delay:0.15s">🟢</span><span class="snake-segment" style="animation-delay:0.2s">🟢</span><span class="snake-segment" style="animation-delay:0.25s">🟢</span><span class="snake-segment" style="animation-delay:0.3s">🟢</span><span class="snake-segment" style="animation-delay:0.35s">🟢</span><span class="snake-segment" style="animation-delay:0.4s">🐍</span>
-            </div>
-            <div class="snake-speech">${message}</div>
-            <div class="snake-quiz">
-                <div class="quiz-question">🐍 ${quiz.question}</div>
-                <div class="quiz-options">
-                    ${quiz.options.map((opt, i) => `<button class="quiz-option" data-index="${i}">${opt}</button>`).join('')}
-                </div>
-                <div class="quiz-feedback"></div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-
-    // Speak the encouragement, question, and options in one utterance
-    synth.cancel();
-    const optionsText = quiz.options.map((opt, i) => `${i + 1}: ${opt}`).join('. ');
-    const fullSpeech = message + '. ' + quiz.question + ' ' + optionsText;
-    const utterance = new SpeechSynthesisUtterance(fullSpeech);
-    utterance.rate = 0.95;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
-    const voice = getVoice();
-    if (voice) utterance.voice = voice;
-    synth.speak(utterance);
-
-    // Handle quiz option clicks
-    const optionBtns = overlay.querySelectorAll('.quiz-option');
-    const feedbackDiv = overlay.querySelector('.quiz-feedback');
-    let quizAnswered = false;
-
-    optionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (quizAnswered) return;
-            quizAnswered = true;
-
-            const chosen = parseInt(btn.dataset.index);
-            const correct = chosen === quiz.answer;
-
-            // Highlight correct/wrong
-            optionBtns.forEach(b => {
-                const idx = parseInt(b.dataset.index);
-                if (idx === quiz.answer) {
-                    b.classList.add('quiz-correct');
-                } else if (idx === chosen && !correct) {
-                    b.classList.add('quiz-wrong');
-                }
-                b.disabled = true;
-            });
-
-            // Show explanation
-            feedbackDiv.innerHTML = `<span class="${correct ? 'quiz-right' : 'quiz-not-right'}">${correct ? '✓ Correct!' : '✗ Not quite!'}</span> ${quiz.explanation}`;
-            feedbackDiv.style.display = 'block';
-
-            // Speak the result
-            synth.cancel();
-            const resultText = correct ? "Correct! " + quiz.explanation : "Not quite. " + quiz.explanation;
-            const resultUtterance = new SpeechSynthesisUtterance(resultText);
-            resultUtterance.rate = 0.95;
-            resultUtterance.pitch = 1.0;
-            resultUtterance.volume = 1;
-            if (voice) resultUtterance.voice = voice;
-            synth.speak(resultUtterance);
-
-            // Dismiss after reading explanation
-            let dismissed = false;
-            function dismiss() {
-                if (dismissed) return;
-                dismissed = true;
-                overlay.classList.add('fade-out');
-                setTimeout(() => overlay.remove(), 400);
-            }
-            resultUtterance.onend = () => setTimeout(dismiss, 1000);
-            resultUtterance.onerror = dismiss;
-            setTimeout(dismiss, 12000);
-        });
-    });
-}
-
 function checkSpelling() {
     stopListening();
     const userInput = spellingInput.value.trim().toLowerCase();
@@ -938,9 +819,6 @@ function checkSpelling() {
         hasAnswered = true;
         updatePlaceholder();
         spellingInput.disabled = true;
-        if (showCelebration) {
-            showSnakeCelebration();
-        }
         setTimeout(() => {
             spellingInput.disabled = false;
             spellingInput.focus();
@@ -1319,22 +1197,6 @@ document.getElementById('switchProfileBtn').addEventListener('click', () => {
     gearDropdown.classList.remove('show');
     synth.cancel();
     showProfileScreen();
-});
-
-// Celebration toggle
-const celebrationToggle = document.getElementById('celebrationToggle');
-function updateCelebrationToggleLabel() {
-    const checkIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.8"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg>';
-    celebrationToggle.innerHTML = showCelebration
-        ? checkIcon + ' Celebration ✓'
-        : checkIcon + ' Celebration';
-}
-updateCelebrationToggleLabel();
-celebrationToggle.addEventListener('click', () => {
-    showCelebration = !showCelebration;
-    localStorage.setItem(profileKey('showCelebration'), showCelebration);
-    updateCelebrationToggleLabel();
-    gearDropdown.classList.remove('show');
 });
 
 // ===== PRACTICE MODE (Flashcards) =====

@@ -140,7 +140,7 @@
                         u.onend = () => {
                             i++;
                             if (i < parts.length) {
-                                setTimeout(speakNext, 1000);
+                                setTimeout(speakNext, 500);
                             }
                         };
                         window.speechSynthesis.speak(u);

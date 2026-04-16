@@ -189,11 +189,21 @@
             if (opts.onend) u.onend = opts.onend;
             synth.speak(u);
         }
-        // Unlock iOS audio on first interaction
-        document.addEventListener('click', function _unlockQuizTTS() {
+        // Unlock iOS audio on first REAL interaction
+        let _quizAudioUnlocked = false;
+        function _unlockQuizTTS(e) {
+            if (!e.isTrusted) return; // ignore programmatic clicks
             if (window.cloudTTS) cloudTTS.unlockAudio();
+            _quizAudioUnlocked = true;
+            // Auto-read the current question if it hasn't been read yet
+            const hearBtn = document.getElementById('hearBtn');
+            if (hearBtn && !hearBtn.dataset.read) {
+                hearBtn.dataset.read = '1';
+                hearBtn.click();
+            }
             document.removeEventListener('click', _unlockQuizTTS);
-        }, { once: true });
+        }
+        document.addEventListener('click', _unlockQuizTTS);
 
         function renderQuiz(category) {
             const quizContainer = document.getElementById('quizContainer');
@@ -297,7 +307,13 @@
                     quizContainer.appendChild(exp);
                 }
                 // Auto-read question + answers (1s delay for transition)
-                setTimeout(() => document.getElementById('hearBtn').click(), 1000);
+                // On iOS/mobile, skip auto-read until audio is unlocked by a real tap
+                if (_quizAudioUnlocked) {
+                    setTimeout(() => {
+                        const hb = document.getElementById('hearBtn');
+                        if (hb) { hb.dataset.read = '1'; hb.click(); }
+                    }, 1000);
+                }
             }
             showQuestion();
         }

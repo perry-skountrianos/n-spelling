@@ -6,8 +6,8 @@
 (function() {
     'use strict';
 
-    const VOICE = 'en-GB-Neural2-C';
-    const LANG = 'en-GB';
+    const DEFAULT_VOICE = 'en-GB-Neural2-C';
+    const DEFAULT_LANG = 'en-GB';
     const DB_NAME = 'spelling-tts';
     const DB_VER = 2;
     const STORE = 'audio';
@@ -35,11 +35,6 @@
         a.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRwVHAAAAAAD/+1DEAAAB8ANX9AAACAJ4K070JAAAAADNQAAAAAARERFREREREBERERERERDNERERERERERERERERERERERERERENDNEREREREREREREREREREREREREREREREREREREREND/+1DEUwAADSAAAAAAAAANIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+1DEqAAAADSAAAAAAAAANIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
         a.volume = 0.01;
         a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = 1; }).catch(() => {});
-        // Also unlock AudioContext for Web Audio API playback (silly voices)
-        try {
-            const ctx = getAudioCtx();
-            if (ctx.state === 'suspended') ctx.resume();
-        } catch(e) {}
     }
 
     // ---- IndexedDB Cache ----
@@ -78,12 +73,14 @@
     }
 
     // ---- Google Cloud TTS API ----
-    async function fetchAudio(text, isPreCache) {
+    async function fetchAudio(text, isPreCache, voiceName, langCode) {
         if (!enabled) return null;
         const apiKey = (typeof firebaseConfig !== 'undefined') ? firebaseConfig.apiKey : null;
         if (!apiKey) { enabled = false; return null; }
 
-        const key = VOICE + ':' + text;
+        const vn = voiceName || DEFAULT_VOICE;
+        const lc = langCode || DEFAULT_LANG;
+        const key = vn + ':' + text;
         const cached = await getCache(key);
         if (cached) return cached;
 
@@ -95,13 +92,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         input: { text },
-                        voice: { languageCode: LANG, name: VOICE },
+                        voice: { languageCode: lc, name: vn },
                         audioConfig: { audioEncoding: 'MP3', volumeGainDb: 6.0 }
                     })
                 }
             );
             if (!resp.ok) {
-                // Only permanently disable for auth/config errors on real speech (not pre-cache)
                 if (!isPreCache && (resp.status === 403 || resp.status === 401)) {
                     console.warn('Cloud TTS: API not enabled or key invalid. Using browser TTS.');
                     enabled = false;
@@ -119,65 +115,23 @@
         }
     }
 
-    // ---- Web Audio API context for variable-rate playback ----
-    let audioCtx = null;
-    let currentSource = null;
-    function getAudioCtx() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        return audioCtx;
-    }
-
     // ---- Playback (reuse shared audio element for iOS compatibility) ----
-    function play(base64, onDone, rate) {
+    function play(base64, onDone) {
         stop();
-        const playbackRate = rate || 1;
+        const audio = getSharedAudio();
+        audio.volume = 1;
+        currentAudio = audio;
         let called = false;
         function done() {
             if (called) return; called = true;
             currentAudio = null;
-            currentSource = null;
             if (onDone) onDone();
         }
-
-        // Decode base64 to ArrayBuffer
-        const byteChars = atob(base64);
-        const byteArray = new Uint8Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
-
-        // Use Web Audio API for non-1.0 rates (reliable pitch/speed on all browsers incl iOS)
-        if (playbackRate !== 1.0) {
-            try {
-                const ctx = getAudioCtx();
-                // Resume context if suspended (iOS requires this after user gesture)
-                if (ctx.state === 'suspended') ctx.resume();
-                ctx.decodeAudioData(byteArray.buffer.slice(0), function(buffer) {
-                    if (called) return;
-                    const source = ctx.createBufferSource();
-                    source.buffer = buffer;
-                    source.playbackRate.value = playbackRate;
-                    source.connect(ctx.destination);
-                    source.onended = done;
-                    currentSource = source;
-                    currentAudio = { _webAudio: true, source: source, ctx: ctx };
-                    source.start(0);
-                }, function() { done(); });
-                // Fallback if decoding takes too long
-                setTimeout(() => { if (!called && !currentSource) done(); }, 3000);
-                return;
-            } catch(e) {
-                // Fall through to normal Audio element playback
-            }
-        }
-
-        // Normal rate: use Audio element (preserves iOS unlock)
-        const audio = getSharedAudio();
-        audio.volume = 1;
-        currentAudio = audio;
-
         let url = null;
         try {
+            const byteChars = atob(base64);
+            const byteArray = new Uint8Array(byteChars.length);
+            for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
             const blob = new Blob([byteArray], { type: 'audio/mpeg' });
             url = URL.createObjectURL(blob);
             audio.src = url;
@@ -204,17 +158,12 @@
 
     function stop() {
         if (currentAudio) {
-            if (currentAudio._webAudio) {
-                try { currentAudio.source.stop(); } catch(e) {}
-            } else {
-                currentAudio.onended = null;
-                currentAudio.onerror = null;
-                try { currentAudio.pause(); currentAudio.currentTime = 0; } catch(e) {}
-            }
+            currentAudio.onended = null;
+            currentAudio.onerror = null;
+            try { currentAudio.pause(); currentAudio.currentTime = 0; } catch(e) {}
             currentAudio = null;
         }
-        currentSource = null;
-        }
+    }
     }
 
     // ---- Pre-cache letters & common phrases (sequential, won't disable on failure) ----
@@ -239,10 +188,10 @@
         stop: stop,
         unlockAudio: unlockAudio,
 
-        speak: async function(text, onDone, rate) {
+        speak: async function(text, onDone, voiceName, langCode) {
             if (!preCached) preCache();
-            const b64 = await fetchAudio(text);
-            if (b64) { play(b64, onDone, rate); return true; }
+            const b64 = await fetchAudio(text, false, voiceName, langCode);
+            if (b64) { play(b64, onDone); return true; }
             return false;
         },
 

@@ -66,11 +66,9 @@
                 <div class="gear-option" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;">
                     <label for="voiceSelect" style="font-weight:500;font-size:14px;color:#666;">Voice</label>
                     <select id="voiceSelect" class="quiz-category-select">
-                        <option value="normal">Normal</option>
-                        <option value="chipmunk">🐿️ Chipmunk</option>
-                        <option value="monster">👾 Monster</option>
-                        <option value="robot">🤖 Robot</option>
-                        <option value="speedy">⚡ Speedy</option>
+                        <option value="normal">🇬🇧 Female (default)</option>
+                        <option value="maleGB">🇬🇧 Male</option>
+                        <option value="maleUS">🇺🇸 Male</option>
                     </select>
                 </div>
                 <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> New Session</button>
@@ -92,7 +90,7 @@
     <script src="quiz-dinosaurs.js"></script>
     <script src="quiz-humanbody.js"></script>
     <script src="quiz-soccer.js?v=1"></script>
-    <script src="tts.js?v=37"></script>
+    <script src="tts.js?v=38"></script>
     <script>
         // Hamburger menu logic
         const gearBtn = document.getElementById('gearBtn');
@@ -167,17 +165,35 @@
             synth.onvoiceschanged = () => { quizVoice = null; quizVoicesLoaded = false; getQuizVoice(); };
         }
 
-        // Silly voice modes
-        const _voiceModes = {
-            normal:   { cloudRate: 1.0, browserRate: 1.0, browserPitch: 1.0 },
-            chipmunk: { cloudRate: 1.6, browserRate: 1.5, browserPitch: 2.0 },
-            monster:  { cloudRate: 0.62, browserRate: 0.6, browserPitch: 0.3 },
-            robot:    { cloudRate: 0.88, browserRate: 0.85, browserPitch: 0.01 },
-            speedy:   { cloudRate: 2.0, browserRate: 2.0, browserPitch: 1.2 }
+        // Voice options: different Cloud TTS voices and browser fallback voices
+        const _voiceOptions = {
+            normal:  { cloudVoice: 'en-GB-Neural2-C', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'female' },
+            maleGB:  { cloudVoice: 'en-GB-Neural2-D', cloudLang: 'en-GB', browserLang: 'en-GB', browserGender: 'male' },
+            maleUS:  { cloudVoice: 'en-US-Neural2-D', cloudLang: 'en-US', browserLang: 'en-US', browserGender: 'male' }
         };
-        function _getVoiceMode() {
+        function _getVoiceOption() {
             const sel = document.getElementById('voiceSelect');
-            return _voiceModes[(sel && sel.value) || 'normal'] || _voiceModes.normal;
+            return _voiceOptions[(sel && sel.value) || 'normal'] || _voiceOptions.normal;
+        }
+
+        // Pick a browser fallback voice matching the selected option
+        function _getBrowserVoiceFor(vo) {
+            const voices = synth.getVoices();
+            if (!voices.length) return getQuizVoice();
+            const langVoices = voices.filter(v => v.lang === vo.browserLang || v.lang === vo.browserLang.replace('-','_'));
+            if (vo.browserGender === 'male') {
+                const maleNames = ['Daniel', 'Arthur', 'Oliver', 'Thomas', 'Gordon', 'Aaron', 'Albert', 'Google UK English Male', 'Google US English', 'Alex', 'Tom', 'Fred'];
+                let picked = langVoices.find(v => maleNames.some(n => v.name.includes(n)));
+                if (!picked) picked = langVoices[0];
+                return picked || getQuizVoice();
+            }
+            // female — use the existing logic
+            if (vo.browserLang === 'en-GB') return getQuizVoice();
+            // en-US female
+            const femaleNames = ['Samantha', 'Google US English', 'Allison', 'Ava', 'Susan', 'Zira'];
+            let picked = langVoices.find(v => femaleNames.some(n => v.name.includes(n)));
+            if (!picked) picked = langVoices[0];
+            return picked || getQuizVoice();
         }
 
         // Unified TTS: Cloud TTS with browser fallback
@@ -189,29 +205,28 @@
         }
         function quizTtsSpeak(text, opts) {
             opts = opts || {};
-            const vm = _getVoiceMode();
+            const vo = _getVoiceOption();
             if (window.cloudTTS && cloudTTS.enabled()) {
                 _quizCloudActive = true;
                 cloudTTS.speak(text, () => {
                     _quizCloudActive = false;
                     if (opts.onend) opts.onend();
-                }, vm.cloudRate).then(ok => {
+                }, vo.cloudVoice, vo.cloudLang).then(ok => {
                     if (!ok) {
                         _quizCloudActive = false;
-                        _quizBrowserSpeak(text, opts, vm);
+                        _quizBrowserSpeak(text, opts, vo);
                     }
                 });
             } else {
-                _quizBrowserSpeak(text, opts, vm);
+                _quizBrowserSpeak(text, opts, vo);
             }
         }
-        function _quizBrowserSpeak(text, opts, vm) {
-            vm = vm || _getVoiceMode();
+        function _quizBrowserSpeak(text, opts, vo) {
+            vo = vo || _getVoiceOption();
             const u = new SpeechSynthesisUtterance(text);
-            u.rate = vm.browserRate;
-            u.pitch = vm.browserPitch;
-            u.lang = 'en-GB';
-            const v = getQuizVoice();
+            u.rate = 1;
+            u.lang = vo.browserLang;
+            const v = _getBrowserVoiceFor(vo);
             if (v) u.voice = v;
             if (opts.onend) u.onend = opts.onend;
             synth.speak(u);

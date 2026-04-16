@@ -134,6 +134,25 @@ body {
     border-color: #999;
 }
 
+.home-circle {
+    display: flex;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.2s;
+    color: #666;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.home-circle:hover {
+    border-color: #999;
+}
+
 .car-circle {
     display: flex;
     width: 80px;
@@ -864,6 +883,23 @@ h1 {
 .quiz-option.quiz-correct:disabled,
 .quiz-option.quiz-wrong:disabled {
     opacity: 1;
+}
+
+.quiz-option-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quiz-option-wrap .quiz-option {
+    flex: 1;
+}
+
+.quiz-ans-tts {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
 }
 
 .quiz-feedback {

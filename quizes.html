@@ -72,6 +72,9 @@
     </div>
     <script src="auth.js"></script>
     <script src="quizzes.js"></script>
+    <script src="quiz-geography.js"></script>
+    <script src="quiz-history.js"></script>
+    <script src="quiz-technology.js"></script>
     <script src="tts.js"></script>
     <script>
         // Hamburger menu logic
@@ -88,6 +91,10 @@
 
         // Render categories
         const categorySelect = document.getElementById('categorySelect');
+        const allOpt = document.createElement('option');
+        allOpt.value = '__all__';
+        allOpt.textContent = 'All Categories';
+        categorySelect.appendChild(allOpt);
         for (const cat in quizData) {
             const opt = document.createElement('option');
             opt.value = cat;
@@ -156,7 +163,12 @@
         function renderQuiz(category) {
             const quizContainer = document.getElementById('quizContainer');
             quizContainer.innerHTML = '';
-            let questions = quizData[category] ? shuffleArray([...quizData[category]]) : [];
+            let questions;
+            if (category === '__all__') {
+                questions = shuffleArray(Object.values(quizData).flat());
+            } else {
+                questions = quizData[category] ? shuffleArray([...quizData[category]]) : [];
+            }
             if (!questions.length) {
                 quizContainer.textContent = 'No questions in this category.';
                 updateDonuts(0,0,1);

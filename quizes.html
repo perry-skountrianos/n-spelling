@@ -55,8 +55,15 @@
     </div>
     <div class="quiz-app-container">
         <div class="gear-menu-wrapper" id="gearMenuWrapper">
+            <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
+            <div class="gear-dropdown" id="gearDropdown">
+                <div class="gear-option" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;">
+                    <label for="categorySelect" style="font-weight:500;font-size:14px;color:#666;">Category</label>
+                    <select id="categorySelect" class="quiz-category-select"></select>
+                </div>
+            </div>
+        </div>
         <div id="quizContainer"></div>
-        <!-- Back arrow removed for cleaner UI -->
     </div>
     <script src="auth.js"></script>
     <script src="quizzes.js"></script>

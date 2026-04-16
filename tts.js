@@ -35,6 +35,11 @@
         a.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRwVHAAAAAAD/+1DEAAAB8ANX9AAACAJ4K070JAAAAADNQAAAAAARERFREREREBERERERERDNERERERERERERERERERERERERERENDNEREREREREREREREREREREREREREREREREREREREND/+1DEUwAADSAAAAAAAAANIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+1DEqAAAADSAAAAAAAAANIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
         a.volume = 0.01;
         a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = 1; }).catch(() => {});
+        // Also unlock AudioContext for Web Audio API playback (silly voices)
+        try {
+            const ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+        } catch(e) {}
     }
 
     // ---- IndexedDB Cache ----
@@ -114,43 +119,79 @@
         }
     }
 
+    // ---- Web Audio API context for variable-rate playback ----
+    let audioCtx = null;
+    let currentSource = null;
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
     // ---- Playback (reuse shared audio element for iOS compatibility) ----
     function play(base64, onDone, rate) {
         stop();
-        const audio = getSharedAudio();
-        audio.volume = 1;
-        currentAudio = audio;
         const playbackRate = rate || 1;
         let called = false;
         function done() {
             if (called) return; called = true;
             currentAudio = null;
+            currentSource = null;
             if (onDone) onDone();
         }
-        // Use blob URL for cross-browser compat
+
+        // Decode base64 to ArrayBuffer
+        const byteChars = atob(base64);
+        const byteArray = new Uint8Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+
+        // Use Web Audio API for non-1.0 rates (reliable pitch/speed on all browsers incl iOS)
+        if (playbackRate !== 1.0) {
+            try {
+                const ctx = getAudioCtx();
+                // Resume context if suspended (iOS requires this after user gesture)
+                if (ctx.state === 'suspended') ctx.resume();
+                ctx.decodeAudioData(byteArray.buffer.slice(0), function(buffer) {
+                    if (called) return;
+                    const source = ctx.createBufferSource();
+                    source.buffer = buffer;
+                    source.playbackRate.value = playbackRate;
+                    source.connect(ctx.destination);
+                    source.onended = done;
+                    currentSource = source;
+                    currentAudio = { _webAudio: true, source: source, ctx: ctx };
+                    source.start(0);
+                }, function() { done(); });
+                // Fallback if decoding takes too long
+                setTimeout(() => { if (!called && !currentSource) done(); }, 3000);
+                return;
+            } catch(e) {
+                // Fall through to normal Audio element playback
+            }
+        }
+
+        // Normal rate: use Audio element (preserves iOS unlock)
+        const audio = getSharedAudio();
+        audio.volume = 1;
+        currentAudio = audio;
+
         let url = null;
         try {
-            const byteChars = atob(base64);
-            const byteArray = new Uint8Array(byteChars.length);
-            for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
             const blob = new Blob([byteArray], { type: 'audio/mpeg' });
             url = URL.createObjectURL(blob);
             audio.src = url;
         } catch(e) {
             audio.src = 'data:audio/mp3;base64,' + base64;
         }
-        // Set playbackRate AFTER src is assigned (some browsers reset it on src change)
-        audio.playbackRate = playbackRate;
         function cleanup() { if (url) { URL.revokeObjectURL(url); url = null; } done(); }
         audio.onended = cleanup;
         audio.onerror = cleanup;
-        // Fallback: detect end via timeupdate
         audio.ontimeupdate = () => {
             if (audio.currentTime > 0 && audio.duration > 0 && audio.currentTime >= audio.duration - 0.05) {
                 cleanup();
             }
         };
-        // iOS stall detection: if audio hasn't started playing within 500ms, give up
         let stallTimer = setTimeout(() => {
             if (!called && audio.currentTime === 0) {
                 console.warn('cloudTTS: audio stalled, calling done');
@@ -163,10 +204,16 @@
 
     function stop() {
         if (currentAudio) {
-            currentAudio.onended = null;
-            currentAudio.onerror = null;
-            try { currentAudio.pause(); currentAudio.currentTime = 0; } catch(e) {}
+            if (currentAudio._webAudio) {
+                try { currentAudio.source.stop(); } catch(e) {}
+            } else {
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                try { currentAudio.pause(); currentAudio.currentTime = 0; } catch(e) {}
+            }
             currentAudio = null;
+        }
+        currentSource = null;
         }
     }
 

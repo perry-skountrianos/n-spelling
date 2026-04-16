@@ -119,8 +119,8 @@
         stop();
         const audio = getSharedAudio();
         audio.volume = 1;
-        audio.playbackRate = rate || 1;
         currentAudio = audio;
+        const playbackRate = rate || 1;
         let called = false;
         function done() {
             if (called) return; called = true;
@@ -139,6 +139,8 @@
         } catch(e) {
             audio.src = 'data:audio/mp3;base64,' + base64;
         }
+        // Set playbackRate AFTER src is assigned (some browsers reset it on src change)
+        audio.playbackRate = playbackRate;
         function cleanup() { if (url) { URL.revokeObjectURL(url); url = null; } done(); }
         audio.onended = cleanup;
         audio.onerror = cleanup;

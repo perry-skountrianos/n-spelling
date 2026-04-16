@@ -1,15 +1,12 @@
 /* Minimal additional styles for Quizes app, if needed */
 .quiz-app-container {
     max-width: 500px;
-    margin: 40px auto;
+    margin: 20px auto 40px;
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     padding: 2rem 1.5rem;
     text-align: center;
-}
-.quiz-app-container {
-    padding-top: 100px;
 }
 
 #quizContainer {
@@ -18,16 +15,19 @@
 
 @media (max-width: 600px) {
     .quiz-app-container {
-        padding-top: 60px;
+        margin-top: 12px;
         padding-left: 1rem;
         padding-right: 1rem;
+        border-radius: 14px;
     }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
     .quiz-app-container {
-        padding-top: 55px;
+        margin-top: 8px;
+        padding: 1rem;
     }
+}
 }
 
 .quiz-category-select {

@@ -31,9 +31,6 @@
 }
 
 .quiz-hear-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,6 +41,7 @@
     border-radius: 50%;
     cursor: pointer;
     transition: border-color 0.15s;
+    flex-shrink: 0;
 }
 
 .quiz-hear-btn:hover {

@@ -27,43 +27,34 @@
     <link rel="stylesheet" href="quizes.css?v=1">
 </head>
 <body>
+    <div class="score-display" id="scoreDisplay">
+        <a href="https://skountrianos.com" class="home-circle" title="Home">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="remainingCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="correctCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="wrongCount">0</span>
+        </div>
+    </div>
     <div class="quiz-app-container">
         <div class="gear-menu-wrapper" id="gearMenuWrapper">
-            <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
-            <div class="gear-dropdown" id="gearDropdown">
-                <div class="gear-option" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;">
-                    <label for="categorySelect" style="font-weight:500;font-size:14px;color:#666;">Category</label>
-                    <select id="categorySelect" class="quiz-category-select"></select>
-                </div>
-            </div>
-        </div>
-        <!-- Title removed for cleaner UI -->
-        <div class="score-display" id="scoreDisplay">
-            <a href="https://skountrianos.com" class="home-circle" title="Home">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </a>
-            <div class="donut-wrapper">
-                <svg class="donut" viewBox="0 0 36 36">
-                    <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                    <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round"/>
-                </svg>
-                <span class="donut-label" id="remainingCount">0</span>
-            </div>
-            <div class="donut-wrapper">
-                <svg class="donut" viewBox="0 0 36 36">
-                    <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                    <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-                </svg>
-                <span class="donut-label" id="correctCount">0</span>
-            </div>
-            <div class="donut-wrapper">
-                <svg class="donut" viewBox="0 0 36 36">
-                    <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                    <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-                </svg>
-                <span class="donut-label" id="wrongCount">0</span>
-            </div>
-        </div>
         <div id="quizContainer"></div>
         <!-- Back arrow removed for cleaner UI -->
     </div>

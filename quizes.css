@@ -1,7 +1,7 @@
 /* Minimal additional styles for Quizes app, if needed */
 .quiz-app-container {
     max-width: 500px;
-    margin: 20px auto 40px;
+    margin: 100px auto 40px;
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);

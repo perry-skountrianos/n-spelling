@@ -265,36 +265,34 @@
                         }
                         btn.disabled = true;
                         Array.from(opts.querySelectorAll('button')).forEach(b => b.disabled = true);
+                        // Disable hear button so it can't interrupt the explanation→next flow
+                        const hb = document.getElementById('hearBtn');
+                        if (hb) { hb.disabled = true; hb.style.opacity = '0.3'; hb.style.pointerEvents = 'none'; }
                         updateDonuts(correct, wrong, questions.length);
+                        function advanceQuestion() {
+                            if (current < questions.length - 1) {
+                                current++;
+                                showQuestion();
+                            } else {
+                                quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
+                                updateDonuts(correct, wrong, questions.length);
+                            }
+                        }
                         // Show and read explanation
                         const expEl = quizContainer.querySelector('.quiz-explanation');
-                        let expDuration = 700;
                         if (expEl && q.explanation) {
                             expEl.style.display = '';
                             quizTtsCancel();
+                            let advanced = false;
                             quizTtsSpeak(q.explanation, {
                                 onend: () => {
-                                    setTimeout(() => {
-                                        if (current < questions.length - 1) {
-                                            current++;
-                                            showQuestion();
-                                        } else {
-                                            quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
-                                            updateDonuts(correct, wrong, questions.length);
-                                        }
-                                    }, 1000);
+                                    if (!advanced) { advanced = true; setTimeout(advanceQuestion, 1000); }
                                 }
                             });
+                            // Safety fallback: advance even if TTS onend never fires
+                            setTimeout(() => { if (!advanced) { advanced = true; advanceQuestion(); } }, 15000);
                         } else {
-                            setTimeout(() => {
-                                if (current < questions.length - 1) {
-                                    current++;
-                                    showQuestion();
-                                } else {
-                                    quizContainer.innerHTML = `<div class='quiz-result'>Quiz complete!<br>Score: ${correct} / ${questions.length}</div>`;
-                                    updateDonuts(correct, wrong, questions.length);
-                                }
-                            }, 700);
+                            setTimeout(advanceQuestion, 700);
                         }
                     };
                     opts.appendChild(btn);

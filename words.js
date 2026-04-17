@@ -123,3 +123,86 @@ const wordSentences = {
     'over': 'Jump over the puddle.',
     'what': 'What is your name?'
 };
+
+// Basics list: numbers, days, months, colors
+const basicsWords = [
+    // Numbers
+    'zero', 'one', 'two', 'three', 'four', 'five',
+    'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
+    'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
+    // Days
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+    'Friday', 'Saturday', 'Sunday',
+    // Months
+    'January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December',
+    // Colors
+    'red', 'blue', 'green', 'yellow', 'orange',
+    'purple', 'pink', 'black', 'white', 'brown',
+    'gray', 'gold', 'silver'
+];
+
+const basicsSentences = {
+    // Numbers
+    'zero': 'The score is zero to one.',
+    'one': 'I have one wish.',
+    'two': 'I have two hands.',
+    'three': 'I have three cats.',
+    'four': 'I have four apples.',
+    'five': 'I have five fingers.',
+    'six': 'There are six eggs in the box.',
+    'seven': 'There are seven days in a week.',
+    'eight': 'The spider has eight legs.',
+    'nine': 'I wake up at nine o\'clock.',
+    'ten': 'I can count to ten.',
+    'eleven': 'There are eleven players on a soccer team.',
+    'twelve': 'There are twelve months in a year.',
+    'thirteen': 'I am thirteen years old.',
+    'fourteen': 'There are fourteen days in two weeks.',
+    'fifteen': 'We have fifteen minutes left.',
+    'sixteen': 'She got sixteen candles on her cake.',
+    'seventeen': 'There are seventeen kids in my class.',
+    'eighteen': 'He scored eighteen points.',
+    'nineteen': 'There are nineteen birds on the tree.',
+    'twenty': 'I counted twenty stars.',
+    // Days
+    'Monday': 'Monday is the first day of the week.',
+    'Tuesday': 'We have art class on Tuesday.',
+    'Wednesday': 'Wednesday is in the middle of the week.',
+    'Thursday': 'Thursday comes before Friday.',
+    'Friday': 'Friday is my favourite day.',
+    'Saturday': 'We go to the park on Saturday.',
+    'Sunday': 'Sunday is a day of rest.',
+    // Months
+    'January': 'January is the first month of the year.',
+    'February': 'February is the shortest month.',
+    'March': 'March winds blow the leaves around.',
+    'April': 'April showers bring May flowers.',
+    'May': 'May is a beautiful month.',
+    'June': 'School ends in June.',
+    'July': 'We watch fireworks in July.',
+    'August': 'August is very hot.',
+    'September': 'September is when school starts.',
+    'October': 'October has Halloween.',
+    'November': 'November leaves turn brown.',
+    'December': 'December has Christmas.',
+    // Colors
+    'red': 'The red apple is sweet.',
+    'blue': 'The sky is blue today.',
+    'green': 'The green grass is soft.',
+    'yellow': 'The yellow sun is bright.',
+    'orange': 'I ate an orange for lunch.',
+    'purple': 'She wore a purple dress.',
+    'pink': 'The pink flowers smell nice.',
+    'black': 'The black cat sat on the mat.',
+    'white': 'The white snow is cold.',
+    'brown': 'The brown dog is friendly.',
+    'gray': 'The gray clouds mean rain.',
+    'gold': 'She won a gold medal.',
+    'silver': 'The silver moon is bright.'
+};
+
+// Merge basics sentences into wordSentences so lookups work for all lists
+Object.assign(wordSentences, basicsSentences);

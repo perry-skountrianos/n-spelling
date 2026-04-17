@@ -134,6 +134,16 @@ async function ensureDefaultWordList(profileId) {
             await ref.child(mEntry[0]).set({ name: 'Months', words: monthsWords });
         }
     }
+    // Ensure Common Sight Words list exists
+    const sightSnap = await ref.orderByChild('name').equalTo('Common Sight Words').once('value');
+    if (!sightSnap.exists()) {
+        await ref.child('sightwords').set({ name: 'Common Sight Words', words: sightWords });
+    } else {
+        const sEntry = Object.entries(sightSnap.val())[0];
+        if (firebaseToArray(sEntry[1].words).length !== sightWords.length) {
+            await ref.child(sEntry[0]).set({ name: 'Common Sight Words', words: sightWords });
+        }
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');

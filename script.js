@@ -98,6 +98,17 @@ async function ensureDefaultWordList(profileId) {
             await ref.child(entry[0]).set({ name: 'Red Card Words', words: defaultWords });
         }
     }
+    // Ensure Basics list exists
+    const basicsSnap = await ref.orderByChild('name').equalTo('Basics').once('value');
+    if (!basicsSnap.exists()) {
+        await ref.child('basics').set({ name: 'Basics', words: basicsWords });
+    } else {
+        const bEntry = Object.entries(basicsSnap.val())[0];
+        const bExisting = firebaseToArray(bEntry[1].words);
+        if (bExisting.length !== basicsWords.length) {
+            await ref.child(bEntry[0]).set({ name: 'Basics', words: basicsWords });
+        }
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');

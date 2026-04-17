@@ -164,7 +164,6 @@
             currentAudio = null;
         }
     }
-    }
 
     // ---- Pre-cache letters & common phrases (sequential, won't disable on failure) ----
     function preCache() {

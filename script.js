@@ -840,7 +840,7 @@ function checkSpelling() {
         return;
     }
     
-    const isCorrect = userInput === correctWord;
+    const isCorrect = userInput === correctWord.toLowerCase();
     
     // Store result
     const result = {

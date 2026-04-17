@@ -833,14 +833,17 @@ function speakWord() {
 
 function checkSpelling() {
     stopListening();
-    const userInput = spellingInput.value.trim().toLowerCase();
+    const userInput = spellingInput.value.trim();
     const correctWord = getCurrentWord();
     
     if (!userInput) {
         return;
     }
     
-    const isCorrect = userInput === correctWord.toLowerCase();
+    // Case-sensitive for words with capitals (days, months), case-insensitive otherwise
+    const isCorrect = correctWord !== correctWord.toLowerCase()
+        ? userInput === correctWord
+        : userInput.toLowerCase() === correctWord;
     
     // Store result
     const result = {

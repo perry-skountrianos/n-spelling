@@ -12,14 +12,14 @@
 
     function showContent() {
         var gate = document.getElementById('authGate');
-        var main = document.getElementById('mainContent');
+        var main = document.getElementById('appWrapper');
         if (gate) gate.style.display = 'none';
         if (main) main.style.display = '';
     }
 
     function hideContent() {
         var gate = document.getElementById('authGate');
-        var main = document.getElementById('mainContent');
+        var main = document.getElementById('appWrapper');
         if (gate) gate.style.display = '';
         if (main) main.style.display = 'none';
     }

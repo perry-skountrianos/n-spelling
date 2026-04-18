@@ -1724,6 +1724,21 @@ h1 {
     color: #dc3545;
 }
 
+.app-version {
+    margin-top: 24px;
+    font-size: 11px;
+    color: #ccc;
+}
+
+.gear-version {
+    text-align: center;
+    font-size: 10px;
+    color: #aaa;
+    padding: 6px 0 2px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 4px;
+}
+
 /* Profile Edit Modal */
 .profile-edit-overlay {
     position: fixed;

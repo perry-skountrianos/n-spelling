@@ -1034,7 +1034,11 @@ spellingInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
         if (appMode === 'practice' || appMode === 'choose' || appMode === 'sentence') return;
-        handleInputAction(); () => {
+        handleInputAction();
+    }
+});
+
+spellingInput.addEventListener('blur', () => {
     // Trigger action on blur if there's text
     if (spellingInput.value.trim().length > 0) {
         setTimeout(handleInputAction, 100);

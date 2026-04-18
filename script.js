@@ -282,14 +282,13 @@ const viewReportsBtn = document.getElementById('viewReportsBtn');
 const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
-const practiceModeBtn = document.getElementById('modeToggleBtn');
-const chooseModeBtn = document.getElementById('chooseModeBtn');
 const testContent = document.getElementById('testContent');
 const practiceContent = document.getElementById('practiceContent');
 const chooseContent = document.getElementById('chooseContent');
+const sentenceContent = document.getElementById('sentenceContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let appMode = 'test'; // 'test', 'practice', or 'choose'
+let appMode = 'test'; // 'test', 'practice', 'choose', or 'sentence'
 let practiceScope = 'all';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
@@ -472,16 +471,14 @@ function setMode(mode) {
 
 function setAppMode(mode) {
     appMode = mode;
-    // Update menu button labels
-    practiceModeBtn.innerHTML = mode === 'practice'
-        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode'
-        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Practice Mode';
-    chooseModeBtn.innerHTML = mode === 'choose'
-        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode'
-        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Choose Mode';
+    // Update active state in modes submenu
+    document.querySelectorAll('.mode-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
     testContent.style.display = mode === 'test' ? '' : 'none';
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
     chooseContent.style.display = mode === 'choose' ? '' : 'none';
+    sentenceContent.style.display = mode === 'sentence' ? '' : 'none';
     scoreDisplay.style.display = (mode === 'test' || mode === 'choose') ? '' : 'none';
     if (mode === 'practice') {
         stopListening();
@@ -490,6 +487,10 @@ function setAppMode(mode) {
         stopListening();
         ttsCancel();
         initChooseMode();
+    } else if (mode === 'sentence') {
+        stopListening();
+        ttsCancel();
+        initSentenceMode();
     } else {
         slideshowPlaying = false;
         updatePlayButton();
@@ -499,40 +500,34 @@ function setAppMode(mode) {
     }
 }
 
-practiceModeBtn.addEventListener('click', () => {
-    if (appMode === 'practice') {
-        setAppMode('test');
-        gearDropdown.classList.remove('show');
-        return;
-    }
-    // If test is in progress, require parent password to prevent peeking
-    if ((appMode === 'test' || appMode === 'choose') && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
-        const password = prompt('Parent password to switch during a test:');
-        if (password !== 'read123') {
-            if (password !== null) alert('Incorrect password');
-            return;
-        }
-    }
-    setAppMode('practice');
-    gearDropdown.classList.remove('show');
+// Modes submenu toggle
+document.getElementById('modesMenuBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('modesSubmenu').classList.toggle('open');
 });
 
-// Choose mode button
-chooseModeBtn.addEventListener('click', () => {
-    if (appMode === 'choose') {
-        setAppMode('test');
-        gearDropdown.classList.remove('show');
-        return;
-    }
-    if ((appMode === 'test' || appMode === 'practice') && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
-        const password = prompt('Parent password to switch during a test:');
-        if (password !== 'read123') {
-            if (password !== null) alert('Incorrect password');
+// Mode option buttons
+document.querySelectorAll('.mode-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetMode = btn.dataset.mode;
+        if (targetMode === appMode) {
+            gearDropdown.classList.remove('show');
+            document.getElementById('modesSubmenu').classList.remove('open');
             return;
         }
-    }
-    setAppMode('choose');
-    gearDropdown.classList.remove('show');
+        // If a test is in progress, require parent password to prevent peeking
+        if (appMode === 'test' && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
+            const password = prompt('Parent password to switch during a test:');
+            if (password !== 'read123') {
+                if (password !== null) alert('Incorrect password');
+                return;
+            }
+        }
+        setAppMode(targetMode);
+        gearDropdown.classList.remove('show');
+        document.getElementById('modesSubmenu').classList.remove('open');
+    });
 });
 
 // Hear button
@@ -1038,12 +1033,8 @@ const handleInputAction = () => {
 spellingInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
-        if (appMode === 'practice' || appMode === 'choose') return;
-        handleInputAction();
-    }
-});
-
-spellingInput.addEventListener('blur', () => {
+        if (appMode === 'practice' || appMode === 'choose' || appMode === 'sentence') return;
+        handleInputAction(); () => {
     // Trigger action on blur if there's text
     if (spellingInput.value.trim().length > 0) {
         setTimeout(handleInputAction, 100);
@@ -1073,7 +1064,7 @@ document.addEventListener('keydown', (e) => {
         if (document.getElementById('wordlistsOverlay').style.display !== 'none' ||
             document.getElementById('wordlistEditOverlay').style.display !== 'none' ||
             document.getElementById('reportsOverlay').style.display !== 'none') return;
-        if (appMode === 'practice' || appMode === 'choose') return;
+        if (appMode === 'practice' || appMode === 'choose' || appMode === 'sentence') return;
         e.preventDefault();
         spellingInput.focus();
         handleInputAction();
@@ -1172,6 +1163,8 @@ gearBtn.addEventListener('click', (e) => {
 
 document.addEventListener('click', () => {
     gearDropdown.classList.remove('show');
+    const submenu = document.getElementById('modesSubmenu');
+    if (submenu) submenu.classList.remove('open');
 });
 
 gearDropdown.addEventListener('click', (e) => {
@@ -2324,3 +2317,351 @@ document.getElementById('chooseHearBtn').addEventListener('click', () => {
         ttsSpeak(word, { rate: 0.85 });
     }
 });
+
+// ===== SENTENCE MODE =====
+let sentenceSentences = [];
+let sentenceIndex = 0;
+let sentenceCorrectCount = 0;
+let sentenceDragState = null; // tracks current drag/touch
+
+function initSentenceMode() {
+    // Build list of sentences from wordSentences
+    const allSentences = Object.values(wordSentences).filter(s => s && s.trim().length > 0);
+    sentenceSentences = shuffleArray([...new Set(allSentences)]);
+    sentenceIndex = 0;
+    sentenceCorrectCount = 0;
+    showSentence();
+}
+
+function tokenizeSentence(sentence) {
+    // Split sentence into words and trailing punctuation as separate tokens
+    const tokens = [];
+    const regex = /([A-Za-z']+|[.!?,;:])/g;
+    let match;
+    while ((match = regex.exec(sentence)) !== null) {
+        tokens.push(match[1]);
+    }
+    return tokens;
+}
+
+function showSentence() {
+    const dropZone = document.getElementById('sentenceDropZone');
+    const wordBank = document.getElementById('sentenceWordBank');
+    const feedback = document.getElementById('sentenceFeedback');
+    const instruction = document.getElementById('sentenceInstruction');
+    const progress = document.getElementById('sentenceProgress');
+
+    const sentence = sentenceSentences[sentenceIndex];
+    const correctTokens = tokenizeSentence(sentence);
+
+    // Scramble the tokens (lowercase all words, keep punctuation as-is)
+    const scrambled = shuffleArray(correctTokens.map(t => {
+        if (/^[A-Za-z]/.test(t)) return t.toLowerCase();
+        return t;
+    }));
+    // Make sure scrambled is not identical to correct order
+    const correctLower = correctTokens.map(t => /^[A-Za-z]/.test(t) ? t.toLowerCase() : t);
+    if (scrambled.length > 1 && scrambled.join(' ') === correctLower.join(' ')) {
+        // Swap first two words
+        [scrambled[0], scrambled[1]] = [scrambled[1], scrambled[0]];
+    }
+
+    dropZone.innerHTML = '';
+    dropZone.className = 'sentence-drop-zone';
+    feedback.innerHTML = '';
+    instruction.textContent = 'Drag the words to build the correct sentence';
+    progress.textContent = `${sentenceIndex + 1} / ${sentenceSentences.length}`;
+
+    // Store correct answer on dropZone for checking
+    dropZone.dataset.correct = JSON.stringify(correctTokens);
+
+    // Build word bank
+    wordBank.innerHTML = '';
+    scrambled.forEach((token, i) => {
+        const el = createSentenceWord(token, i);
+        wordBank.appendChild(el);
+    });
+}
+
+function createSentenceWord(token, idx) {
+    const el = document.createElement('div');
+    el.className = 'sentence-word' + (/^[.!?,;:]$/.test(token) ? ' punctuation' : '');
+    el.textContent = token;
+    el.draggable = true;
+    el.dataset.idx = idx;
+
+    // Click to toggle capitalization (for letter tokens only)
+    el.addEventListener('click', (e) => {
+        if (sentenceDragState) return; // don't toggle during drag
+        if (/^[.!?,;:]$/.test(el.textContent)) return;
+        const text = el.textContent;
+        if (text[0] === text[0].toUpperCase() && text[0] !== text[0].toLowerCase()) {
+            el.textContent = text[0].toLowerCase() + text.slice(1);
+        } else {
+            el.textContent = text[0].toUpperCase() + text.slice(1);
+        }
+        checkSentence();
+    });
+
+    // Desktop drag events
+    el.addEventListener('dragstart', (e) => {
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', '');
+        sentenceDragState = el;
+    });
+    el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        sentenceDragState = null;
+        removePlaceholders();
+    });
+
+    // Touch events for mobile drag
+    let touchClone = null;
+    let touchStartX, touchStartY;
+    let hasMoved = false;
+
+    el.addEventListener('touchstart', (e) => {
+        hasMoved = false;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        sentenceDragState = el;
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        if (!hasMoved && Math.abs(dx) + Math.abs(dy) < 10) return;
+        hasMoved = true;
+        e.preventDefault();
+        el.classList.add('dragging');
+
+        if (!touchClone) {
+            touchClone = el.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.zIndex = '99999';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.opacity = '0.85';
+            touchClone.style.transform = 'scale(1.05)';
+            touchClone.style.boxShadow = '0 8px 24px rgba(0,0,0,0.18)';
+            document.body.appendChild(touchClone);
+        }
+        touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + 'px';
+        touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + 'px';
+
+        // Show placeholder at drop position
+        const dropZone = document.getElementById('sentenceDropZone');
+        const wordBank = document.getElementById('sentenceWordBank');
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        removePlaceholders();
+
+        if (target && (dropZone.contains(target) || target === dropZone)) {
+            const nearestWord = findNearestWordInZone(dropZone, touch.clientX);
+            if (nearestWord && nearestWord !== el) {
+                const rect = nearestWord.getBoundingClientRect();
+                const placeholder = createPlaceholder();
+                if (touch.clientX < rect.left + rect.width / 2) {
+                    nearestWord.before(placeholder);
+                } else {
+                    nearestWord.after(placeholder);
+                }
+            } else if (dropZone.querySelectorAll('.sentence-word').length === 0) {
+                dropZone.appendChild(createPlaceholder());
+            }
+        }
+    }, { passive: false });
+
+    el.addEventListener('touchend', (e) => {
+        if (touchClone) {
+            touchClone.remove();
+            touchClone = null;
+        }
+        el.classList.remove('dragging');
+
+        if (hasMoved) {
+            const touch = e.changedTouches[0];
+            const dropZone = document.getElementById('sentenceDropZone');
+            const wordBank = document.getElementById('sentenceWordBank');
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            removePlaceholders();
+
+            if (target && (dropZone.contains(target) || target === dropZone)) {
+                // Drop into zone
+                const nearestWord = findNearestWordInZone(dropZone, touch.clientX);
+                if (nearestWord && nearestWord !== el) {
+                    const rect = nearestWord.getBoundingClientRect();
+                    if (touch.clientX < rect.left + rect.width / 2) {
+                        nearestWord.before(el);
+                    } else {
+                        nearestWord.after(el);
+                    }
+                } else {
+                    dropZone.appendChild(el);
+                }
+                el.classList.add('in-zone');
+            } else if (target && (wordBank.contains(target) || target === wordBank)) {
+                wordBank.appendChild(el);
+                el.classList.remove('in-zone');
+            }
+            checkSentence();
+        }
+        sentenceDragState = null;
+    });
+
+    return el;
+}
+
+function createPlaceholder() {
+    const ph = document.createElement('div');
+    ph.className = 'sentence-drop-placeholder';
+    return ph;
+}
+
+function removePlaceholders() {
+    document.querySelectorAll('.sentence-drop-placeholder').forEach(p => p.remove());
+}
+
+function findNearestWordInZone(zone, x) {
+    const wordEls = zone.querySelectorAll('.sentence-word');
+    let nearest = null;
+    let minDist = Infinity;
+    wordEls.forEach(w => {
+        if (w.classList.contains('dragging')) return;
+        const rect = w.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const dist = Math.abs(x - cx);
+        if (dist < minDist) {
+            minDist = dist;
+            nearest = w;
+        }
+    });
+    return nearest;
+}
+
+// Drop zone drag events
+const sentenceDropZone = document.getElementById('sentenceDropZone');
+const sentenceWordBank = document.getElementById('sentenceWordBank');
+
+sentenceDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    sentenceDropZone.classList.add('drag-over');
+
+    if (!sentenceDragState) return;
+    removePlaceholders();
+    const nearestWord = findNearestWordInZone(sentenceDropZone, e.clientX);
+    if (nearestWord && nearestWord !== sentenceDragState) {
+        const rect = nearestWord.getBoundingClientRect();
+        const ph = createPlaceholder();
+        if (e.clientX < rect.left + rect.width / 2) {
+            nearestWord.before(ph);
+        } else {
+            nearestWord.after(ph);
+        }
+    } else if (!nearestWord) {
+        sentenceDropZone.appendChild(createPlaceholder());
+    }
+});
+
+sentenceDropZone.addEventListener('dragleave', () => {
+    sentenceDropZone.classList.remove('drag-over');
+    removePlaceholders();
+});
+
+sentenceDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    sentenceDropZone.classList.remove('drag-over');
+    removePlaceholders();
+
+    if (!sentenceDragState) return;
+    const el = sentenceDragState;
+    const nearestWord = findNearestWordInZone(sentenceDropZone, e.clientX);
+    if (nearestWord && nearestWord !== el) {
+        const rect = nearestWord.getBoundingClientRect();
+        if (e.clientX < rect.left + rect.width / 2) {
+            nearestWord.before(el);
+        } else {
+            nearestWord.after(el);
+        }
+    } else {
+        sentenceDropZone.appendChild(el);
+    }
+    el.classList.add('in-zone');
+    checkSentence();
+});
+
+// Allow dropping back to word bank
+sentenceWordBank.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+});
+
+sentenceWordBank.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (!sentenceDragState) return;
+    sentenceWordBank.appendChild(sentenceDragState);
+    sentenceDragState.classList.remove('in-zone');
+    checkSentence();
+});
+
+// Re-order within drop zone
+sentenceDropZone.addEventListener('dragover', (e) => {
+    // Already handled above
+});
+
+function checkSentence() {
+    const dropZone = document.getElementById('sentenceDropZone');
+    const wordEls = dropZone.querySelectorAll('.sentence-word');
+    if (wordEls.length === 0) return;
+
+    const correctTokens = JSON.parse(dropZone.dataset.correct);
+    if (wordEls.length !== correctTokens.length) return;
+
+    const currentTokens = Array.from(wordEls).map(el => el.textContent);
+    const isCorrect = currentTokens.every((t, i) => t === correctTokens[i]);
+
+    if (isCorrect) {
+        sentenceCorrectCount++;
+        dropZone.classList.add('sentence-correct', 'sentence-correct-anim');
+        wordEls.forEach(el => {
+            el.classList.add('sentence-word-correct');
+            el.draggable = false;
+            el.style.cursor = 'default';
+        });
+        const feedback = document.getElementById('sentenceFeedback');
+        feedback.innerHTML = '<span style="color:#2e7d32;font-weight:600;">Correct!</span>';
+
+        // Auto-advance
+        setTimeout(() => {
+            if (sentenceIndex < sentenceSentences.length - 1) {
+                sentenceIndex++;
+                showSentence();
+            } else {
+                showSentenceComplete();
+            }
+        }, 1500);
+    }
+}
+
+function showSentenceComplete() {
+    const dropZone = document.getElementById('sentenceDropZone');
+    const wordBank = document.getElementById('sentenceWordBank');
+    const feedback = document.getElementById('sentenceFeedback');
+    const instruction = document.getElementById('sentenceInstruction');
+    const progress = document.getElementById('sentenceProgress');
+
+    instruction.textContent = 'Great job!';
+    dropZone.innerHTML = '';
+    dropZone.className = 'sentence-drop-zone';
+    wordBank.innerHTML = '';
+    progress.textContent = '';
+    feedback.innerHTML = `<div style="font-size:22px;font-weight:700;margin:20px 0;">${sentenceCorrectCount} / ${sentenceSentences.length} sentences</div>` +
+        `<button class="restart-btn" id="sentenceRestartBtn">Play Again</button>`;
+
+    document.getElementById('sentenceRestartBtn').addEventListener('click', () => {
+        initSentenceMode();
+    });
+}

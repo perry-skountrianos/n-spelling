@@ -90,13 +90,6 @@ async function ensureDefaultWordList(profileId) {
     const snapshot = await ref.orderByChild('name').equalTo('Red Card Words').once('value');
     if (!snapshot.exists()) {
         await ref.child('default').set({ name: 'Red Card Words', words: defaultWords });
-    } else {
-        // Update default list if words.js changed (e.g. duplicates removed)
-        const entry = Object.entries(snapshot.val())[0];
-        const existing = firebaseToArray(entry[1].words);
-        if (existing.length !== defaultWords.length) {
-            await ref.child(entry[0]).set({ name: 'Red Card Words', words: defaultWords });
-        }
     }
     // Remove old Basics list if it exists
     const basicsSnap = await ref.orderByChild('name').equalTo('Basics').once('value');
@@ -108,41 +101,21 @@ async function ensureDefaultWordList(profileId) {
     const numSnap = await ref.orderByChild('name').equalTo('Numbers').once('value');
     if (!numSnap.exists()) {
         await ref.child('numbers').set({ name: 'Numbers', words: numbersWords });
-    } else {
-        const nEntry = Object.entries(numSnap.val())[0];
-        if (firebaseToArray(nEntry[1].words).length !== numbersWords.length) {
-            await ref.child(nEntry[0]).set({ name: 'Numbers', words: numbersWords });
-        }
     }
     // Ensure Days list exists
     const daySnap = await ref.orderByChild('name').equalTo('Days').once('value');
     if (!daySnap.exists()) {
         await ref.child('days').set({ name: 'Days', words: daysWords });
-    } else {
-        const dEntry = Object.entries(daySnap.val())[0];
-        if (firebaseToArray(dEntry[1].words).length !== daysWords.length) {
-            await ref.child(dEntry[0]).set({ name: 'Days', words: daysWords });
-        }
     }
     // Ensure Months list exists
     const monSnap = await ref.orderByChild('name').equalTo('Months').once('value');
     if (!monSnap.exists()) {
         await ref.child('months').set({ name: 'Months', words: monthsWords });
-    } else {
-        const mEntry = Object.entries(monSnap.val())[0];
-        if (firebaseToArray(mEntry[1].words).length !== monthsWords.length) {
-            await ref.child(mEntry[0]).set({ name: 'Months', words: monthsWords });
-        }
     }
     // Ensure Common Sight Words list exists
     const sightSnap = await ref.orderByChild('name').equalTo('Common Sight Words').once('value');
     if (!sightSnap.exists()) {
         await ref.child('sightwords').set({ name: 'Common Sight Words', words: sightWords });
-    } else {
-        const sEntry = Object.entries(sightSnap.val())[0];
-        if (firebaseToArray(sEntry[1].words).length !== sightWords.length) {
-            await ref.child(sEntry[0]).set({ name: 'Common Sight Words', words: sightWords });
-        }
     }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;

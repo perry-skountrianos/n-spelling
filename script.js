@@ -2331,12 +2331,12 @@ let sentenceDragState = null; // tracks current drag/touch
 function updateSentenceScoreDisplay() {
     const total = sentenceSentences.length;
     const correct = sentenceCorrectCount;
-    const remaining = Math.max(0, total - sentenceIndex - (sentenceIndex < total ? 1 : 0));
-    const answered = sentenceIndex;
-    const wrong = answered - correct;
+    const answered = correct; // sentence mode has no wrong answers — you keep trying until correct
+    const remaining = Math.max(0, total - answered);
+    const wrong = 0;
 
     const correctPct = total > 0 ? (correct / total) * 100 : 0;
-    const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const wrongPct = 0;
     const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
 
     document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);

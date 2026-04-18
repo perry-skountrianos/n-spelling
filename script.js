@@ -2348,9 +2348,12 @@ function updateSentenceScoreDisplay() {
 }
 
 function initSentenceMode() {
-    // Build list of sentences from wordSentences
-    const allSentences = Object.values(wordSentences).filter(s => s && s.trim().length > 0);
-    sentenceSentences = shuffleArray([...new Set(allSentences)]);
+    // Build list of sentences from wordSentences, filtered to active word list
+    const activeWords = new Set(words.map(w => w.toLowerCase()));
+    const activeSentences = Object.entries(wordSentences)
+        .filter(([word, s]) => activeWords.has(word.toLowerCase()) && s && s.trim().length > 0)
+        .map(([, s]) => s);
+    sentenceSentences = shuffleArray([...new Set(activeSentences)]);
     sentenceIndex = 0;
     sentenceCorrectCount = 0;
     updateSentenceScoreDisplay();

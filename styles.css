@@ -2043,3 +2043,232 @@ h1 {
         font-size: 14px;
     }
 }
+
+/* ===== Modes Submenu ===== */
+.gear-submenu {
+    position: relative;
+}
+
+.gear-submenu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.submenu-arrow {
+    font-size: 18px;
+    font-weight: 400;
+    color: #999;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.gear-submenu-list {
+    display: none;
+    padding: 2px 0;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.gear-submenu.open .gear-submenu-list {
+    display: block;
+}
+
+.gear-submenu.open .submenu-arrow {
+    transform: rotate(90deg);
+}
+
+.mode-option {
+    padding-left: 32px !important;
+    font-size: 14px !important;
+    color: #555 !important;
+    position: relative;
+}
+
+.mode-option.active {
+    color: #000 !important;
+    font-weight: 600 !important;
+    background: #f0f7ff;
+}
+
+.mode-option.active::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2196f3;
+}
+
+/* ===== Sentence Mode ===== */
+.sentence-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.sentence-instruction {
+    font-size: 16px;
+    color: #999;
+    font-weight: 500;
+    text-align: center;
+}
+
+.sentence-drop-zone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 60px;
+    width: 100%;
+    padding: 16px;
+    background: #fafafa;
+    border: 2px dashed #e0e0e0;
+    border-radius: 16px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.sentence-drop-zone.drag-over {
+    border-color: #90caf9;
+    background: #f0f7ff;
+}
+
+.sentence-drop-zone.sentence-correct {
+    border-color: #4caf50;
+    border-style: solid;
+    background: #e8f5e9;
+}
+
+.sentence-word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+}
+
+.sentence-word {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    touch-action: none;
+}
+
+.sentence-word:hover {
+    border-color: #90caf9;
+    background: #f5faff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33,150,243,0.12);
+}
+
+.sentence-word:active {
+    cursor: grabbing;
+    transform: scale(0.96);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.sentence-word.dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+}
+
+.sentence-word.in-zone {
+    background: #f0f7ff;
+    border-color: #90caf9;
+}
+
+.sentence-word.sentence-word-correct {
+    border-color: #4caf50;
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.sentence-word.punctuation {
+    padding: 10px 12px;
+    font-size: 22px;
+    min-width: 40px;
+}
+
+.sentence-drop-placeholder {
+    width: 4px;
+    height: 36px;
+    background: #2196f3;
+    border-radius: 2px;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+}
+
+.sentence-feedback {
+    font-size: 15px;
+    color: #666;
+    text-align: center;
+    min-height: 24px;
+}
+
+.sentence-progress {
+    font-size: 14px;
+    color: #aaa;
+    font-weight: 500;
+}
+
+@keyframes sentenceCorrectPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+.sentence-drop-zone.sentence-correct-anim {
+    animation: sentenceCorrectPop 0.4s ease-out;
+}
+
+/* Responsive sentence mode */
+@media (max-width: 480px) {
+    .sentence-container {
+        gap: 16px;
+    }
+
+    .sentence-word {
+        font-size: 16px;
+        padding: 8px 14px;
+        border-radius: 10px;
+    }
+
+    .sentence-word.punctuation {
+        padding: 8px 10px;
+        font-size: 18px;
+    }
+
+    .sentence-drop-zone {
+        padding: 12px;
+        min-height: 50px;
+        border-radius: 12px;
+    }
+
+    .sentence-instruction {
+        font-size: 14px;
+    }
+}

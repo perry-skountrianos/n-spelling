@@ -1003,7 +1003,13 @@ function restartGame() {
         updatePlaceholder();
         updateScoreDisplay();
         spellingInput.focus();
-        speakWord();
+        if (appMode === 'test') {
+            speakWord();
+        } else if (appMode === 'choose') {
+            initChooseMode();
+        } else if (appMode === 'sentence') {
+            initSentenceMode();
+        }
     });
 }
 

@@ -283,11 +283,13 @@ const reportsOverlay = document.getElementById('reportsOverlay');
 const reportsList = document.getElementById('reportsList');
 const reportsCloseBtn = document.getElementById('reportsCloseBtn');
 const practiceModeBtn = document.getElementById('modeToggleBtn');
+const chooseModeBtn = document.getElementById('chooseModeBtn');
 const testContent = document.getElementById('testContent');
 const practiceContent = document.getElementById('practiceContent');
+const chooseContent = document.getElementById('chooseContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let appMode = 'test'; // 'test' or 'practice'
+let appMode = 'test'; // 'test', 'practice', or 'choose'
 let practiceScope = 'all';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
@@ -470,15 +472,24 @@ function setMode(mode) {
 
 function setAppMode(mode) {
     appMode = mode;
-    practiceModeBtn.innerHTML = mode === 'test'
-        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Practice Mode'
-        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode';
+    // Update menu button labels
+    practiceModeBtn.innerHTML = mode === 'practice'
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Practice Mode';
+    chooseModeBtn.innerHTML = mode === 'choose'
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Test Mode'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Choose Mode';
     testContent.style.display = mode === 'test' ? '' : 'none';
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
-    scoreDisplay.style.display = mode === 'test' ? '' : 'none';
+    chooseContent.style.display = mode === 'choose' ? '' : 'none';
+    scoreDisplay.style.display = (mode === 'test' || mode === 'choose') ? '' : 'none';
     if (mode === 'practice') {
         stopListening();
         loadPracticeCards();
+    } else if (mode === 'choose') {
+        stopListening();
+        ttsCancel();
+        initChooseMode();
     } else {
         slideshowPlaying = false;
         updatePlayButton();
@@ -495,7 +506,7 @@ practiceModeBtn.addEventListener('click', () => {
         return;
     }
     // If test is in progress, require parent password to prevent peeking
-    if (appMode === 'test' && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
+    if ((appMode === 'test' || appMode === 'choose') && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
         const password = prompt('Parent password to switch during a test:');
         if (password !== 'read123') {
             if (password !== null) alert('Incorrect password');
@@ -503,6 +514,24 @@ practiceModeBtn.addEventListener('click', () => {
         }
     }
     setAppMode('practice');
+    gearDropdown.classList.remove('show');
+});
+
+// Choose mode button
+chooseModeBtn.addEventListener('click', () => {
+    if (appMode === 'choose') {
+        setAppMode('test');
+        gearDropdown.classList.remove('show');
+        return;
+    }
+    if ((appMode === 'test' || appMode === 'practice') && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
+        const password = prompt('Parent password to switch during a test:');
+        if (password !== 'read123') {
+            if (password !== null) alert('Incorrect password');
+            return;
+        }
+    }
+    setAppMode('choose');
     gearDropdown.classList.remove('show');
 });
 
@@ -1009,7 +1038,7 @@ const handleInputAction = () => {
 spellingInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
-        if (appMode === 'practice') return;
+        if (appMode === 'practice' || appMode === 'choose') return;
         handleInputAction();
     }
 });
@@ -1044,7 +1073,7 @@ document.addEventListener('keydown', (e) => {
         if (document.getElementById('wordlistsOverlay').style.display !== 'none' ||
             document.getElementById('wordlistEditOverlay').style.display !== 'none' ||
             document.getElementById('reportsOverlay').style.display !== 'none') return;
-        if (appMode === 'practice') return;
+        if (appMode === 'practice' || appMode === 'choose') return;
         e.preventDefault();
         spellingInput.focus();
         handleInputAction();
@@ -1997,5 +2026,301 @@ document.getElementById('saveProfileEditBtn').addEventListener('click', () => {
 document.getElementById('profileEditOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('profileEditOverlay')) {
         document.getElementById('profileEditOverlay').style.display = 'none';
+    }
+});
+
+// ===== CHOOSE MODE =====
+let chooseWordIndex = 0;
+let chooseWords = [];
+let chooseResultsArray = [];
+let chooseHasHeard = false;
+let chooseAnswered = false;
+
+function generateMisspelling(word) {
+    const w = word.toLowerCase();
+    if (w.length <= 2) {
+        // Very short words: swap a vowel or add a letter
+        const vowels = 'aeiou';
+        const consonants = 'bcdfghjklmnpqrstvwxyz';
+        const idx = Math.floor(Math.random() * w.length);
+        const ch = w[idx];
+        let replacement;
+        if (vowels.includes(ch)) {
+            const others = vowels.replace(ch, '');
+            replacement = others[Math.floor(Math.random() * others.length)];
+        } else {
+            const others = consonants.replace(ch, '');
+            replacement = others[Math.floor(Math.random() * others.length)];
+        }
+        return w.slice(0, idx) + replacement + w.slice(idx + 1);
+    }
+
+    const strategies = [];
+
+    // Strategy: swap two adjacent letters
+    if (w.length >= 3) {
+        strategies.push(() => {
+            const i = 1 + Math.floor(Math.random() * (w.length - 2));
+            return w.slice(0, i) + w[i + 1] + w[i] + w.slice(i + 2);
+        });
+    }
+
+    // Strategy: replace a vowel with a different vowel
+    const vowelIndices = [];
+    const vowels = 'aeiou';
+    for (let i = 0; i < w.length; i++) {
+        if (vowels.includes(w[i])) vowelIndices.push(i);
+    }
+    if (vowelIndices.length > 0) {
+        strategies.push(() => {
+            const i = vowelIndices[Math.floor(Math.random() * vowelIndices.length)];
+            const others = vowels.replace(w[i], '');
+            const rep = others[Math.floor(Math.random() * others.length)];
+            return w.slice(0, i) + rep + w.slice(i + 1);
+        });
+    }
+
+    // Strategy: double a letter or remove a double
+    strategies.push(() => {
+        // Find doubled letters
+        for (let i = 0; i < w.length - 1; i++) {
+            if (w[i] === w[i + 1]) {
+                // Remove one
+                return w.slice(0, i) + w.slice(i + 1);
+            }
+        }
+        // No doubles — double a random consonant
+        const consonantIdx = [];
+        for (let i = 0; i < w.length; i++) {
+            if (!vowels.includes(w[i])) consonantIdx.push(i);
+        }
+        if (consonantIdx.length > 0) {
+            const i = consonantIdx[Math.floor(Math.random() * consonantIdx.length)];
+            return w.slice(0, i) + w[i] + w.slice(i);
+        }
+        return w.slice(0, 1) + w; // fallback: double first letter
+    });
+
+    // Strategy: replace a consonant with phonetically similar one
+    const phonetic = {
+        'b': ['d', 'p'], 'c': ['k', 's'], 'd': ['t', 'b'], 'f': ['v', 'ph'],
+        'g': ['j', 'k'], 'h': [''], 'j': ['g', 'ch'], 'k': ['c', 'q'],
+        'l': ['r'], 'm': ['n'], 'n': ['m'], 'p': ['b'], 'q': ['k', 'c'],
+        'r': ['l'], 's': ['z', 'c'], 't': ['d'], 'v': ['f', 'w'],
+        'w': ['v', 'u'], 'x': ['ks', 'z'], 'y': ['i', 'e'], 'z': ['s']
+    };
+    strategies.push(() => {
+        const consIdx = [];
+        for (let i = 0; i < w.length; i++) {
+            if (phonetic[w[i]]) consIdx.push(i);
+        }
+        if (consIdx.length > 0) {
+            const i = consIdx[Math.floor(Math.random() * consIdx.length)];
+            const alts = phonetic[w[i]];
+            const rep = alts[Math.floor(Math.random() * alts.length)];
+            return w.slice(0, i) + rep + w.slice(i + 1);
+        }
+        // fallback
+        const i = Math.floor(Math.random() * w.length);
+        return w.slice(0, i) + w.slice(i + 1);
+    });
+
+    // Strategy: drop a letter
+    if (w.length >= 4) {
+        strategies.push(() => {
+            const i = 1 + Math.floor(Math.random() * (w.length - 2)); // don't drop first/last
+            return w.slice(0, i) + w.slice(i + 1);
+        });
+    }
+
+    // Pick a random strategy
+    const fn = strategies[Math.floor(Math.random() * strategies.length)];
+    const result = fn();
+    // Make sure it's actually different from the original
+    if (result === w || result.length === 0) {
+        // Fallback: swap first two letters
+        return w[1] + w[0] + w.slice(2);
+    }
+    return result;
+}
+
+function generateChoices(correctWord) {
+    const choices = new Set();
+    choices.add(correctWord.toLowerCase());
+
+    let attempts = 0;
+    while (choices.size < 3 && attempts < 50) {
+        const misspelling = generateMisspelling(correctWord);
+        if (misspelling !== correctWord.toLowerCase()) {
+            choices.add(misspelling);
+        }
+        attempts++;
+    }
+
+    // If we still don't have 3, add simple variations
+    while (choices.size < 3) {
+        const w = correctWord.toLowerCase();
+        choices.add(w + w[w.length - 1]); // double last letter
+    }
+
+    return shuffleArray([...choices]);
+}
+
+function initChooseMode() {
+    chooseWords = shuffleArray([...allWords]);
+    chooseWordIndex = 0;
+    chooseResultsArray = [];
+    chooseHasHeard = false;
+    chooseAnswered = false;
+    updateChooseScoreDisplay();
+    showChooseWord();
+}
+
+function updateChooseScoreDisplay() {
+    const answered = chooseResultsArray.length;
+    const correct = chooseResultsArray.filter(r => r.isCorrect).length;
+    const wrong = answered - correct;
+    const total = chooseWords.length;
+    const remaining = Math.max(0, total - answered);
+
+    const correctPct = total > 0 ? (correct / total) * 100 : 0;
+    const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
+
+    document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);
+    document.getElementById('donutCorrect').setAttribute('stroke-dasharray', `${correctPct} ${100 - correctPct}`);
+    document.getElementById('donutWrong').setAttribute('stroke-dasharray', `${wrongPct} ${100 - wrongPct}`);
+    document.getElementById('remainingCount').textContent = remaining;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+}
+
+function showChooseWord() {
+    chooseHasHeard = false;
+    chooseAnswered = false;
+    const instruction = document.getElementById('chooseInstruction');
+    const cardsEl = document.getElementById('chooseCards');
+    const feedback = document.getElementById('chooseFeedback');
+
+    instruction.textContent = 'Tap the speaker to hear the word';
+    cardsEl.innerHTML = '';
+    feedback.innerHTML = '';
+}
+
+function speakChooseWord() {
+    ttsCancel();
+    const word = chooseWords[chooseWordIndex];
+    const sentence = wordSentences[word];
+
+    document.getElementById('chooseInstruction').textContent = 'Listen carefully...';
+
+    function afterSpeak() {
+        chooseHasHeard = true;
+        document.getElementById('chooseInstruction').textContent = 'Which spelling is correct?';
+        renderChooseCards(word);
+    }
+
+    ttsSpeak(word, {
+        rate: 0.85,
+        onend: () => {
+            if (sentence) {
+                ttsSpeak(sentence, { rate: 0.9, onend: afterSpeak, onerror: afterSpeak });
+            } else {
+                afterSpeak();
+            }
+        },
+        onerror: afterSpeak
+    });
+}
+
+function renderChooseCards(word) {
+    const cardsEl = document.getElementById('chooseCards');
+    cardsEl.innerHTML = '';
+    const choices = generateChoices(word);
+
+    choices.forEach(choice => {
+        const card = document.createElement('button');
+        card.className = 'choose-card';
+        card.textContent = choice;
+        card.addEventListener('click', () => handleChooseSelection(card, choice, word, cardsEl));
+        cardsEl.appendChild(card);
+    });
+}
+
+function handleChooseSelection(selectedCard, chosen, correctWord, cardsEl) {
+    if (chooseAnswered) return;
+    chooseAnswered = true;
+
+    const isCorrect = chosen === correctWord.toLowerCase();
+    const cards = cardsEl.querySelectorAll('.choose-card');
+    const feedback = document.getElementById('chooseFeedback');
+
+    // Disable all cards
+    cards.forEach(c => c.classList.add('choose-card-disabled'));
+
+    if (isCorrect) {
+        selectedCard.classList.add('choose-card-correct', 'choose-card-pop');
+        feedback.innerHTML = '';
+    } else {
+        selectedCard.classList.add('choose-card-wrong', 'choose-card-shake');
+        // Highlight the correct one
+        cards.forEach(c => {
+            if (c.textContent === correctWord.toLowerCase()) {
+                c.classList.add('choose-card-correct', 'choose-card-pop');
+                c.classList.remove('choose-card-disabled');
+            }
+        });
+        feedback.innerHTML = 'The correct spelling is <span class="choose-correct-word">' +
+            correctWord.replace(/[<>&"]/g, '') + '</span>';
+    }
+
+    // Record result
+    chooseResultsArray.push({
+        word: correctWord,
+        typed: chosen,
+        isCorrect: isCorrect
+    });
+    updateChooseScoreDisplay();
+
+    // Auto-advance after delay
+    setTimeout(() => {
+        if (chooseWordIndex < chooseWords.length - 1) {
+            chooseWordIndex++;
+            showChooseWord();
+            // Auto-speak next word
+            setTimeout(() => speakChooseWord(), 300);
+        } else {
+            showChooseComplete();
+        }
+    }, isCorrect ? 1200 : 2200);
+}
+
+function showChooseComplete() {
+    const cardsEl = document.getElementById('chooseCards');
+    const feedback = document.getElementById('chooseFeedback');
+    const instruction = document.getElementById('chooseInstruction');
+    const correct = chooseResultsArray.filter(r => r.isCorrect).length;
+    const total = chooseResultsArray.length;
+
+    instruction.textContent = 'Great job!';
+    cardsEl.innerHTML = '';
+    feedback.innerHTML = `<div style="font-size:22px;font-weight:700;margin:20px 0;">Score: ${correct} / ${total}</div>` +
+        `<button class="restart-btn" id="chooseRestartBtn">Play Again</button>`;
+
+    document.getElementById('chooseRestartBtn').addEventListener('click', () => {
+        initChooseMode();
+        setTimeout(() => speakChooseWord(), 400);
+    });
+}
+
+// Choose mode hear button
+document.getElementById('chooseHearBtn').addEventListener('click', () => {
+    if (!chooseHasHeard) {
+        speakChooseWord();
+    } else if (!chooseAnswered) {
+        // Repeat the word
+        ttsCancel();
+        const word = chooseWords[chooseWordIndex];
+        ttsSpeak(word, { rate: 0.85 });
     }
 });

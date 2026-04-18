@@ -479,7 +479,7 @@ function setAppMode(mode) {
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
     chooseContent.style.display = mode === 'choose' ? '' : 'none';
     sentenceContent.style.display = mode === 'sentence' ? '' : 'none';
-    scoreDisplay.style.display = (mode === 'test' || mode === 'choose') ? '' : 'none';
+    scoreDisplay.style.display = (mode === 'test' || mode === 'choose' || mode === 'sentence') ? '' : 'none';
     if (mode === 'practice') {
         stopListening();
         loadPracticeCards();
@@ -2328,12 +2328,32 @@ let sentenceIndex = 0;
 let sentenceCorrectCount = 0;
 let sentenceDragState = null; // tracks current drag/touch
 
+function updateSentenceScoreDisplay() {
+    const total = sentenceSentences.length;
+    const correct = sentenceCorrectCount;
+    const remaining = Math.max(0, total - sentenceIndex - (sentenceIndex < total ? 1 : 0));
+    const answered = sentenceIndex;
+    const wrong = answered - correct;
+
+    const correctPct = total > 0 ? (correct / total) * 100 : 0;
+    const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
+
+    document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);
+    document.getElementById('donutCorrect').setAttribute('stroke-dasharray', `${correctPct} ${100 - correctPct}`);
+    document.getElementById('donutWrong').setAttribute('stroke-dasharray', `${wrongPct} ${100 - wrongPct}`);
+    document.getElementById('remainingCount').textContent = remaining;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+}
+
 function initSentenceMode() {
     // Build list of sentences from wordSentences
     const allSentences = Object.values(wordSentences).filter(s => s && s.trim().length > 0);
     sentenceSentences = shuffleArray([...new Set(allSentences)]);
     sentenceIndex = 0;
     sentenceCorrectCount = 0;
+    updateSentenceScoreDisplay();
     showSentence();
 }
 
@@ -2629,6 +2649,7 @@ function checkSentence() {
 
     if (isCorrect) {
         sentenceCorrectCount++;
+        updateSentenceScoreDisplay();
         dropZone.classList.add('sentence-correct', 'sentence-correct-anim');
         wordEls.forEach(el => {
             el.classList.add('sentence-word-correct');
@@ -2642,8 +2663,10 @@ function checkSentence() {
         setTimeout(() => {
             if (sentenceIndex < sentenceSentences.length - 1) {
                 sentenceIndex++;
+                updateSentenceScoreDisplay();
                 showSentence();
             } else {
+                updateSentenceScoreDisplay();
                 showSentenceComplete();
             }
         }, 1500);

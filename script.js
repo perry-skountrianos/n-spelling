@@ -1504,7 +1504,7 @@ function showFlashcard() {
 
     // Word with individual letter spans
     const wordEl = document.getElementById('flashcardWord');
-    wordEl.innerHTML = word.split('').map(l => `<span class="letter">${l}</span>`).join('');
+    wordEl.innerHTML = word.split('').map(l => l === ' ' ? '<span class="letter letter-space">&nbsp;</span>' : `<span class="letter">${l}</span>`).join('');
 
     // Update mute button
     updateMuteButton();

@@ -551,7 +551,107 @@ const stThomasSentences = {
     'eyebrow': 'He raised one eyebrow in surprise.'
 };
 
+// Transition Words list
+const transitionWords = [
+    // Beginning
+    'as soon as', 'at first', 'at the beginning', 'before', 'earlier',
+    'early on', 'first', 'first of all', 'initially',
+    'in the beginning', 'in the first place', 'in the past',
+    'it started when', 'not long ago', 'once upon a time',
+    'one day', 'one early morning', 'one night', 'one evening',
+    'one sunny day', 'one time', 'to begin', 'to start', 'yesterday',
+    // Middle
+    'a few minutes later', 'after that', 'all of a sudden',
+    'before long', 'during', 'eventually', 'in addition',
+    'in the meantime', 'later that day', 'meanwhile', 'momentarily',
+    'next week', 'not long after', 'occasionally', 'right after',
+    'second', 'shortly after', 'soon after', 'therefore', 'third',
+    'tomorrow', 'until that time',
+    // End
+    'all in all', 'as a result', 'at last', 'at the end',
+    'by the end', 'consequently', 'finally', 'hereafter',
+    'in conclusion', 'in the end', 'in summary',
+    'last but not least', 'last of all', 'lastly', 'later on',
+    'overall', 'thereafter', 'to end', 'to conclude',
+    'to finish', 'to sum it all up', 'ultimately'
+];
+
+const transitionSentences = {
+    // Beginning
+    'as soon as': 'As soon as the bell rang we ran outside.',
+    'at first': 'At first I was scared of the dark.',
+    'at the beginning': 'At the beginning of the story the hero was lost.',
+    'before': 'Before school I eat my breakfast.',
+    'earlier': 'Earlier today I finished my homework.',
+    'early on': 'Early on we knew it would be a great day.',
+    'first': 'First I brush my teeth.',
+    'first of all': 'First of all let me say thank you.',
+    'initially': 'Initially the puzzle seemed impossible.',
+    'in the beginning': 'In the beginning there was nothing but darkness.',
+    'in the first place': 'In the first place you should listen carefully.',
+    'in the past': 'In the past people wrote letters by hand.',
+    'it started when': 'It started when the lights went out.',
+    'not long ago': 'Not long ago we moved to a new house.',
+    'once upon a time': 'Once upon a time there lived a brave knight.',
+    'one day': 'One day I found a golden coin.',
+    'one early morning': 'One early morning the rooster crowed loudly.',
+    'one night': 'One night we saw shooting stars.',
+    'one evening': 'One evening we had a family picnic.',
+    'one sunny day': 'One sunny day we went to the beach.',
+    'one time': 'One time I saw a deer in my garden.',
+    'to begin': 'To begin please open your books.',
+    'to start': 'To start the game press the green button.',
+    'yesterday': 'Yesterday we had a great time at the park.',
+    // Middle
+    'a few minutes later': 'A few minutes later the bus arrived.',
+    'after that': 'After that we went home for dinner.',
+    'all of a sudden': 'All of a sudden it started to rain.',
+    'before long': 'Before long the sun came out again.',
+    'during': 'During the movie I ate popcorn.',
+    'eventually': 'Eventually we found the lost puppy.',
+    'in addition': 'In addition to reading I also like writing.',
+    'in the meantime': 'In the meantime you can draw a picture.',
+    'later that day': 'Later that day we visited our grandparents.',
+    'meanwhile': 'Meanwhile the cat was sleeping on the couch.',
+    'momentarily': 'The lights flickered momentarily during the storm.',
+    'next week': 'Next week we have a school trip.',
+    'not long after': 'Not long after we left it started to snow.',
+    'occasionally': 'Occasionally we get ice cream after dinner.',
+    'right after': 'Right after lunch we went to the playground.',
+    'second': 'Second you need to add the eggs.',
+    'shortly after': 'Shortly after breakfast we left for school.',
+    'soon after': 'Soon after the game ended we celebrated.',
+    'therefore': 'It was raining therefore we stayed inside.',
+    'third': 'Third mix everything together.',
+    'tomorrow': 'Tomorrow is going to be a wonderful day.',
+    'until that time': 'Until that time I had never seen the ocean.',
+    // End
+    'all in all': 'All in all it was a fantastic trip.',
+    'as a result': 'As a result we won the competition.',
+    'at last': 'At last the train arrived at the station.',
+    'at the end': 'At the end of the story everyone was happy.',
+    'by the end': 'By the end of the day I was very tired.',
+    'consequently': 'He forgot his umbrella and consequently got wet.',
+    'finally': 'Finally we reached the top of the mountain.',
+    'hereafter': 'Hereafter I will always remember this day.',
+    'in conclusion': 'In conclusion reading is important for everyone.',
+    'in the end': 'In the end we all agreed it was worth it.',
+    'in summary': 'In summary the project was a big success.',
+    'last but not least': 'Last but not least I want to thank my teacher.',
+    'last of all': 'Last of all we sang a song together.',
+    'lastly': 'Lastly do not forget to turn off the lights.',
+    'later on': 'Later on we watched a movie at home.',
+    'overall': 'Overall it was a wonderful experience.',
+    'thereafter': 'Thereafter everything went smoothly.',
+    'to end': 'To end the show we took a bow.',
+    'to conclude': 'To conclude I believe we can do better.',
+    'to finish': 'To finish add some sprinkles on top.',
+    'to sum it all up': 'To sum it all up we had an amazing year.',
+    'ultimately': 'Ultimately the team worked together and won.'
+};
+
 // Merge extra sentences into wordSentences so lookups work for all lists
 Object.assign(wordSentences, extraSentences);
 Object.assign(wordSentences, sightSentences);
 Object.assign(wordSentences, stThomasSentences);
+Object.assign(wordSentences, transitionSentences);

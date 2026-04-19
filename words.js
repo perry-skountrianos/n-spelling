@@ -426,6 +426,132 @@ const sightSentences = {
     'afternoon': 'We play in the afternoon.'
 };
 
+// St Thomas word list
+const stThomasWords = [
+    // Spelling test words
+    'pride', 'broke', 'cry', 'friend', 'great', 'drool',
+    // Weather Conditions
+    'sunny', 'cloudy', 'partly cloudy', 'overcast', 'rainy', 'windy',
+    'stormy', 'snowy', 'foggy', 'breezy', 'icy', 'chilly',
+    'hot', 'cold', 'warm', 'freezing', 'shady',
+    // Extreme Weather & Natural Events
+    'thunderstorm', 'heatwave', 'hurricane', 'tornado', 'cyclone',
+    'typhoon', 'drought', 'gust', 'cold front', 'warm front',
+    // Temperature & Air
+    'temperature', 'fahrenheit', 'celsius', 'air pressure', 'humidity',
+    // Weather Tools & Instruments
+    'thermometer', 'barometer', 'anemometer', 'rain gauge',
+    'weathervane', 'hygrometer', 'weather balloon', 'satellite',
+    // Weather Science Concepts
+    'forecast', 'atmosphere', 'climate', 'season',
+    'precipitation', 'evaporation', 'condensation',
+    // Types of Precipitation
+    'rainstorm', 'downpour', 'drizzle', 'flurries', 'snow',
+    'blizzard', 'sleet', 'hail', 'mist', 'frost',
+    // Weather Phenomena
+    'thunder', 'lightning', 'rainbow', 'dew',
+    // Weather Professions
+    'meteorologist', 'weather reporter', 'storm chaser',
+    'climatologist', 'environmental scientist',
+    // Compound Words
+    'firefly', 'baseball', 'inchworm', 'cupcake',
+    'hairbrush', 'airport', 'necklace', 'eyebrow'
+];
+
+const stThomasSentences = {
+    // Spelling test words
+    'pride': 'She felt pride after finishing the race.',
+    'broke': 'The cup broke when it fell.',
+    'cry': 'The baby started to cry.',
+    'friend': 'My best friend lives next door.',
+    'great': 'You did a great job today!',
+    'drool': 'The dog started to drool over the bone.',
+    // Weather Conditions
+    'sunny': 'It is a sunny day outside.',
+    'cloudy': 'The sky is cloudy today.',
+    'partly cloudy': 'The weather is partly cloudy this morning.',
+    'overcast': 'The sky was overcast all day.',
+    'rainy': 'We stayed inside on the rainy day.',
+    'windy': 'It is very windy at the beach.',
+    'stormy': 'The stormy weather kept us at home.',
+    'snowy': 'The snowy mountains looked beautiful.',
+    'foggy': 'It was so foggy we could not see the road.',
+    'breezy': 'A breezy afternoon is perfect for flying kites.',
+    'icy': 'The roads are icy in winter.',
+    'chilly': 'It was chilly outside this morning.',
+    'hot': 'It was very hot in the summer.',
+    'cold': 'The cold wind made me shiver.',
+    'warm': 'The warm sun feels nice on my skin.',
+    'freezing': 'The freezing rain turned to ice.',
+    'shady': 'We sat under the shady tree.',
+    // Extreme Weather & Natural Events
+    'thunderstorm': 'A loud thunderstorm woke me up last night.',
+    'heatwave': 'The heatwave lasted for a whole week.',
+    'hurricane': 'The hurricane brought strong winds and rain.',
+    'tornado': 'A tornado can spin very fast.',
+    'cyclone': 'The cyclone moved across the ocean.',
+    'typhoon': 'A typhoon is a big storm over the sea.',
+    'drought': 'The drought made the ground very dry.',
+    'gust': 'A strong gust of wind blew my hat away.',
+    'cold front': 'A cold front is coming tomorrow.',
+    'warm front': 'The warm front will bring rain later.',
+    // Temperature & Air
+    'temperature': 'The temperature dropped below zero.',
+    'fahrenheit': 'In America they measure heat in fahrenheit.',
+    'celsius': 'Water boils at one hundred degrees celsius.',
+    'air pressure': 'The air pressure changes before a storm.',
+    'humidity': 'The humidity makes the air feel sticky.',
+    // Weather Tools & Instruments
+    'thermometer': 'A thermometer measures the temperature.',
+    'barometer': 'A barometer measures air pressure.',
+    'anemometer': 'An anemometer measures how fast the wind blows.',
+    'rain gauge': 'A rain gauge measures how much rain falls.',
+    'weathervane': 'The weathervane shows which way the wind blows.',
+    'hygrometer': 'A hygrometer measures the humidity in the air.',
+    'weather balloon': 'A weather balloon floats high into the sky.',
+    'satellite': 'A satellite takes pictures of the Earth from space.',
+    // Weather Science Concepts
+    'forecast': 'The forecast says it will rain tomorrow.',
+    'atmosphere': 'The atmosphere is the air around the Earth.',
+    'climate': 'The climate near the equator is very warm.',
+    'season': 'Summer is my favourite season.',
+    'precipitation': 'Rain and snow are types of precipitation.',
+    'evaporation': 'Evaporation turns water into gas.',
+    'condensation': 'Condensation forms droplets on a cold glass.',
+    // Types of Precipitation
+    'rainstorm': 'The rainstorm flooded the streets.',
+    'downpour': 'We got soaked in the sudden downpour.',
+    'drizzle': 'A light drizzle fell all morning.',
+    'flurries': 'Snow flurries danced in the wind.',
+    'snow': 'The snow covered the ground in white.',
+    'blizzard': 'The blizzard brought heavy snow and strong winds.',
+    'sleet': 'Sleet is a mix of rain and ice.',
+    'hail': 'The hail was as big as marbles.',
+    'mist': 'A thin mist hung over the lake.',
+    'frost': 'Frost covered the windows this morning.',
+    // Weather Phenomena
+    'thunder': 'We heard loud thunder after the lightning.',
+    'lightning': 'Lightning lit up the sky.',
+    'rainbow': 'A beautiful rainbow appeared after the rain.',
+    'dew': 'The grass was covered in morning dew.',
+    // Weather Professions
+    'meteorologist': 'A meteorologist studies the weather.',
+    'weather reporter': 'The weather reporter said it will be sunny.',
+    'storm chaser': 'A storm chaser follows tornadoes.',
+    'climatologist': 'A climatologist studies climate patterns.',
+    'environmental scientist': 'An environmental scientist protects the planet.',
+    // Compound Words
+    'firefly': 'The firefly lit up the dark garden.',
+    'baseball': 'We played baseball at the park.',
+    'inchworm': 'The inchworm crawled along the leaf.',
+    'cupcake': 'I had a chocolate cupcake for dessert.',
+    'hairbrush': 'I used a hairbrush to fix my hair.',
+    'airport': 'We went to the airport to catch our plane.',
+    'necklace': 'She wore a pretty necklace to the party.',
+    'eyebrow': 'He raised one eyebrow in surprise.'
+};
+
 // Merge extra sentences into wordSentences so lookups work for all lists
 Object.assign(wordSentences, extraSentences);
 Object.assign(wordSentences, sightSentences);
+Object.assign(wordSentences, stThomasSentences);

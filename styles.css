@@ -1212,6 +1212,10 @@ h1 {
     transition: color 0.3s, transform 0.3s;
 }
 
+.flashcard-word .letter-space {
+    width: 0.3em;
+}
+
 .flashcard-word .letter.highlight {
     color: #bbb;
     transform: scale(1.15);

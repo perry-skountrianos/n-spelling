@@ -122,6 +122,11 @@ async function ensureDefaultWordList(profileId) {
     if (!stSnap.exists()) {
         await ref.child('stthomas').set({ name: 'St Thomas', words: stThomasWords });
     }
+    // Ensure Transition Words list exists
+    const transSnap = await ref.orderByChild('name').equalTo('Transition Words').once('value');
+    if (!transSnap.exists()) {
+        await ref.child('transition').set({ name: 'Transition Words', words: transitionWords });
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');
@@ -160,7 +165,7 @@ async function ensureDefaultWordList(profileId) {
     }
 }
 
-// Build/update "Red Card Words - Mistakes" list from all reports
+// Build/update "Still Working On" list from all reports
 async function updateMistakesList(profileId) {
     if (typeof db === 'undefined') return;
     const reportsSnap = await db.ref('reports/' + profileId).once('value');
@@ -184,7 +189,21 @@ async function updateMistakesList(profileId) {
     existingWords.forEach(w => wrongSet.add(w));
 
     const merged = [...wrongSet].sort();
-    await listRef.set({ name: 'Red Card Words - Mistakes', words: merged });
+    await listRef.set({ name: 'Still Working On', words: merged });
+}
+
+// Add a single wrong word to "Still Working On" list (called from any mode)
+async function addToStillWorkingOn(word) {
+    if (typeof db === 'undefined' || !currentProfile) return;
+    const listRef = db.ref('wordlists/' + currentProfile + '/mistakes');
+    const snap = await listRef.once('value');
+    const existing = snap.val();
+    const existingWords = existing ? firebaseToArray(existing.words) : [];
+    const lowerWord = word.toLowerCase();
+    if (existingWords.some(w => w.toLowerCase() === lowerWord)) return; // no dups
+    existingWords.push(lowerWord);
+    existingWords.sort();
+    await listRef.set({ name: 'Still Working On', words: existingWords });
 }
 
 function selectProfile(profileId) {
@@ -893,6 +912,11 @@ function checkSpelling() {
     displayResults();
     updateScoreDisplay();
     
+    // Add wrong word to "Still Working On" list
+    if (!isCorrect) {
+        addToStillWorkingOn(correctWord);
+    }
+
     // Show feedback
     if (isCorrect) {
         spellingInput.classList.add('correct');
@@ -2289,6 +2313,11 @@ function handleChooseSelection(selectedCard, chosen, correctWord, cardsEl) {
         isCorrect: isCorrect
     });
     updateChooseScoreDisplay();
+
+    // Add wrong word to "Still Working On" list
+    if (!isCorrect) {
+        addToStillWorkingOn(correctWord);
+    }
 
     // Auto-advance after delay
     setTimeout(() => {

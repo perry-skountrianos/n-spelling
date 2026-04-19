@@ -117,6 +117,11 @@ async function ensureDefaultWordList(profileId) {
     if (!sightSnap.exists()) {
         await ref.child('sightwords').set({ name: 'Common Sight Words', words: sightWords });
     }
+    // Ensure St Thomas list exists
+    const stSnap = await ref.orderByChild('name').equalTo('St Thomas').once('value');
+    if (!stSnap.exists()) {
+        await ref.child('stthomas').set({ name: 'St Thomas', words: stThomasWords });
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');

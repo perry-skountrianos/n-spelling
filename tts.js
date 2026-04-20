@@ -6,7 +6,7 @@
 (function() {
     'use strict';
 
-    const DEFAULT_VOICE = 'en-GB-Studio-C';
+    const DEFAULT_VOICE = 'en-GB-Neural2-C';
     const DEFAULT_LANG = 'en-GB';
     const DB_NAME = 'spelling-tts';
     const DB_VER = 2;

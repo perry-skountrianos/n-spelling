@@ -551,6 +551,36 @@ const stThomasSentences = {
     'eyebrow': 'He raised one eyebrow in surprise.'
 };
 
+// Greek & Latin Roots word list
+const greekRootsWords = [
+    // Vocabulary words
+    'monarchy', 'oligarchy', 'acropolis', 'democracy', 'mythology',
+    // Prefixes & suffixes
+    'mono', 'logy',
+    // Bases
+    'demos', 'oligo', 'cracy', 'archy', 'acros', 'polis', 'myth'
+];
+
+const greekRootsSentences = {
+    // Vocabulary words
+    'monarchy': 'A monarchy is a country ruled by a king or queen.',
+    'oligarchy': 'In an oligarchy only a few people hold all the power.',
+    'acropolis': 'The ancient Greeks built their temples on the acropolis.',
+    'democracy': 'In a democracy the people vote to choose their leaders.',
+    'mythology': 'Greek mythology is full of exciting stories about gods and heroes.',
+    // Prefixes & suffixes
+    'mono': 'The prefix mono means one or alone.',
+    'logy': 'The suffix logy means a collection or study of something.',
+    // Bases
+    'demos': 'The base demos means common people.',
+    'oligo': 'The base oligo means few.',
+    'cracy': 'The base cracy means rule.',
+    'archy': 'The base archy also means rule.',
+    'acros': 'The base acros means highest.',
+    'polis': 'The base polis means city.',
+    'myth': 'A myth is a traditional story passed down through history.'
+};
+
 // Transition Words list
 const transitionWords = [
     // Beginning
@@ -655,3 +685,4 @@ Object.assign(wordSentences, extraSentences);
 Object.assign(wordSentences, sightSentences);
 Object.assign(wordSentences, stThomasSentences);
 Object.assign(wordSentences, transitionSentences);
+Object.assign(wordSentences, greekRootsSentences);

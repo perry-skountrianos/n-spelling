@@ -1216,6 +1216,14 @@ h1 {
     width: 0.3em;
 }
 
+.flashcard-word .letter.root-primary {
+    color: #e53935;
+}
+
+.flashcard-word .letter.root-secondary {
+    color: #1565c0;
+}
+
 .flashcard-word .letter.highlight {
     color: #bbb;
     transform: scale(1.15);

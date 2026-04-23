@@ -863,12 +863,10 @@ function speakWord() {
     // Visual feedback - show word is speaking
     spellingInput.placeholder = "Listening...";
 
-    // On desktop, allow typing immediately while word is being spoken
-    if (!isMobile) {
-        hasHeardWord = true;
-        updatePlaceholder();
-        spellingInput.focus();
-    }
+    // Allow typing immediately while word is being spoken
+    hasHeardWord = true;
+    updatePlaceholder();
+    spellingInput.focus();
 
     function afterWord() {
         hasHeardWord = true;
@@ -928,11 +926,7 @@ function checkSpelling() {
         spellingInput.classList.remove('incorrect');
         hasAnswered = true;
         updatePlaceholder();
-        spellingInput.disabled = true;
-        setTimeout(() => {
-            spellingInput.disabled = false;
-            spellingInput.focus();
-        }, 2000);
+        nextWord();
     } else {
         spellingInput.classList.add('incorrect');
         spellingInput.classList.remove('correct');

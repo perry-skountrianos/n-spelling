@@ -127,6 +127,11 @@ async function ensureDefaultWordList(profileId) {
     if (!transSnap.exists()) {
         await ref.child('transition').set({ name: 'Transition Words', words: transitionWords });
     }
+    // Ensure Greek & Latin Roots list exists
+    const greekSnap = await ref.orderByChild('name').equalTo('Greek & Latin Roots').once('value');
+    if (!greekSnap.exists()) {
+        await ref.child('greekroots').set({ name: 'Greek & Latin Roots', words: greekRootsWords });
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');

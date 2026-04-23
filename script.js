@@ -2788,7 +2788,10 @@ function showQAQuestion() {
         return;
     }
     const word = qaWords[qaWordIndex];
-    const question = wordSentences[word] || word;
+    const rawQuestion = wordSentences[word] || word;
+    // Replace the answer word in the question with blanks (case-insensitive)
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const question = rawQuestion.replace(new RegExp(escaped, 'gi'), '_______');
 
     const total = qaWords.length;
     document.getElementById('qaProgress').textContent = `${qaWordIndex + 1} / ${total}`;

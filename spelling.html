@@ -134,6 +134,26 @@
 
             <!-- Practice mode content -->
             <div id="practiceContent" style="display: none;">
+                <!-- Mode navigation circles — top left -->
+                <div class="practice-mode-circles">
+                    <a class="mode-circle" href="https://skountrianos.com" title="Home">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span>Home</span>
+                    </a>
+                    <button class="mode-circle" data-mode="test" title="Test">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        <span>Test</span>
+                    </button>
+                    <button class="mode-circle" data-mode="choose" title="Choose">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        <span>Choose</span>
+                    </button>
+                    <button class="mode-circle" data-mode="sentence" title="Sentence">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h12"/></svg>
+                        <span>Sentence</span>
+                    </button>
+                </div>
+
                 <div class="flashcard-container">
                     <div class="flashcard-empty" id="flashcardEmpty">
                         <p>No wrong words to practice yet.</p>
@@ -153,22 +173,6 @@
                         <button class="flashcard-arrow" id="flashcardNext">→</button>
                     </div>
                     <div class="flashcard-family" id="flashcardFamily" style="display: none;"></div>
-
-                    <!-- Mode navigation circles -->
-                    <div class="practice-mode-circles">
-                        <button class="mode-circle" data-mode="test" title="Test">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                            <span>Test</span>
-                        </button>
-                        <button class="mode-circle" data-mode="choose" title="Choose">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                            <span>Choose</span>
-                        </button>
-                        <button class="mode-circle" data-mode="sentence" title="Sentence">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h12"/></svg>
-                            <span>Sentence</span>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

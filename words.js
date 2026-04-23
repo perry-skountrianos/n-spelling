@@ -563,11 +563,11 @@ const greekRootsWords = [
 
 const greekRootsSentences = {
     // Vocabulary words
-    'monarchy': 'Monarchy: ruling of one.',
-    'oligarchy': 'Oligarchy: ruling of few.',
-    'acropolis': 'Acropolis: the highest in the city.',
-    'democracy': 'Democracy: common people rule.',
-    'mythology': 'Mythology: a collection of study of stories.',
+    'monarchy': 'Ruling of one.',
+    'oligarchy': 'Ruling of few.',
+    'acropolis': 'The highest in the city.',
+    'democracy': 'Common people rule.',
+    'mythology': 'A collection of study of stories.',
     // Prefixes & suffixes
     'mono': 'The prefix mono means one or alone.',
     'logy': 'The suffix logy means a collection or study of something.',

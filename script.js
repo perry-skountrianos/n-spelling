@@ -1073,7 +1073,7 @@ const handleInputAction = () => {
 spellingInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
-        if (appMode === 'practice' || appMode === 'choose' || appMode === 'sentence') return;
+        if (appMode !== 'test') return;
         handleInputAction();
     }
 });
@@ -1108,7 +1108,7 @@ document.addEventListener('keydown', (e) => {
         if (document.getElementById('wordlistsOverlay').style.display !== 'none' ||
             document.getElementById('wordlistEditOverlay').style.display !== 'none' ||
             document.getElementById('reportsOverlay').style.display !== 'none') return;
-        if (appMode === 'practice' || appMode === 'choose' || appMode === 'sentence') return;
+        if (appMode !== 'test') return;
         e.preventDefault();
         spellingInput.focus();
         handleInputAction();

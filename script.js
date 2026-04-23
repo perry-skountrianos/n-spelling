@@ -315,9 +315,10 @@ const testContent = document.getElementById('testContent');
 const practiceContent = document.getElementById('practiceContent');
 const chooseContent = document.getElementById('chooseContent');
 const sentenceContent = document.getElementById('sentenceContent');
+const qaContent = document.getElementById('qaContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let appMode = 'test'; // 'test', 'practice', 'choose', or 'sentence'
+let appMode = 'test'; // 'test', 'practice', 'choose', 'sentence', or 'qa'
 let practiceScope = 'all';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
@@ -508,7 +509,8 @@ function setAppMode(mode) {
     practiceContent.style.display = mode === 'practice' ? '' : 'none';
     chooseContent.style.display = mode === 'choose' ? '' : 'none';
     sentenceContent.style.display = mode === 'sentence' ? '' : 'none';
-    scoreDisplay.style.display = (mode === 'test' || mode === 'choose' || mode === 'sentence') ? '' : 'none';
+    qaContent.style.display = mode === 'qa' ? '' : 'none';
+    scoreDisplay.style.display = (mode === 'test' || mode === 'choose' || mode === 'sentence' || mode === 'qa') ? '' : 'none';
     if (mode === 'practice') {
         stopListening();
         loadPracticeCards();
@@ -520,6 +522,10 @@ function setAppMode(mode) {
         stopListening();
         ttsCancel();
         initSentenceMode();
+    } else if (mode === 'qa') {
+        stopListening();
+        ttsCancel();
+        initQAMode();
     } else {
         slideshowPlaying = false;
         updatePlayButton();
@@ -2740,3 +2746,151 @@ function showSentenceComplete() {
         initSentenceMode();
     });
 }
+
+// ===== Q&A MODE =====
+let qaWords = [];
+let qaWordIndex = 0;
+let qaResultsArray = [];
+let qaAnswered = false;
+
+function initQAMode() {
+    // Only include words that have a sentence to use as a question
+    qaWords = shuffleArray([...allWords].filter(w => wordSentences[w]));
+    qaWordIndex = 0;
+    qaResultsArray = [];
+    qaAnswered = false;
+    updateQAScoreDisplay();
+    showQAQuestion();
+}
+
+function updateQAScoreDisplay() {
+    const answered = qaResultsArray.length;
+    const correct = qaResultsArray.filter(r => r.isCorrect).length;
+    const wrong = answered - correct;
+    const total = qaWords.length;
+    const remaining = Math.max(0, total - answered);
+
+    const correctPct = total > 0 ? (correct / total) * 100 : 0;
+    const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
+
+    document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);
+    document.getElementById('donutCorrect').setAttribute('stroke-dasharray', `${correctPct} ${100 - correctPct}`);
+    document.getElementById('donutWrong').setAttribute('stroke-dasharray', `${wrongPct} ${100 - wrongPct}`);
+    document.getElementById('remainingCount').textContent = remaining;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+}
+
+function showQAQuestion() {
+    if (qaWordIndex >= qaWords.length) {
+        showQAComplete();
+        return;
+    }
+    const word = qaWords[qaWordIndex];
+    const question = wordSentences[word] || word;
+
+    const total = qaWords.length;
+    document.getElementById('qaProgress').textContent = `${qaWordIndex + 1} / ${total}`;
+    document.getElementById('qaQuestion').textContent = question;
+
+    const input = document.getElementById('qaInput');
+    input.value = '';
+    input.className = 'qa-input';
+    input.disabled = false;
+    input.focus();
+
+    document.getElementById('qaFeedback').textContent = '';
+    document.getElementById('qaFeedback').className = 'qa-feedback';
+    document.getElementById('qaCheckBtn').disabled = false;
+    document.getElementById('qaNextBtn').style.display = 'none';
+    qaAnswered = false;
+}
+
+function checkQAAnswer() {
+    if (qaAnswered) return;
+    const word = qaWords[qaWordIndex];
+    const input = document.getElementById('qaInput');
+    const typed = input.value.trim();
+    if (!typed) return;
+
+    qaAnswered = true;
+    const isCorrect = typed.toLowerCase() === word.toLowerCase();
+    const feedback = document.getElementById('qaFeedback');
+    const checkBtn = document.getElementById('qaCheckBtn');
+    const nextBtn = document.getElementById('qaNextBtn');
+
+    input.disabled = true;
+    checkBtn.disabled = true;
+
+    if (isCorrect) {
+        input.classList.add('qa-input-correct');
+        feedback.textContent = '✓ Correct!';
+        feedback.className = 'qa-feedback qa-feedback-correct';
+    } else {
+        input.classList.add('qa-input-wrong');
+        feedback.innerHTML = 'The answer is <span class="qa-correct-word">' +
+            word.replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])) + '</span>';
+        feedback.className = 'qa-feedback qa-feedback-wrong';
+        addToStillWorkingOn(word);
+    }
+
+    qaResultsArray.push({ word, typed, isCorrect });
+    updateQAScoreDisplay();
+
+    if (qaWordIndex < qaWords.length - 1) {
+        nextBtn.style.display = '';
+    } else {
+        // Last question — show next to trigger complete screen
+        nextBtn.textContent = 'See Results →';
+        nextBtn.style.display = '';
+    }
+}
+
+function showQAComplete() {
+    const correct = qaResultsArray.filter(r => r.isCorrect).length;
+    const total = qaResultsArray.length;
+
+    document.getElementById('qaProgress').textContent = 'Done!';
+    document.getElementById('qaQuestion').innerHTML =
+        `<div class="qa-complete"><div class="qa-complete-score">Score: ${correct} / ${total}</div></div>`;
+    document.getElementById('qaInput').style.display = 'none';
+    document.getElementById('qaCheckBtn').style.display = 'none';
+    document.getElementById('qaFeedback').textContent = '';
+    document.getElementById('qaNextBtn').style.display = 'none';
+}
+
+// Check button
+document.getElementById('qaCheckBtn').addEventListener('click', () => {
+    checkQAAnswer();
+});
+
+// Enter key on input
+document.getElementById('qaInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        if (!qaAnswered) {
+            checkQAAnswer();
+        } else if (document.getElementById('qaNextBtn').style.display !== 'none') {
+            advanceQA();
+        }
+    }
+});
+
+// Next button
+document.getElementById('qaNextBtn').addEventListener('click', () => {
+    advanceQA();
+});
+
+function advanceQA() {
+    document.getElementById('qaInput').style.display = '';
+    document.getElementById('qaCheckBtn').style.display = '';
+    qaWordIndex++;
+    showQAQuestion();
+}
+
+// Reset button
+document.getElementById('qaResetBtn').addEventListener('click', () => {
+    document.getElementById('qaInput').style.display = '';
+    document.getElementById('qaCheckBtn').style.display = '';
+    initQAMode();
+});

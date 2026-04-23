@@ -1906,6 +1906,55 @@ h1 {
     margin: 0 auto;
 }
 
+.choose-toggle-row {
+    display: flex;
+    gap: 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.choose-toggle-btn {
+    flex: 1;
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    background: #fff;
+    color: #999;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.choose-toggle-btn.active {
+    background: #2196f3;
+    color: #fff;
+}
+
+.choose-toggle-btn:not(.active):hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+#chooseSpellingPanel,
+#chooseSentencePanel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.choose-word-prompt {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
 .choose-prompt {
     display: flex;
     flex-direction: column;
@@ -1972,6 +2021,19 @@ h1 {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.choose-card-sentence {
+    flex: 1 1 100%;
+    max-width: 100%;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 1.5;
+    min-height: 60px;
+    padding: 16px 20px;
+    justify-content: flex-start;
 }
 
 /* ===== Q&A MODE ===== */

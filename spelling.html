@@ -113,12 +113,24 @@
             <!-- Choose mode content -->
             <div id="chooseContent" style="display: none;">
                 <div class="choose-container">
-                    <div class="choose-prompt">
-                        <button class="choose-hear-btn" id="chooseHearBtn" title="Hear Word"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
-                        <div class="choose-instruction" id="chooseInstruction">Tap the speaker to hear the word</div>
+                    <div class="choose-toggle-row">
+                        <button class="choose-toggle-btn active" id="chooseToggleSpelling" data-submode="spelling">Spelling</button>
+                        <button class="choose-toggle-btn" id="chooseToggleSentence" data-submode="sentence">Sentence</button>
                     </div>
-                    <div class="choose-cards" id="chooseCards"></div>
-                    <div class="choose-feedback" id="chooseFeedback"></div>
+                    <div id="chooseSpellingPanel">
+                        <div class="choose-prompt">
+                            <button class="choose-hear-btn" id="chooseHearBtn" title="Hear Word"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+                            <div class="choose-instruction" id="chooseInstruction">Tap the speaker to hear the word</div>
+                        </div>
+                        <div class="choose-cards" id="chooseCards"></div>
+                        <div class="choose-feedback" id="chooseFeedback"></div>
+                    </div>
+                    <div id="chooseSentencePanel" style="display:none;">
+                        <div class="choose-word-prompt" id="chooseWordPrompt"></div>
+                        <div class="choose-instruction" id="chooseSentenceInstruction">Which sentence matches this word?</div>
+                        <div class="choose-cards" id="chooseSentenceCards"></div>
+                        <div class="choose-feedback" id="chooseSentenceFeedback"></div>
+                    </div>
                 </div>
             </div>
 

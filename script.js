@@ -2078,6 +2078,38 @@ let chooseWords = [];
 let chooseResultsArray = [];
 let chooseHasHeard = false;
 let chooseAnswered = false;
+let chooseSubMode = 'spelling'; // 'spelling' or 'sentence'
+
+// Sentence sub-mode state (separate index/results so toggle preserves progress)
+let chooseSentenceWords = [];
+let chooseSentenceIndex = 0;
+let chooseSentenceResultsArray = [];
+let chooseSentenceAnswered = false;
+
+// Registry of known word categories for distractor selection
+const wordCategoryLists = [
+    greekRootsWords,
+    stThomasWords,
+    transitionWords,
+    sightWords,
+    numbersWords,
+    daysWords,
+    monthsWords,
+    words  // base sight words (fallback)
+];
+
+// Returns an array of other words from the same category as `word` that have sentences
+function getCategoryPeers(word) {
+    const lc = word.toLowerCase();
+    for (const list of wordCategoryLists) {
+        const inList = list.some(w => w.toLowerCase() === lc);
+        if (inList) {
+            return list.filter(w => w.toLowerCase() !== lc && wordSentences[w]);
+        }
+    }
+    // fallback: all allWords with sentences except this word
+    return allWords.filter(w => w.toLowerCase() !== lc && wordSentences[w]);
+}
 
 function generateMisspelling(word) {
     const w = word.toLowerCase();
@@ -2210,13 +2242,33 @@ function generateChoices(correctWord) {
 }
 
 function initChooseMode() {
-    chooseWords = shuffleArray([...allWords]);
+    const spellingWords = shuffleArray([...allWords]);
+    chooseWords = spellingWords;
     chooseWordIndex = 0;
     chooseResultsArray = [];
     chooseHasHeard = false;
     chooseAnswered = false;
+
+    chooseSentenceWords = shuffleArray([...allWords].filter(w => wordSentences[w]));
+    chooseSentenceIndex = 0;
+    chooseSentenceResultsArray = [];
+    chooseSentenceAnswered = false;
+
+    // Sync toggle button UI
+    document.getElementById('chooseToggleSpelling').classList.toggle('active', chooseSubMode === 'spelling');
+    document.getElementById('chooseToggleSentence').classList.toggle('active', chooseSubMode === 'sentence');
+
     updateChooseScoreDisplay();
-    showChooseWord();
+
+    if (chooseSubMode === 'sentence') {
+        document.getElementById('chooseSpellingPanel').style.display = 'none';
+        document.getElementById('chooseSentencePanel').style.display = 'flex';
+        showChooseSentenceQuestion();
+    } else {
+        document.getElementById('chooseSpellingPanel').style.display = 'flex';
+        document.getElementById('chooseSentencePanel').style.display = 'none';
+        showChooseWord();
+    }
 }
 
 function updateChooseScoreDisplay() {
@@ -2372,6 +2424,157 @@ document.getElementById('chooseHearBtn').addEventListener('click', () => {
         ttsSpeak(word, { rate: 0.85 });
     }
 });
+
+// Choose mode toggle buttons
+document.getElementById('chooseToggleSpelling').addEventListener('click', () => {
+    if (chooseSubMode === 'spelling') return;
+    chooseSubMode = 'spelling';
+    document.getElementById('chooseToggleSpelling').classList.add('active');
+    document.getElementById('chooseToggleSentence').classList.remove('active');
+    document.getElementById('chooseSpellingPanel').style.display = 'flex';
+    document.getElementById('chooseSentencePanel').style.display = 'none';
+    updateChooseScoreDisplay();
+    showChooseWord();
+    setTimeout(() => speakChooseWord(), 300);
+});
+
+document.getElementById('chooseToggleSentence').addEventListener('click', () => {
+    if (chooseSubMode === 'sentence') return;
+    chooseSubMode = 'sentence';
+    document.getElementById('chooseToggleSentence').classList.add('active');
+    document.getElementById('chooseToggleSpelling').classList.remove('active');
+    document.getElementById('chooseSpellingPanel').style.display = 'none';
+    document.getElementById('chooseSentencePanel').style.display = 'flex';
+    ttsCancel();
+    // Re-init sentence words from current allWords if needed
+    if (chooseSentenceWords.length === 0) {
+        chooseSentenceWords = shuffleArray([...allWords].filter(w => wordSentences[w]));
+        chooseSentenceIndex = 0;
+        chooseSentenceResultsArray = [];
+        chooseSentenceAnswered = false;
+    }
+    updateChooseSentenceScoreDisplay();
+    showChooseSentenceQuestion();
+});
+
+// ===== CHOOSE SENTENCE SUB-MODE =====
+function updateChooseSentenceScoreDisplay() {
+    const answered = chooseSentenceResultsArray.length;
+    const correct = chooseSentenceResultsArray.filter(r => r.isCorrect).length;
+    const wrong = answered - correct;
+    const total = chooseSentenceWords.length;
+    const remaining = Math.max(0, total - answered);
+
+    const correctPct = total > 0 ? (correct / total) * 100 : 0;
+    const wrongPct = total > 0 ? (wrong / total) * 100 : 0;
+    const remainingPct = total > 0 ? (remaining / total) * 100 : 100;
+
+    document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${remainingPct} ${100 - remainingPct}`);
+    document.getElementById('donutCorrect').setAttribute('stroke-dasharray', `${correctPct} ${100 - correctPct}`);
+    document.getElementById('donutWrong').setAttribute('stroke-dasharray', `${wrongPct} ${100 - wrongPct}`);
+    document.getElementById('remainingCount').textContent = remaining;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+}
+
+function showChooseSentenceQuestion() {
+    chooseSentenceAnswered = false;
+    const word = chooseSentenceWords[chooseSentenceIndex];
+    document.getElementById('chooseWordPrompt').textContent = word;
+    document.getElementById('chooseSentenceInstruction').textContent = 'Which sentence matches this word?';
+    document.getElementById('chooseSentenceFeedback').innerHTML = '';
+    renderChooseSentenceCards(word);
+}
+
+function renderChooseSentenceCards(word) {
+    const cardsEl = document.getElementById('chooseSentenceCards');
+    cardsEl.innerHTML = '';
+    const correctSentence = wordSentences[word];
+
+    // Get distractors from same category
+    let peers = getCategoryPeers(word);
+    let distractors = [];
+    if (peers.length >= 2) {
+        distractors = shuffleArray(peers).slice(0, 2).map(w => wordSentences[w]);
+    } else {
+        // fallback: any words with sentences from allWords
+        const fallback = allWords.filter(w => w.toLowerCase() !== word.toLowerCase() && wordSentences[w] && !peers.includes(w));
+        distractors = shuffleArray([...peers, ...fallback]).slice(0, 2).map(w => wordSentences[w]);
+    }
+
+    const choices = shuffleArray([correctSentence, ...distractors]);
+
+    choices.forEach(sentence => {
+        const card = document.createElement('button');
+        card.className = 'choose-card choose-card-sentence';
+        card.textContent = sentence;
+        card.addEventListener('click', () => handleChooseSentenceSelection(card, sentence, correctSentence, cardsEl));
+        cardsEl.appendChild(card);
+    });
+}
+
+function handleChooseSentenceSelection(selectedCard, chosen, correctSentence, cardsEl) {
+    if (chooseSentenceAnswered) return;
+    chooseSentenceAnswered = true;
+
+    const isCorrect = chosen === correctSentence;
+    const cards = cardsEl.querySelectorAll('.choose-card');
+    const feedback = document.getElementById('chooseSentenceFeedback');
+
+    cards.forEach(c => c.classList.add('choose-card-disabled'));
+
+    if (isCorrect) {
+        selectedCard.classList.add('choose-card-correct', 'choose-card-pop');
+        feedback.innerHTML = '';
+    } else {
+        selectedCard.classList.add('choose-card-wrong', 'choose-card-shake');
+        cards.forEach(c => {
+            if (c.textContent === correctSentence) {
+                c.classList.add('choose-card-correct', 'choose-card-pop');
+                c.classList.remove('choose-card-disabled');
+            }
+        });
+    }
+
+    const word = chooseSentenceWords[chooseSentenceIndex];
+    chooseSentenceResultsArray.push({ word, isCorrect });
+    updateChooseSentenceScoreDisplay();
+
+    if (!isCorrect) {
+        addToStillWorkingOn(word);
+    }
+
+    setTimeout(() => {
+        if (chooseSentenceIndex < chooseSentenceWords.length - 1) {
+            chooseSentenceIndex++;
+            showChooseSentenceQuestion();
+        } else {
+            showChooseSentenceComplete();
+        }
+    }, isCorrect ? 1200 : 2200);
+}
+
+function showChooseSentenceComplete() {
+    const cardsEl = document.getElementById('chooseSentenceCards');
+    const feedback = document.getElementById('chooseSentenceFeedback');
+    const correct = chooseSentenceResultsArray.filter(r => r.isCorrect).length;
+    const total = chooseSentenceResultsArray.length;
+
+    document.getElementById('chooseWordPrompt').textContent = '';
+    document.getElementById('chooseSentenceInstruction').textContent = 'Great job!';
+    cardsEl.innerHTML = '';
+    feedback.innerHTML = `<div style="font-size:22px;font-weight:700;margin:20px 0;">Score: ${correct} / ${total}</div>` +
+        `<button class="restart-btn" id="chooseSentenceRestartBtn">Play Again</button>`;
+
+    document.getElementById('chooseSentenceRestartBtn').addEventListener('click', () => {
+        chooseSentenceWords = shuffleArray([...allWords].filter(w => wordSentences[w]));
+        chooseSentenceIndex = 0;
+        chooseSentenceResultsArray = [];
+        chooseSentenceAnswered = false;
+        updateChooseSentenceScoreDisplay();
+        showChooseSentenceQuestion();
+    });
+}
 
 // ===== SENTENCE MODE =====
 let sentenceSentences = [];

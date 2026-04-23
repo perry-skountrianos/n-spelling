@@ -578,7 +578,7 @@ const greekRootsSentences = {
     'archy': 'The base archy also means rule.',
     'acros': 'The base acros means highest.',
     'polis': 'The base polis means city.',
-    'myth': 'A myth is a traditional story passed down through history.'
+    'myth': 'The word myth means a traditional story passed down through history.'
 };
 
 // Transition Words list

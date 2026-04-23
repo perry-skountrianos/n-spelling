@@ -1043,6 +1043,10 @@ function restartGame() {
             initChooseMode();
         } else if (appMode === 'sentence') {
             initSentenceMode();
+        } else if (appMode === 'practice') {
+            loadPracticeCards();
+        } else if (appMode === 'qa') {
+            initQAMode();
         }
     });
 }

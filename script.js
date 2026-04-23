@@ -2481,13 +2481,25 @@ function updateChooseSentenceScoreDisplay() {
     document.getElementById('wrongCount').textContent = wrong;
 }
 
+// Build a wrong sentence by swapping the definition/ending of the correct sentence
+// with the definition/ending from a peer sentence.
+// Falls back to the peer sentence if no swap point is found.
+function buildDistractorSentence(correctSentence, peerSentence) {
+    // Pattern: "...means X." → replace X with peer's X
+    const correctMatch = correctSentence.match(/^(.*?\bmeans\s+)(.+?)\.?\s*$/i);
+    const peerMatch    = peerSentence.match(/\bmeans\s+(.+?)\.?\s*$/i);
+    if (correctMatch && peerMatch && peerMatch[1].toLowerCase() !== correctMatch[2].toLowerCase()) {
+        return correctMatch[1] + peerMatch[1] + '.';
+    }
+    // No "means" pattern — return peer sentence as-is
+    return peerSentence;
+}
+
 function showChooseSentenceQuestion() {
     chooseSentenceAnswered = false;
-    const word = chooseSentenceWords[chooseSentenceIndex];
-    document.getElementById('chooseWordPrompt').textContent = word;
-    document.getElementById('chooseSentenceInstruction').textContent = 'Which sentence matches this word?';
+    document.getElementById('chooseSentenceInstruction').textContent = 'Which sentence is correct?';
     document.getElementById('chooseSentenceFeedback').innerHTML = '';
-    renderChooseSentenceCards(word);
+    renderChooseSentenceCards(chooseSentenceWords[chooseSentenceIndex]);
 }
 
 function renderChooseSentenceCards(word) {
@@ -2495,16 +2507,22 @@ function renderChooseSentenceCards(word) {
     cardsEl.innerHTML = '';
     const correctSentence = wordSentences[word];
 
-    // Get distractors from same category
+    // Get peer words from the same category
     let peers = getCategoryPeers(word);
-    let distractors = [];
-    if (peers.length >= 2) {
-        distractors = shuffleArray(peers).slice(0, 2).map(w => wordSentences[w]);
-    } else {
-        // fallback: any words with sentences from allWords
+    if (peers.length < 2) {
         const fallback = allWords.filter(w => w.toLowerCase() !== word.toLowerCase() && wordSentences[w] && !peers.includes(w));
-        distractors = shuffleArray([...peers, ...fallback]).slice(0, 2).map(w => wordSentences[w]);
+        peers = [...peers, ...fallback];
     }
+    const selectedPeers = shuffleArray(peers).slice(0, 2);
+
+    // Build distractors: try to swap the definition part so the same word appears
+    // with a wrong meaning, making it impossible to guess by word-matching alone
+    let distractors = selectedPeers.map(p => buildDistractorSentence(correctSentence, wordSentences[p]));
+
+    // Ensure no distractor accidentally equals the correct sentence
+    distractors = distractors.map((d, i) =>
+        d === correctSentence ? wordSentences[selectedPeers[i]] : d
+    );
 
     const choices = shuffleArray([correctSentence, ...distractors]);
 
@@ -2564,7 +2582,6 @@ function showChooseSentenceComplete() {
     const correct = chooseSentenceResultsArray.filter(r => r.isCorrect).length;
     const total = chooseSentenceResultsArray.length;
 
-    document.getElementById('chooseWordPrompt').textContent = '';
     document.getElementById('chooseSentenceInstruction').textContent = 'Great job!';
     cardsEl.innerHTML = '';
     feedback.innerHTML = `<div style="font-size:22px;font-weight:700;margin:20px 0;">Score: ${correct} / ${total}</div>` +

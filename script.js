@@ -529,11 +529,6 @@ function setAppMode(mode) {
     }
 }
 
-// Practice-mode circle nav
-document.querySelectorAll('.mode-circle').forEach(btn => {
-    btn.addEventListener('click', () => setAppMode(btn.dataset.mode));
-});
-
 // Modes submenu toggle
 document.getElementById('modesMenuBtn').addEventListener('click', (e) => {
     e.stopPropagation();

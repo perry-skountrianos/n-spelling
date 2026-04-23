@@ -1369,59 +1369,6 @@ h1 {
     color: #333;
 }
 
-#practiceContent {
-    position: relative;
-}
-
-/* Practice mode — quick-switch circles (top-left column) */
-.practice-mode-circles {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    padding-bottom: 8px;
-}
-
-.mode-circle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    background: none;
-    border: 2px solid #e0e0e0;
-    border-radius: 50%;
-    width: 52px;
-    height: 52px;
-    justify-content: center;
-    cursor: pointer;
-    color: #555;
-    text-decoration: none;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
-    position: relative;
-}
-
-.mode-circle span {
-    position: absolute;
-    left: 58px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #888;
-    white-space: nowrap;
-    transition: color 0.2s;
-}
-
-.mode-circle:hover {
-    border-color: #000;
-    color: #000;
-    background: #f5f5f5;
-}
-
-.mode-circle:hover span {
-    color: #000;
-}
 
 /* Word Lists Modal */
 .wordlists-overlay {

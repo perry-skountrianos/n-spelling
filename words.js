@@ -686,3 +686,13 @@ Object.assign(wordSentences, sightSentences);
 Object.assign(wordSentences, stThomasSentences);
 Object.assign(wordSentences, transitionSentences);
 Object.assign(wordSentences, greekRootsSentences);
+
+// Root-part highlighting for Greek & Latin Roots vocabulary words
+// Each entry defines two parts: first root (primary/red) and second root (secondary/blue)
+const greekRootHighlights = {
+    'monarchy':  [{ text: 'mon',  cls: 'root-primary' }, { text: 'archy', cls: 'root-secondary' }],
+    'oligarchy': [{ text: 'olig', cls: 'root-primary' }, { text: 'archy', cls: 'root-secondary' }],
+    'acropolis': [{ text: 'acro', cls: 'root-primary' }, { text: 'polis', cls: 'root-secondary' }],
+    'democracy': [{ text: 'demo', cls: 'root-primary' }, { text: 'cracy', cls: 'root-secondary' }],
+    'mythology': [{ text: 'myth', cls: 'root-primary' }, { text: 'ology', cls: 'root-secondary' }],
+};

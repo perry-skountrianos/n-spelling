@@ -1509,7 +1509,13 @@ function showFlashcard() {
 
     // Word with individual letter spans
     const wordEl = document.getElementById('flashcardWord');
-    wordEl.innerHTML = word.split('').map(l => l === ' ' ? '<span class="letter letter-space">&nbsp;</span>' : `<span class="letter">${l}</span>`).join('');
+    if (typeof greekRootHighlights !== 'undefined' && greekRootHighlights[word]) {
+        wordEl.innerHTML = greekRootHighlights[word].map(part =>
+            part.text.split('').map(l => `<span class="letter ${part.cls}">${l}</span>`).join('')
+        ).join('');
+    } else {
+        wordEl.innerHTML = word.split('').map(l => l === ' ' ? '<span class="letter letter-space">&nbsp;</span>' : `<span class="letter">${l}</span>`).join('');
+    }
 
     // Update mute button
     updateMuteButton();

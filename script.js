@@ -978,6 +978,8 @@ function checkSpelling() {
 
 function nextWord() {
     stopListening();
+    ttsCancel();
+    spellingInput.disabled = false;
     if (currentWordIndex < words.length - 1) {
         currentWordIndex++;
         hasAnswered = false;

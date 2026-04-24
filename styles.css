@@ -2696,6 +2696,27 @@ h1 {
     color: #555;
 }
 
+.mode-picker-footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.mode-picker-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #999;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.mode-picker-home-link:hover {
+    color: #333;
+}
+
 .alphabet-letter-area {
     display: flex;
     align-items: center;

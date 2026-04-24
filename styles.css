@@ -2595,6 +2595,28 @@ h1 {
 .alphabet-home-btn:hover { background: #f5f5f5; border-color: #000; }
 .alphabet-home-btn:active { transform: scale(0.92); }
 
+.practice-home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.practice-home-btn:hover { background: #f5f5f5; border-color: #000; }
+.practice-home-btn:active { transform: scale(0.92); }
+
 /* Mode Picker */
 .mode-picker-overlay {
     position: fixed;

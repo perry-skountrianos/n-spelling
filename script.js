@@ -2034,7 +2034,21 @@ document.getElementById('deleteProfileBtn').addEventListener('click', () => {
 
 
 // ===== PROFILE EDIT MODAL =====
-const allAvatars = ['🦁', '🐱', '🐶', '🦊', '🐻', '🐼', '🐸', '🦄', '🐝', '🦋', '🐯', '🐰', '🐨', '🐵', '🐧', '🐙', '🦈', '🦉', '🐺', '🦖'];
+const allAvatars = [
+    // Original animals
+    '🦁', '🐱', '🐶', '🦊', '🐻', '🐼',
+    '🐸', '🦄', '🐝', '🦋', '🐯', '🐰',
+    '🐨', '🐵', '🐧', '🐙', '🦈', '🦉',
+    '🐺', '🦖',
+    // More animals
+    '🐲', '🦅', '🦜', '🐬', '🦓', '🦒',
+    '🐘', '🐆', '🐻‍❄️', '🦝', '🦦', '🦥',
+    '🐿️', '🦔', '🦩', '🦚', '🐠', '🦑',
+    '🦀', '🐊', '🦕', '🦗',
+    // Fun extras
+    '🧸', '👾', '🤖', '👻', '🎃', '⭐',
+    '🌈', '🚀',
+];
 let editingProfileId = null;
 let selectedAvatar = '🦁';
 

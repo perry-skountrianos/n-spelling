@@ -3387,6 +3387,10 @@ document.getElementById('alphabetHomeBtn').addEventListener('click', () => {
     showModePicker();
 });
 
+document.getElementById('practiceHomeBtn').addEventListener('click', () => {
+    showModePicker();
+});
+
 // Uppercase / lowercase toggle
 document.getElementById('alphabetToggleUpper').addEventListener('click', () => {
     if (alphabetCase === 'upper') return;

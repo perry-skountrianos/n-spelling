@@ -37,6 +37,8 @@ function updateProfileIndicator(profileId) {
 
 function updateListFooter() {
     const footer = document.getElementById('listFooter');
+    if (!footer) return;
+    if (appMode === 'alphabet') { footer.innerHTML = ''; return; }
     if (footer) footer.innerHTML = activeListName ? '<span style="color:#ccc">Practicing:</span> <a href="#" id="listFooterLink" style="color:inherit;text-decoration:underline;cursor:pointer;">' + activeListName + '</a>' : '';
     const listFooterLink = document.getElementById('listFooterLink');
     if (listFooterLink) {
@@ -541,6 +543,7 @@ function setAppMode(mode) {
         stopListening();
         ttsCancel();
         initAlphabetMode();
+        updateListFooter();
     } else {
         slideshowPlaying = false;
         updatePlayButton();
@@ -3149,6 +3152,9 @@ const ALPHABET_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let alphabetIndex = 0;
 let alphabetCase = 'upper'; // 'upper' or 'lower'
 let alphabetAnimTimeouts = [];
+let alphabetMuted = localStorage.getItem('alphabetMuted') === 'true';
+let alphabetPlaying = false;
+let alphabetPlayTimeout = null;
 
 // SVG stroke paths for each letter, viewBox "0 0 100 120"
 // Uppercase use full height (8–112), lowercase x-height (18–98), ascenders (5), descenders (108–125)
@@ -3207,10 +3213,37 @@ const letterStrokes = {
     'z': ['M 15,18 L 85,18', 'M 85,18 L 15,98', 'M 15,98 L 85,98']
 };
 
+function updateAlphabetMuteBtn() {
+    const btn = document.getElementById('alphabetMute');
+    if (!btn) return;
+    const unmutedIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    const mutedIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+    btn.innerHTML = alphabetMuted ? mutedIcon : unmutedIcon;
+    btn.classList.toggle('muted', alphabetMuted);
+}
+
+function updateAlphabetPlayBtn() {
+    const btn = document.getElementById('alphabetPlay');
+    if (!btn) return;
+    btn.innerHTML = alphabetPlaying ? '&#9646;&#9646;' : '&#9654;';
+    btn.classList.toggle('playing', alphabetPlaying);
+    btn.title = alphabetPlaying ? 'Pause' : 'Auto-play';
+}
+
+function stopAlphabetAutoPlay() {
+    alphabetPlaying = false;
+    clearTimeout(alphabetPlayTimeout);
+    alphabetPlayTimeout = null;
+    updateAlphabetPlayBtn();
+}
+
 function initAlphabetMode() {
+    stopAlphabetAutoPlay();
     alphabetIndex = 0;
     document.getElementById('alphabetToggleUpper').classList.toggle('active', alphabetCase === 'upper');
     document.getElementById('alphabetToggleLower').classList.toggle('active', alphabetCase === 'lower');
+    updateAlphabetMuteBtn();
+    updateAlphabetPlayBtn();
     renderAlphabetLetter();
 }
 
@@ -3220,8 +3253,21 @@ function renderAlphabetLetter() {
     const label = alphabetCase === 'upper' ? 'Capital ' + upperLetter : 'Lowercase ' + upperLetter.toLowerCase();
     document.getElementById('alphabetLabel').textContent = label;
     document.getElementById('alphabetCounter').textContent = (alphabetIndex + 1) + ' / 26';
-    playAlphabetAnimation(letter);
-    ttsSpeak(label, { rate: 0.85 });
+    const totalDuration = playAlphabetAnimation(letter);
+    if (!alphabetMuted) ttsSpeak(label, { rate: 0.85 });
+
+    if (alphabetPlaying) {
+        clearTimeout(alphabetPlayTimeout);
+        if (alphabetIndex < 25) {
+            alphabetPlayTimeout = setTimeout(() => {
+                alphabetIndex++;
+                renderAlphabetLetter();
+            }, totalDuration + 900);
+        } else {
+            // Reached Z — stop auto-play
+            alphabetPlayTimeout = setTimeout(() => stopAlphabetAutoPlay(), totalDuration + 900);
+        }
+    }
 }
 
 function playAlphabetAnimation(letter) {
@@ -3230,7 +3276,7 @@ function playAlphabetAnimation(letter) {
 
     const container = document.getElementById('alphabetSvgContainer');
     const strokes = letterStrokes[letter];
-    if (!strokes || !container) return;
+    if (!strokes || !container) return 300;
 
     container.innerHTML = '';
     const svgNS = 'http://www.w3.org/2000/svg';
@@ -3293,11 +3339,14 @@ function playAlphabetAnimation(letter) {
         alphabetAnimTimeouts.push(t);
         delay += duration + gap;
     });
+
+    return delay; // ms until all strokes have finished (slightly over, good for auto-play pause)
 }
 
 // Uppercase / lowercase toggle
 document.getElementById('alphabetToggleUpper').addEventListener('click', () => {
     if (alphabetCase === 'upper') return;
+    stopAlphabetAutoPlay();
     alphabetCase = 'upper';
     document.getElementById('alphabetToggleUpper').classList.add('active');
     document.getElementById('alphabetToggleLower').classList.remove('active');
@@ -3306,6 +3355,7 @@ document.getElementById('alphabetToggleUpper').addEventListener('click', () => {
 
 document.getElementById('alphabetToggleLower').addEventListener('click', () => {
     if (alphabetCase === 'lower') return;
+    stopAlphabetAutoPlay();
     alphabetCase = 'lower';
     document.getElementById('alphabetToggleLower').classList.add('active');
     document.getElementById('alphabetToggleUpper').classList.remove('active');
@@ -3314,19 +3364,43 @@ document.getElementById('alphabetToggleLower').addEventListener('click', () => {
 
 // Navigation
 document.getElementById('alphabetPrev').addEventListener('click', () => {
+    stopAlphabetAutoPlay();
     alphabetIndex = (alphabetIndex + 25) % 26;
     renderAlphabetLetter();
 });
 
 document.getElementById('alphabetNext').addEventListener('click', () => {
+    stopAlphabetAutoPlay();
     alphabetIndex = (alphabetIndex + 1) % 26;
     renderAlphabetLetter();
 });
 
 document.getElementById('alphabetReplay').addEventListener('click', () => {
+    stopAlphabetAutoPlay();
     const letter = alphabetCase === 'upper'
         ? ALPHABET_LETTERS[alphabetIndex]
         : ALPHABET_LETTERS[alphabetIndex].toLowerCase();
     playAlphabetAnimation(letter);
 });
+
+document.getElementById('alphabetPlay').addEventListener('click', () => {
+    if (alphabetPlaying) {
+        stopAlphabetAutoPlay();
+    } else {
+        // If we're at the last letter, restart from A
+        if (alphabetIndex >= 25) alphabetIndex = 0;
+        alphabetPlaying = true;
+        updateAlphabetPlayBtn();
+        renderAlphabetLetter();
+    }
+});
+
+document.getElementById('alphabetMute').addEventListener('click', () => {
+    alphabetMuted = !alphabetMuted;
+    localStorage.setItem('alphabetMuted', alphabetMuted);
+    updateAlphabetMuteBtn();
+    if (alphabetMuted) ttsCancel();
+});
+
+
 

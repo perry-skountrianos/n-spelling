@@ -2568,7 +2568,30 @@ h1 {
     padding: 16px 16px 24px;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
 }
+
+.alphabet-home-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.alphabet-home-btn:hover { background: #f0f0f0; border-color: #bbb; }
+.alphabet-home-btn:active { transform: scale(0.92); }
 
 .alphabet-letter-area {
     display: flex;

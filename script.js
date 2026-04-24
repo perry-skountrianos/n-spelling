@@ -3343,6 +3343,11 @@ function playAlphabetAnimation(letter) {
     return delay; // ms until all strokes have finished (slightly over, good for auto-play pause)
 }
 
+document.getElementById('alphabetHomeBtn').addEventListener('click', () => {
+    stopAlphabetAutoPlay();
+    setAppMode('test');
+});
+
 // Uppercase / lowercase toggle
 document.getElementById('alphabetToggleUpper').addEventListener('click', () => {
     if (alphabetCase === 'upper') return;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Practice</title>
-    <link rel="stylesheet" href="styles.css?v=20">
+    <link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
     <div id="appWrapper" style="display:none;">
@@ -59,9 +59,9 @@
         </div>
     </div>
     <div class="score-display" id="scoreDisplay" style="display: none;">
-        <a href="https://skountrianos.com" class="home-circle" title="Home">
+        <button class="home-circle" id="homeCircleBtn" title="Choose Mode">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </a>
+        </button>
         <div class="profile-circle" id="profileIndicator" title="Switch Player">
             <span class="profile-circle-avatar" id="profileAvatar">🦁</span>
         </div>
@@ -277,6 +277,52 @@
         </div>
     </div>
 
+    <!-- Mode Picker Overlay -->
+    <div class="mode-picker-overlay" id="modePickerOverlay" style="display:none;">
+        <div class="mode-picker-panel">
+            <button class="mode-picker-close" id="modePickerClose">&#x2715;</button>
+            <h2 class="mode-picker-title">Choose a Mode</h2>
+            <div class="mode-picker-grid">
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="test" style="background:#2196f3">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Test</span>
+                </div>
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="practice" style="background:#4caf50">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Practice</span>
+                </div>
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="choose" style="background:#9c27b0">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Choose</span>
+                </div>
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="sentence" style="background:#ff9800">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h12"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Sentence</span>
+                </div>
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="qa" style="background:#009688">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Q&amp;A</span>
+                </div>
+                <div class="mode-picker-item">
+                    <button class="mode-picker-circle" data-mode="alphabet" style="background:#e53935">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 L10 4 L16 20"/><path d="M6.5 14 L13.5 14"/><path d="M17 8 Q22 8 22 13 Q22 18 17 18 L17 8"/></svg>
+                    </button>
+                    <span class="mode-picker-label">Alphabet</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <script src="auth.js"></script>
@@ -286,6 +332,6 @@
     <script src="words.js?v=5"></script>
     <script src="quizzes.js"></script>
     <script src="tts.js?v=38"></script>
-    <script src="script.js?v=52"></script>
+    <script src="script.js?v=53"></script>
 </body>
 </html>

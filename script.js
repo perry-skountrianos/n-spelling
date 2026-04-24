@@ -3343,9 +3343,33 @@ function playAlphabetAnimation(letter) {
     return delay; // ms until all strokes have finished (slightly over, good for auto-play pause)
 }
 
+// ===== MODE PICKER =====
+function showModePicker() {
+    document.getElementById('modePickerOverlay').style.display = 'flex';
+}
+function hideModePicker() {
+    document.getElementById('modePickerOverlay').style.display = 'none';
+}
+
+document.getElementById('homeCircleBtn').addEventListener('click', showModePicker);
+
+document.getElementById('modePickerClose').addEventListener('click', hideModePicker);
+
+document.getElementById('modePickerOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modePickerOverlay')) hideModePicker();
+});
+
+document.querySelectorAll('.mode-picker-circle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        hideModePicker();
+        setAppMode(mode);
+    });
+});
+
 document.getElementById('alphabetHomeBtn').addEventListener('click', () => {
     stopAlphabetAutoPlay();
-    setAppMode('test');
+    showModePicker();
 });
 
 // Uppercase / lowercase toggle

@@ -254,7 +254,7 @@ function showProfileScreen() {
 
 document.getElementById('addProfileBtn').addEventListener('click', () => {
     const password = prompt('Parent password:');
-    if (password !== 'read123') {
+    if (password !== 'admin123') {
         if (password !== null) alert('Incorrect password');
         return;
     }
@@ -577,7 +577,7 @@ document.querySelectorAll('.mode-option').forEach(btn => {
         // If a test is in progress, require parent password to prevent peeking
         if (appMode === 'test' && resultsArray.length > 0 && currentWordIndex < words.length - 1) {
             const password = prompt('Parent password to switch during a test:');
-            if (password !== 'read123') {
+            if (password !== 'admin123') {
                 if (password !== null) alert('Incorrect password');
                 return;
             }
@@ -1325,7 +1325,7 @@ function loadReports() {
 resetBtn.addEventListener('click', () => {
     gearDropdown.classList.remove('show');
     const password = prompt('Parent password to reset all progress:');
-    if (password === 'read123') {
+    if (password === 'admin123') {
         clearProgress();
         location.reload();
     } else if (password !== null) {
@@ -1995,7 +1995,7 @@ addWordListBtn.addEventListener('click', () => {
 // ===== PROFILE DELETION =====
 document.getElementById('deleteProfileBtn').addEventListener('click', () => {
     const password = prompt('Parent password:');
-    if (password !== 'read123') {
+    if (password !== 'admin123') {
         if (password !== null) alert('Incorrect password');
         return;
     }

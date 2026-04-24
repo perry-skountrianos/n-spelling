@@ -37,7 +37,15 @@ function updateProfileIndicator(profileId) {
 
 function updateListFooter() {
     const footer = document.getElementById('listFooter');
-    if (footer) footer.innerHTML = activeListName ? '<span style="color:#ccc">Practicing:</span> ' + activeListName : '';
+    if (footer) footer.innerHTML = activeListName ? '<span style="color:#ccc">Practicing:</span> <a href="#" id="listFooterLink" style="color:inherit;text-decoration:underline;cursor:pointer;">' + activeListName + '</a>' : '';
+    const listFooterLink = document.getElementById('listFooterLink');
+    if (listFooterLink) {
+        listFooterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            wordlistsOverlay.style.display = 'flex';
+            loadWordLists();
+        });
+    }
 }
 
 document.getElementById('profileIndicator').addEventListener('click', () => {

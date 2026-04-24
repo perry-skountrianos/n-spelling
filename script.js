@@ -325,9 +325,10 @@ const practiceContent = document.getElementById('practiceContent');
 const chooseContent = document.getElementById('chooseContent');
 const sentenceContent = document.getElementById('sentenceContent');
 const qaContent = document.getElementById('qaContent');
+const alphabetContent = document.getElementById('alphabetContent');
 const hearBtn = document.getElementById('hearBtn');
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let appMode = 'test'; // 'test', 'practice', 'choose', 'sentence', or 'qa'
+let appMode = 'test'; // 'test', 'practice', 'choose', 'sentence', 'qa', or 'alphabet'
 let practiceScope = 'all';
 let flashcardMuted = localStorage.getItem('flashcardMuted') === 'true';
 
@@ -519,6 +520,7 @@ function setAppMode(mode) {
     chooseContent.style.display = mode === 'choose' ? '' : 'none';
     sentenceContent.style.display = mode === 'sentence' ? '' : 'none';
     qaContent.style.display = mode === 'qa' ? '' : 'none';
+    alphabetContent.style.display = mode === 'alphabet' ? '' : 'none';
     scoreDisplay.style.display = (mode === 'test' || mode === 'choose' || mode === 'sentence' || mode === 'qa') ? '' : 'none';
     if (mode === 'practice') {
         stopListening();
@@ -535,6 +537,10 @@ function setAppMode(mode) {
         stopListening();
         ttsCancel();
         initQAMode();
+    } else if (mode === 'alphabet') {
+        stopListening();
+        ttsCancel();
+        initAlphabetMode();
     } else {
         slideshowPlaying = false;
         updatePlayButton();
@@ -3136,3 +3142,191 @@ document.getElementById('qaResetBtn').addEventListener('click', () => {
     document.getElementById('qaCheckBtn').style.display = '';
     initQAMode();
 });
+
+// ── Alphabet Mode ────────────────────────────────────────────────────────────
+
+const ALPHABET_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let alphabetIndex = 0;
+let alphabetCase = 'upper'; // 'upper' or 'lower'
+let alphabetAnimTimeouts = [];
+
+// SVG stroke paths for each letter, viewBox "0 0 100 120"
+// Uppercase use full height (8–112), lowercase x-height (18–98), ascenders (5), descenders (108–125)
+const letterStrokes = {
+    'A': ['M 50,8 L 12,112', 'M 50,8 L 88,112', 'M 24,75 L 76,75'],
+    'B': ['M 20,8 L 20,112', 'M 20,8 C 60,8 70,22 70,36 C 70,50 60,56 20,56', 'M 20,56 C 62,56 74,70 74,84 C 74,100 62,112 20,112'],
+    'C': ['M 82,22 C 62,8 15,15 12,55 C 9,90 45,112 82,100'],
+    'D': ['M 20,8 L 20,112', 'M 20,8 C 80,8 86,30 86,60 C 86,90 80,112 20,112'],
+    'E': ['M 20,8 L 20,112', 'M 20,8 L 78,8', 'M 20,58 L 65,58', 'M 20,112 L 78,112'],
+    'F': ['M 20,8 L 20,112', 'M 20,8 L 78,8', 'M 20,58 L 65,58'],
+    'G': ['M 82,22 C 62,8 15,15 12,55 C 9,90 45,112 82,100', 'M 82,60 L 82,100'],
+    'H': ['M 18,8 L 18,112', 'M 82,8 L 82,112', 'M 18,58 L 82,58'],
+    'I': ['M 28,8 L 72,8', 'M 50,8 L 50,112', 'M 28,112 L 72,112'],
+    'J': ['M 28,8 L 72,8', 'M 62,8 L 62,88 C 62,112 18,115 15,92'],
+    'K': ['M 18,8 L 18,112', 'M 78,8 L 18,60', 'M 18,60 L 82,112'],
+    'L': ['M 20,8 L 20,112', 'M 20,112 L 78,112'],
+    'M': ['M 12,112 L 12,8', 'M 12,8 L 50,65', 'M 50,65 L 88,8', 'M 88,8 L 88,112'],
+    'N': ['M 18,112 L 18,8', 'M 18,8 L 82,112', 'M 82,112 L 82,8'],
+    'O': ['M 50,8 C 90,8 92,30 92,60 C 92,90 90,112 50,112 C 10,112 8,90 8,60 C 8,30 10,8 50,8'],
+    'P': ['M 20,8 L 20,112', 'M 20,8 C 72,8 76,22 76,36 C 76,50 72,60 20,60'],
+    'Q': ['M 50,8 C 90,8 92,30 92,60 C 92,90 90,112 50,112 C 10,112 8,90 8,60 C 8,30 10,8 50,8', 'M 65,88 L 90,118'],
+    'R': ['M 20,8 L 20,112', 'M 20,8 C 72,8 76,22 76,36 C 76,50 72,60 20,60', 'M 45,60 L 82,112'],
+    'S': ['M 80,20 C 60,8 15,12 18,40 C 20,58 50,58 80,78 C 85,96 60,115 22,108'],
+    'T': ['M 10,8 L 90,8', 'M 50,8 L 50,112'],
+    'U': ['M 18,8 L 18,82 C 18,112 82,112 82,82 L 82,8'],
+    'V': ['M 12,8 L 50,112 L 88,8'],
+    'W': ['M 8,8 L 25,112 L 50,62 L 75,112 L 92,8'],
+    'X': ['M 15,8 L 85,112', 'M 85,8 L 15,112'],
+    'Y': ['M 12,8 L 50,60', 'M 88,8 L 50,60', 'M 50,60 L 50,112'],
+    'Z': ['M 15,8 L 85,8', 'M 85,8 L 15,112', 'M 15,112 L 85,112'],
+    'a': ['M 80,40 C 80,20 60,18 48,18 C 24,18 16,35 16,58 C 16,82 28,98 52,98 C 72,98 80,82 80,65', 'M 80,18 L 80,98'],
+    'b': ['M 18,5 L 18,98', 'M 18,58 C 18,18 82,18 82,58 C 82,98 18,98 18,58'],
+    'c': ['M 82,32 C 62,15 15,22 15,58 C 15,90 52,100 82,86'],
+    'd': ['M 82,58 C 82,18 18,18 18,58 C 18,98 82,98 82,58', 'M 82,5 L 82,98'],
+    'e': ['M 15,55 L 82,55 C 82,22 62,18 48,18 C 24,18 15,35 15,58 C 15,82 28,98 55,98 C 70,98 80,90 84,78'],
+    'f': ['M 72,8 C 60,5 40,8 38,30 L 38,98', 'M 18,48 L 62,48'],
+    'g': ['M 80,40 C 80,20 60,18 48,18 C 24,18 16,35 16,58 C 16,82 28,98 52,98 C 72,98 80,80 80,62 L 80,108 C 80,124 58,128 38,118'],
+    'h': ['M 18,5 L 18,98', 'M 18,48 C 18,18 82,18 82,45 L 82,98'],
+    'i': ['M 50,10 L 50,13', 'M 50,28 L 50,98'],
+    'j': ['M 65,10 L 65,13', 'M 65,28 L 65,108 C 65,124 42,128 22,115'],
+    'k': ['M 18,5 L 18,98', 'M 72,18 L 18,60', 'M 18,60 L 78,98'],
+    'l': ['M 50,5 L 50,98'],
+    'm': ['M 10,35 L 10,98', 'M 10,35 C 10,18 30,18 46,30 L 46,98', 'M 46,35 C 46,18 70,18 84,30 L 84,98'],
+    'n': ['M 18,35 L 18,98', 'M 18,35 C 18,18 82,18 82,45 L 82,98'],
+    'o': ['M 50,18 C 82,18 84,35 84,58 C 84,82 82,98 50,98 C 18,98 16,82 16,58 C 16,35 18,18 50,18'],
+    'p': ['M 18,35 L 18,125', 'M 18,58 C 18,18 82,18 82,58 C 82,98 18,98 18,58'],
+    'q': ['M 82,58 C 82,18 18,18 18,58 C 18,98 82,98 82,58', 'M 82,35 L 82,125'],
+    'r': ['M 18,35 L 18,98', 'M 18,48 C 25,18 62,18 70,22'],
+    's': ['M 76,26 C 55,15 18,22 22,44 C 25,58 55,58 78,72 C 82,88 58,102 28,96'],
+    't': ['M 50,5 L 50,98', 'M 20,38 L 75,38'],
+    'u': ['M 18,18 L 18,75 C 18,98 82,98 82,75 L 82,18', 'M 82,18 L 82,98'],
+    'v': ['M 12,18 L 50,98 L 88,18'],
+    'w': ['M 8,18 L 28,98 L 50,58 L 72,98 L 92,18'],
+    'x': ['M 15,18 L 85,98', 'M 85,18 L 15,98'],
+    'y': ['M 12,18 L 50,62', 'M 88,18 L 50,62 L 32,112 C 25,125 8,122 8,122'],
+    'z': ['M 15,18 L 85,18', 'M 85,18 L 15,98', 'M 15,98 L 85,98']
+};
+
+function initAlphabetMode() {
+    alphabetIndex = 0;
+    document.getElementById('alphabetToggleUpper').classList.toggle('active', alphabetCase === 'upper');
+    document.getElementById('alphabetToggleLower').classList.toggle('active', alphabetCase === 'lower');
+    renderAlphabetLetter();
+}
+
+function renderAlphabetLetter() {
+    const upperLetter = ALPHABET_LETTERS[alphabetIndex];
+    const letter = alphabetCase === 'upper' ? upperLetter : upperLetter.toLowerCase();
+    const label = alphabetCase === 'upper' ? 'Capital ' + upperLetter : 'Lowercase ' + upperLetter.toLowerCase();
+    document.getElementById('alphabetLabel').textContent = label;
+    document.getElementById('alphabetCounter').textContent = (alphabetIndex + 1) + ' / 26';
+    playAlphabetAnimation(letter);
+    ttsSpeak(label, { rate: 0.85 });
+}
+
+function playAlphabetAnimation(letter) {
+    alphabetAnimTimeouts.forEach(t => clearTimeout(t));
+    alphabetAnimTimeouts = [];
+
+    const container = document.getElementById('alphabetSvgContainer');
+    const strokes = letterStrokes[letter];
+    if (!strokes || !container) return;
+
+    container.innerHTML = '';
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 100 130');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+
+    const sw = '7';
+
+    // Ghost strokes (full letter visible in light gray)
+    strokes.forEach(d => {
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#dde8f8');
+        path.setAttribute('stroke-width', sw);
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+    });
+
+    // Animated blue strokes on top
+    const animPaths = strokes.map(d => {
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#2196f3');
+        path.setAttribute('stroke-width', sw);
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+        return path;
+    });
+
+    container.appendChild(svg);
+
+    // Set up dashoffset so strokes start hidden
+    animPaths.forEach(path => {
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = len + ' ' + len;
+        path.style.strokeDashoffset = String(len);
+        path.style.transition = 'none';
+    });
+
+    // Animate each stroke sequentially
+    const msPerUnit = 9;
+    const minDur = 250;
+    const maxDur = 1600;
+    const gap = 180;
+    let delay = 300;
+
+    animPaths.forEach(path => {
+        const len = path.getTotalLength();
+        const duration = Math.min(Math.max(len * msPerUnit, minDur), maxDur);
+        const t = setTimeout(() => {
+            path.style.transition = 'stroke-dashoffset ' + duration + 'ms cubic-bezier(0.4,0,0.2,1)';
+            path.style.strokeDashoffset = '0';
+        }, delay);
+        alphabetAnimTimeouts.push(t);
+        delay += duration + gap;
+    });
+}
+
+// Uppercase / lowercase toggle
+document.getElementById('alphabetToggleUpper').addEventListener('click', () => {
+    if (alphabetCase === 'upper') return;
+    alphabetCase = 'upper';
+    document.getElementById('alphabetToggleUpper').classList.add('active');
+    document.getElementById('alphabetToggleLower').classList.remove('active');
+    renderAlphabetLetter();
+});
+
+document.getElementById('alphabetToggleLower').addEventListener('click', () => {
+    if (alphabetCase === 'lower') return;
+    alphabetCase = 'lower';
+    document.getElementById('alphabetToggleLower').classList.add('active');
+    document.getElementById('alphabetToggleUpper').classList.remove('active');
+    renderAlphabetLetter();
+});
+
+// Navigation
+document.getElementById('alphabetPrev').addEventListener('click', () => {
+    alphabetIndex = (alphabetIndex + 25) % 26;
+    renderAlphabetLetter();
+});
+
+document.getElementById('alphabetNext').addEventListener('click', () => {
+    alphabetIndex = (alphabetIndex + 1) % 26;
+    renderAlphabetLetter();
+});
+
+document.getElementById('alphabetReplay').addEventListener('click', () => {
+    const letter = alphabetCase === 'upper'
+        ? ALPHABET_LETTERS[alphabetIndex]
+        : ALPHABET_LETTERS[alphabetIndex].toLowerCase();
+    playAlphabetAnimation(letter);
+});
+

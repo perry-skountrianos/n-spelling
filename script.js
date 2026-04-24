@@ -12,6 +12,8 @@ function emojiToImg(emoji, size) {
 // Profile management
 let currentProfile = localStorage.getItem('currentProfile') || '';
 let activeListName = 'Red Card Words';
+let activeListKey = 'default';
+const qaEnabledLists = new Set(['greekroots']);
 
 function getProfileName() {
     return currentProfile.charAt(0).toUpperCase() + currentProfile.slice(1);
@@ -151,6 +153,7 @@ async function ensureDefaultWordList(profileId) {
         if (activeSnap.exists()) {
             loadedWords = firebaseToArray(activeSnap.val().words);
             activeListName = activeSnap.val().name || 'Word List';
+            activeListKey = activeId;
         }
     }
     if (!loadedWords) {
@@ -237,7 +240,7 @@ function selectProfile(profileId) {
     document.querySelector('.container').style.display = '';
     ensureDefaultWordList(profileId)
         .then(() => updateMistakesList(profileId))
-        .then(() => initApp())
+        .then(() => { updateQAVisibility(); initApp(); })
         .catch(() => initApp());
 }
 
@@ -525,6 +528,7 @@ function setAppMode(mode) {
     alphabetContent.style.display = mode === 'alphabet' ? '' : 'none';
     scoreDisplay.style.display = (mode === 'test' || mode === 'choose' || mode === 'sentence' || mode === 'qa') ? '' : 'none';
     updateHomeIcon(mode);
+    updateQAVisibility();
     if (mode === 'practice') {
         stopListening();
         loadPracticeCards();
@@ -1971,6 +1975,7 @@ function doLoadWordList(id) {
         allWords.length = 0;
         loadedWords.forEach(w => allWords.push(w));
         activeListName = list.name || 'Word List';
+        activeListKey = id;
         practiceScope = 'all';
         localStorage.setItem(profileKey('practiceScope'), 'all');
         // Remember active list for next login
@@ -1978,6 +1983,7 @@ function doLoadWordList(id) {
         clearProgress();
         restartGame();
         updateListFooter();
+        updateQAVisibility();
         wordlistsOverlay.style.display = 'none';
     });
 }
@@ -3345,6 +3351,18 @@ function playAlphabetAnimation(letter) {
 }
 
 // ===== MODE PICKER =====
+function updateQAVisibility() {
+    const enabled = qaEnabledLists.has(activeListKey);
+    // Mode picker circle
+    const qaPickerItem = document.querySelector('.mode-picker-circle[data-mode="qa"]')?.closest('.mode-picker-item');
+    if (qaPickerItem) qaPickerItem.style.display = enabled ? '' : 'none';
+    // Gear dropdown button
+    const qaGearBtn = document.querySelector('.mode-option[data-mode="qa"]');
+    if (qaGearBtn) qaGearBtn.style.display = enabled ? '' : 'none';
+    // If currently in Q&A and no longer supported, bounce to test mode
+    if (!enabled && appMode === 'qa') setAppMode('test');
+}
+
 const modeIcons = {
     test:     '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
     practice: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',

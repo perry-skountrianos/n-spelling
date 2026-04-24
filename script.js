@@ -252,6 +252,7 @@ let currentWordIndex = 0;
 let hasAnswered = false;
 let hasHeardWord = false;
 let resultsArray = [];
+let reportSaved = false;
 let inputMode = 'type'; // 'type' or 'speak'
 let recognition = null;
 let isListening = false;
@@ -1032,6 +1033,7 @@ function restartGame() {
         hasAnswered = false;
         hasHeardWord = false;
         resultsArray = [];
+        reportSaved = false;
         spellingInput.value = '';
         spellingInput.classList.remove('correct', 'incorrect');
         mainContent.style.display = 'block';
@@ -1128,6 +1130,7 @@ async function initApp() {
     hasAnswered = false;
     hasHeardWord = false;
     resultsArray = [];
+    reportSaved = false;
     mainContent.style.display = '';
     resultsSection.style.display = 'none';
     spellingInput.value = '';
@@ -1173,6 +1176,8 @@ window.addEventListener('load', () => {
 restartBtn2.addEventListener('click', restartGame);
 
 function saveReport() {
+    if (reportSaved) return;
+    reportSaved = true;
     const totalAttempts = resultsArray.length;
     const correctCount = resultsArray.filter(r => r.isCorrect).length;
     const wrongCount = totalAttempts - correctCount;

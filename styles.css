@@ -2575,10 +2575,10 @@ h1 {
     position: absolute;
     top: 16px;
     left: 16px;
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    border: 2px solid #e0e0e0;
+    border: 3px solid #e0e0e0;
     background: #fff;
     color: #333;
     cursor: pointer;

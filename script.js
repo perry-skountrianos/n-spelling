@@ -965,6 +965,8 @@ function nextWord() {
         saveProgress();
         spellingInput.focus();
     } else {
+        spellingInput.value = '';
+        spellingInput.blur();
         saveProgress();
         showCompletionReport();
     }

@@ -16,20 +16,18 @@ body {
     border-bottom: 1px solid #e5e7eb;
     z-index: 30; flex-wrap: wrap;
 }
-.profile-circles {
-    display: flex; align-items: center; gap: 10px;
-}
-.profile-pick.profile-circle {
+.profile-circle.profile-switcher {
     width: 64px; height: 64px;
     border: 3px solid #e0e0e0; background: #fff;
     cursor: pointer; padding: 0;
 }
-.profile-pick.profile-circle:hover { border-color: #999; }
-.profile-pick.profile-circle.active {
+.profile-circle.profile-switcher:hover {
     border-color: #4f46e5;
     box-shadow: 0 6px 16px rgba(79,70,229,0.25);
 }
-.profile-circle-emoji { font-size: 1.9rem; line-height: 1; }
+.profile-circle.profile-switcher .profile-circle-avatar {
+    font-size: 1.9rem; line-height: 1;
+}
 .topbar-divider {
     width: 1px; height: 56px; background: #e5e7eb;
 }
@@ -109,15 +107,10 @@ body {
     0% { transform: scale(1); } 40% { transform: scale(1.03); } 100% { transform: scale(1); }
 }
 
-.planner-grid {
-    display: grid;
-    grid-template-columns: minmax(320px, 380px) 1fr;
-    gap: 22px;
-    align-items: start;
-}
 .recipe-panel, .calendar-panel {
     background: #fff; border-radius: 24px; padding: 22px;
     box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+    margin-bottom: 22px;
 }
 
 .panel-header {
@@ -132,11 +125,18 @@ body {
 .hint { font-size: 0.88rem; color: #4b5563; margin-top: 6px; }
 
 .recipe-list {
-    display: grid; gap: 14px;
-    max-height: 78vh; overflow-y: auto; padding-right: 4px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 240px;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 4px 14px;
+    scroll-snap-type: x mandatory;
 }
-.recipe-list::-webkit-scrollbar { width: 6px; }
+.recipe-list::-webkit-scrollbar { height: 8px; }
 .recipe-list::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 4px; }
+.recipe-list .recipe-card { scroll-snap-align: start; }
 .recipe-card {
     border-radius: 20px; border: 1px solid #e5e7eb; background: #fff;
     cursor: grab; overflow: hidden;
@@ -391,12 +391,8 @@ body {
 .full-width { grid-column: 1 / -1; }
 
 @media (max-width: 1180px) {
-    .planner-grid { grid-template-columns: 1fr; }
     .macro-bar-row { grid-template-columns: repeat(3, 1fr); }
     .macro-cal { grid-column: 1 / -1; flex-direction: row; padding: 8px 14px; }
-}
-@media (max-width: 860px) {
-    .planner-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
     body { padding: 0; }

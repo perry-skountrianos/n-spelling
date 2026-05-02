@@ -93,6 +93,93 @@
             font-size: 0.85rem;
             margin-top: 0.75rem;
         }
+        /* Profile gate */
+        .profile-gate {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        .profile-gate-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2.25rem;
+            color: #1d1d1f;
+        }
+        .profile-gate-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .profile-gate-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            font-family: inherit;
+            transition: transform 0.18s ease;
+        }
+        .profile-gate-card:hover { transform: scale(1.06); }
+        .profile-gate-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #e0e0e0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .profile-gate-card:hover .profile-gate-circle {
+            border-color: #0071e3;
+            box-shadow: 0 10px 28px rgba(0,113,227,0.2);
+        }
+        .profile-gate-avatar { font-size: 4rem; line-height: 1; }
+        .profile-gate-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        /* Active profile chip on the apps screen */
+        .profile-chip {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 999px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            transition: border-color 0.18s ease;
+        }
+        .profile-chip:hover { border-color: #0071e3; }
+        .profile-chip-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        .profile-chip-switch {
+            font-size: 0.78rem;
+            color: #6e6e73;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -106,7 +193,19 @@
 
     <!-- Main content (hidden until authenticated) -->
     <div class="container" id="appWrapper" style="display:none;">
-        <div class="apps">
+        <!-- Profile selection gate -->
+        <div class="profile-gate" id="profileGate" style="display:none;"></div>
+
+        <!-- Active profile chip (shown when on the apps screen) -->
+        <button class="profile-chip" id="profileChip" style="display:none;" title="Switch player">
+            <span class="profile-chip-circle" id="profileChipAvatar">🦁</span>
+            <span>
+                <span id="profileChipName">Nicholas</span>
+                <span class="profile-chip-switch">Switch</span>
+            </span>
+        </button>
+
+        <div class="apps" id="appsList" style="display:none;">
             <a href="spelling.html" class="app-link">
                 <div class="app-card">
                     <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
@@ -129,5 +228,46 @@
         </div>
     </div>
     <script src="auth.js"></script>
+    <script src="profile.js?v=1"></script>
+    <script>
+        (function () {
+            const gate     = document.getElementById('profileGate');
+            const apps     = document.getElementById('appsList');
+            const chip     = document.getElementById('profileChip');
+            const chipName = document.getElementById('profileChipName');
+            const chipAv   = document.getElementById('profileChipAvatar');
+
+            function showApps(profile) {
+                gate.style.display = 'none';
+                apps.style.display = '';
+                chip.style.display = '';
+                chipName.textContent = profile.name;
+                chipAv.textContent   = profile.avatar;
+            }
+            function showGate() {
+                apps.style.display = 'none';
+                chip.style.display = 'none';
+                gate.style.display = '';
+                Profiles.renderGate(gate, showApps);
+            }
+
+            chip.addEventListener('click', () => {
+                Profiles.clearCurrent();
+                showGate();
+            });
+
+            // Wait for the auth gate to reveal #appWrapper, then decide which view to show.
+            function init() {
+                if (document.getElementById('appWrapper').style.display === 'none') {
+                    setTimeout(init, 80);
+                    return;
+                }
+                const current = Profiles.getCurrent();
+                if (current) showApps(current);
+                else showGate();
+            }
+            init();
+        })();
+    </script>
 </body>
 </html>

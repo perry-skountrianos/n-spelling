@@ -1,8 +1,3 @@
-const profiles = [
-    { id: 'nicholas', name: 'Nicholas', avatar: '🦁' },
-    { id: 'constantine', name: 'Constantine', avatar: '🐯' }
-];
-
 const DAILY_GOALS = {
     groups: { Fruits: 2, Veggies: 3, Protein: 3, Grains: 4, Dairy: 2 },
     nutrition: { carbs: 130, protein: 35, fat: 50 }
@@ -124,10 +119,15 @@ let selectedDayIndex = (new Date().getDay() + 6) % 7;
 let confettiTimer = null;
 
 function initMealPlanner() {
+    if (typeof Profiles === 'undefined' || !Profiles.requireProfile()) return;
+    selectedProfileId = Profiles.getCurrentId();
     loadCustomRecipes();
-    renderProfiles();
-    const savedProfile = localStorage.getItem('mealPlannerProfile') || profiles[0].id;
-    selectProfile(savedProfile);
+    renderProfileSwitcher();
+    document.getElementById('profileSwitcher').addEventListener('click', switchProfile);
+    loadPlan();
+    renderRecipeList();
+    renderCalendar();
+    renderTopbar();
     document.getElementById('addRecipeBtn').addEventListener('click', openRecipeModal);
     document.getElementById('closeModalBtn').addEventListener('click', closeRecipeModal);
     document.getElementById('saveRecipeBtn').addEventListener('click', saveNewRecipe);
@@ -136,31 +136,18 @@ function initMealPlanner() {
     });
 }
 
-function renderProfiles() {
-    const profileRow = document.getElementById('profileRow');
-    profileRow.innerHTML = '';
-    profiles.forEach(profile => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'profile-circle profile-pick';
-        card.dataset.profile = profile.id;
-        card.title = profile.name;
-        card.innerHTML = `<span class="profile-circle-emoji">${profile.avatar}</span>`;
-        card.addEventListener('click', () => selectProfile(profile.id));
-        profileRow.appendChild(card);
-    });
+function renderProfileSwitcher() {
+    const profile = Profiles.getCurrent();
+    const avatarEl = document.getElementById('profileSwitcherAvatar');
+    const btn = document.getElementById('profileSwitcher');
+    if (!profile || !avatarEl) return;
+    avatarEl.textContent = profile.avatar || '🦁';
+    btn.title = `${profile.name} — click to switch`;
 }
 
-function selectProfile(profileId) {
-    selectedProfileId = profileId;
-    localStorage.setItem('mealPlannerProfile', profileId);
-    document.querySelectorAll('.profile-pick').forEach(card => {
-        card.classList.toggle('active', card.dataset.profile === profileId);
-    });
-    loadPlan();
-    renderRecipeList();
-    renderCalendar();
-    renderTopbar();
+function switchProfile() {
+    Profiles.clearCurrent();
+    window.location.href = 'index.html';
 }
 
 function loadCustomRecipes() {

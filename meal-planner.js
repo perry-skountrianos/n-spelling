@@ -41,11 +41,11 @@ const defaultRecipes = [
     // ===== BREAKFAST =====
     {
         id: 'pancakes', name: 'Buttermilk Pancakes', meal: 'Breakfast',
-        emoji: '🥞', art: '🥞🍓🍯', gradient: 'linear-gradient(135deg,#fde68a,#f59e0b)',
+        emoji: '🥞', art: '🥞�', gradient: 'linear-gradient(135deg,#fde68a,#f59e0b)',
         image: 'https://www.themealdb.com/images/media/meals/rwuyqx1511383174.jpg',
         href: 'https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/',
-        summary: '3 fluffy pancakes with strawberries and a drizzle of maple syrup.',
-        groups: ['Grains', 'Fruits', 'Dairy'],
+        summary: '3 fluffy pancakes with butter and a drizzle of maple syrup.',
+        groups: ['Grains', 'Dairy'],
         nutrition: { carbs: 58, protein: 9, fat: 11, calories: 360 },
         notes: ['Energy to run and play']
     },
@@ -71,11 +71,11 @@ const defaultRecipes = [
     },
     {
         id: 'eggs-toast', name: 'Scrambled Eggs & Toast', meal: 'Breakfast',
-        emoji: '🍳', art: '🍳🧀🥖', gradient: 'linear-gradient(135deg,#fef9c3,#facc15)',
+        emoji: '🍳', art: '🍳�', gradient: 'linear-gradient(135deg,#fef9c3,#facc15)',
         image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600',
         href: 'https://www.bbcgoodfood.com/recipes/perfect-scrambled-eggs-recipe',
         summary: 'Soft scrambled eggs with buttered whole-wheat toast.',
-        groups: ['Protein', 'Grains', 'Dairy'],
+        groups: ['Protein', 'Grains'],
         nutrition: { carbs: 24, protein: 19, fat: 15, calories: 310 },
         notes: ['Brain food', 'Builds muscles']
     },
@@ -97,37 +97,37 @@ const defaultRecipes = [
         image: 'https://www.themealdb.com/images/media/meals/qyutlu1511553957.jpg',
         href: 'https://www.allrecipes.com/recipe/14905/macaroni-and-cheese/',
         summary: 'Classic baked macaroni with creamy cheddar sauce.',
-        groups: ['Grains', 'Dairy', 'Protein'],
+        groups: ['Grains', 'Dairy'],
         nutrition: { carbs: 55, protein: 16, fat: 18, calories: 450 },
         notes: ['Afternoon energy', 'Comfort food']
     },
     {
         id: 'turkey-sandwich', name: 'Turkey & Cheese Sandwich', meal: 'Lunch',
-        emoji: '🥪', art: '🥪🥬🍅', gradient: 'linear-gradient(135deg,#bbf7d0,#16a34a)',
+        emoji: '🥪', art: '🥪', gradient: 'linear-gradient(135deg,#bbf7d0,#16a34a)',
         image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600',
         href: 'https://www.bbcgoodfood.com/recipes/turkey-club-sandwich',
-        summary: 'Turkey, cheese, lettuce and tomato on whole wheat.',
-        groups: ['Protein', 'Grains', 'Veggies', 'Dairy'],
+        summary: 'Turkey and cheese on whole-wheat bread.',
+        groups: ['Protein', 'Grains', 'Dairy'],
         nutrition: { carbs: 36, protein: 22, fat: 11, calories: 350 },
-        notes: ['All-day energy', 'Sneaky veggies!']
+        notes: ['All-day energy']
     },
     {
         id: 'chicken-nuggets', name: 'Baked Chicken Nuggets', meal: 'Lunch',
-        emoji: '🍗', art: '🍗🥕🍚', gradient: 'linear-gradient(135deg,#fde68a,#dc2626)',
+        emoji: '🍗', art: '🍗', gradient: 'linear-gradient(135deg,#fde68a,#dc2626)',
         image: 'https://www.themealdb.com/images/media/meals/4ll7as1565130265.jpg',
         href: 'https://www.allrecipes.com/recipe/229960/chef-johns-chicken-nuggets/',
-        summary: 'Crispy oven-baked nuggets with carrot sticks.',
-        groups: ['Protein', 'Veggies'],
-        nutrition: { carbs: 22, protein: 24, fat: 14, calories: 340 },
+        summary: 'Crispy oven-baked breaded chicken nuggets.',
+        groups: ['Protein', 'Grains'],
+        nutrition: { carbs: 18, protein: 24, fat: 14, calories: 320 },
         notes: ['Fun finger food', 'Power-up protein']
     },
     {
         id: 'pizza-slice', name: 'Cheese Pizza Slice', meal: 'Lunch',
-        emoji: '🍕', art: '🍕🍅🌶️', gradient: 'linear-gradient(135deg,#fecaca,#dc2626)',
+        emoji: '🍕', art: '🍕', gradient: 'linear-gradient(135deg,#fecaca,#dc2626)',
         image: 'https://www.themealdb.com/images/media/meals/x0lk931587671540.jpg',
         href: 'https://www.allrecipes.com/recipe/254131/garlic-cheese-pizza/',
-        summary: 'A slice of cheese pizza with a side salad.',
-        groups: ['Grains', 'Dairy', 'Veggies'],
+        summary: 'A slice of cheese pizza on a tomato-sauce crust.',
+        groups: ['Grains', 'Dairy'],
         nutrition: { carbs: 42, protein: 14, fat: 12, calories: 350 },
         notes: ['Cheesy and fun']
     },
@@ -155,11 +155,11 @@ const defaultRecipes = [
     // ===== DINNER =====
     {
         id: 'spaghetti', name: 'Spaghetti & Meatballs', meal: 'Dinner',
-        emoji: '🍝', art: '🍝🍅🧀', gradient: 'linear-gradient(135deg,#fecaca,#b91c1c)',
+        emoji: '🍝', art: '🍝', gradient: 'linear-gradient(135deg,#fecaca,#b91c1c)',
         image: 'https://www.themealdb.com/images/media/meals/sutysw1468247559.jpg',
         href: 'https://www.allrecipes.com/recipe/11691/spaghetti-and-meatballs/',
         summary: 'Spaghetti tossed in tomato sauce with beef meatballs.',
-        groups: ['Grains', 'Protein', 'Veggies'],
+        groups: ['Grains', 'Protein'],
         nutrition: { carbs: 60, protein: 24, fat: 15, calories: 490 },
         notes: ['Italian feast']
     },
@@ -205,11 +205,11 @@ const defaultRecipes = [
     },
     {
         id: 'beef-burger', name: 'Cheeseburger & Fries', meal: 'Dinner',
-        emoji: '🍔', art: '🍔🍟🥬', gradient: 'linear-gradient(135deg,#fde68a,#92400e)',
+        emoji: '🍔', art: '🍔', gradient: 'linear-gradient(135deg,#fde68a,#92400e)',
         image: 'https://www.themealdb.com/images/media/meals/urzj1d1587670726.jpg',
         href: 'https://www.allrecipes.com/recipe/49404/juiciest-hamburgers-ever/',
-        summary: 'Beef burger with cheese, lettuce and a side of fries.',
-        groups: ['Protein', 'Grains', 'Dairy', 'Veggies'],
+        summary: 'Beef burger with cheese on a bun, plus a side of fries.',
+        groups: ['Protein', 'Grains', 'Dairy'],
         nutrition: { carbs: 50, protein: 26, fat: 24, calories: 560 },
         notes: ['Diner-style']
     },

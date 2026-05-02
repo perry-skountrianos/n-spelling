@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" href="styles.css?v=25">
-    <link rel="stylesheet" href="meal-planner.css?v=4">
+    <link rel="stylesheet" href="meal-planner.css?v=5">
 </head>
 <body>
     <div class="score-display meal-topbar">
@@ -17,32 +17,34 @@
         </button>
         <div class="topbar-divider"></div>
         <div class="food-rings" id="foodRings"></div>
-        <div class="topbar-day" id="topbarDay"></div>
     </div>
 
     <div class="meal-app-container">
         <section class="macro-bar-row" id="macroBarRow"></section>
 
+        <div class="day-panel">
+            <div class="day-nav">
+                <button type="button" class="day-nav-btn" onclick="shiftDay(-1)" title="Previous day">←</button>
+                <div class="day-nav-center">
+                    <div class="day-title" id="dayTitle">Today</div>
+                    <div class="day-subtitle" id="daySubtitle"></div>
+                    <button type="button" class="day-today-btn" onclick="jumpToday()">Jump to today</button>
+                </div>
+                <button type="button" class="day-nav-btn" onclick="shiftDay(1)" title="Next day">→</button>
+            </div>
+            <div class="day-grid" id="dayGrid"></div>
+        </div>
+
         <div class="recipe-panel">
             <div class="panel-header">
                 <div>
-                    <div class="panel-label">Step 1</div>
-                    <h2>Choose a recipe</h2>
+                    <div class="panel-label">Recipes</div>
+                    <h2>Pick & drag into a meal</h2>
                 </div>
                 <button class="primary-btn" id="addRecipeBtn">Create your own</button>
             </div>
+            <div class="filter-chips" id="filterChips"></div>
             <div class="recipe-list" id="recipeList"></div>
-        </div>
-
-        <div class="calendar-panel">
-            <div class="panel-header">
-                <div>
-                    <div class="panel-label">Step 2</div>
-                    <h2>Plan a week</h2>
-                </div>
-                <div class="hint">Drag recipes into breakfast, lunch, or dinner.</div>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
         </div>
     </div>
     <div class="confetti-layer" id="confettiLayer"></div>
@@ -98,6 +100,6 @@
 
     <script src="auth.js"></script>
     <script src="profile.js?v=1"></script>
-    <script src="meal-planner.js?v=4"></script>
+    <script src="meal-planner.js?v=5"></script>
 </body>
 </html>

@@ -6,8 +6,8 @@
     const CURRENT_KEY  = 'currentProfile';
 
     const DEFAULT_PROFILES = [
-        { id: 'nicholas',    name: 'Nicholas',    avatar: '🦁' },
-        { id: 'constantine', name: 'Constantine', avatar: '🐯' }
+        { id: 'nicholas',    name: 'Nicholas',    avatar: '🦁', age: 7 },
+        { id: 'constantine', name: 'Constantine', avatar: '🐯', age: 12 }
     ];
 
     function loadList() {

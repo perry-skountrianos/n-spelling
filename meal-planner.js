@@ -33,227 +33,178 @@ const NUTRITION_INFO = {
     fat:     { label: 'Brain Power',    emoji: '🧠', color: '#8b5cf6', kid: 'Helps you think and focus!' }
 };
 
-// Realistic recipes. Each has:
-//   image  - external thumbnail (TheMealDB / Wikimedia / Unsplash). Falls back to emoji art on error.
-//   href   - link to the actual recipe page.
-//   nutrition values are per single child-sized serving (~1 cup main + sides).
+// Realistic recipes. EVERY recipe links to TheMealDB where image, name, and full
+// recipe page are guaranteed to match (TheMealDB is the canonical source).
+//   image  - TheMealDB CDN thumbnail (always renders)
+//   href   - TheMealDB recipe page (same idMeal as the image)
+//   nutrition values are per single child-sized serving.
 const defaultRecipes = [
     // ===== BREAKFAST =====
     {
-        id: 'pancakes', name: 'Buttermilk Pancakes', meal: 'Breakfast',
-        emoji: '🥞', art: '🥞�', gradient: 'linear-gradient(135deg,#fde68a,#f59e0b)',
+        id: 'pancakes', name: 'Pancakes', meal: 'Breakfast',
+        emoji: '🥞', art: '🥞', gradient: 'linear-gradient(135deg,#fde68a,#f59e0b)',
         image: 'https://www.themealdb.com/images/media/meals/rwuyqx1511383174.jpg',
-        href: 'https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/',
-        summary: '3 fluffy pancakes with butter and a drizzle of maple syrup.',
-        groups: ['Grains', 'Dairy'],
-        nutrition: { carbs: 58, protein: 9, fat: 11, calories: 360 },
+        href: 'https://www.themealdb.com/meal/52854',
+        summary: 'Classic pancakes served with raspberries, blueberries and a drizzle of syrup.',
+        groups: ['Grains', 'Fruits', 'Dairy'],
+        nutrition: { carbs: 58, protein: 9, fat: 11, calories: 380 },
         notes: ['Energy to run and play']
     },
     {
-        id: 'oatmeal', name: 'Banana Oatmeal', meal: 'Breakfast',
-        emoji: '🥣', art: '🥣🍌🍯', gradient: 'linear-gradient(135deg,#fef3c7,#f97316)',
+        id: 'banana-pancakes', name: 'Banana Pancakes', meal: 'Breakfast',
+        emoji: '🥞', art: '🥞', gradient: 'linear-gradient(135deg,#fef3c7,#f97316)',
+        image: 'https://www.themealdb.com/images/media/meals/sywswr1511383814.jpg',
+        href: 'https://www.themealdb.com/meal/52855',
+        summary: 'Mashed banana pancakes topped with pecans and raspberries.',
+        groups: ['Grains', 'Fruits'],
+        nutrition: { carbs: 50, protein: 8, fat: 10, calories: 320 },
+        notes: ['Naturally sweet']
+    },
+    {
+        id: 'breakfast-potatoes', name: 'Breakfast Potatoes', meal: 'Breakfast',
+        emoji: '🥔', art: '🥔', gradient: 'linear-gradient(135deg,#fde68a,#a16207)',
         image: 'https://www.themealdb.com/images/media/meals/1550441882.jpg',
-        href: 'https://www.allrecipes.com/recipe/235168/easy-oatmeal/',
-        summary: 'Warm oats cooked in milk, topped with banana and honey.',
-        groups: ['Grains', 'Fruits', 'Dairy'],
-        nutrition: { carbs: 50, protein: 8, fat: 6, calories: 290 },
-        notes: ['Slow energy for school']
+        href: 'https://www.themealdb.com/meal/52965',
+        summary: 'Crispy seasoned potatoes pan-fried with peppers and onion.',
+        groups: ['Grains', 'Veggies'],
+        nutrition: { carbs: 42, protein: 5, fat: 12, calories: 290 },
+        notes: ['Crispy & filling']
     },
     {
-        id: 'yogurt', name: 'Greek Yogurt Parfait', meal: 'Breakfast',
-        emoji: '🍧', art: '🥛🫐🍓', gradient: 'linear-gradient(135deg,#dbeafe,#a78bfa)',
-        image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/berry-yogurt-pots',
-        summary: 'Greek yogurt layered with berries and granola.',
-        groups: ['Dairy', 'Fruits', 'Grains'],
-        nutrition: { carbs: 32, protein: 14, fat: 5, calories: 240 },
-        notes: ['Strong bones', 'Cool and creamy']
-    },
-    {
-        id: 'eggs-toast', name: 'Scrambled Eggs & Toast', meal: 'Breakfast',
-        emoji: '🍳', art: '🍳�', gradient: 'linear-gradient(135deg,#fef9c3,#facc15)',
-        image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/perfect-scrambled-eggs-recipe',
-        summary: 'Soft scrambled eggs with buttered whole-wheat toast.',
-        groups: ['Protein', 'Grains'],
-        nutrition: { carbs: 24, protein: 19, fat: 15, calories: 310 },
-        notes: ['Brain food', 'Builds muscles']
-    },
-    {
-        id: 'cereal', name: 'Cereal & Milk', meal: 'Breakfast',
-        emoji: '🥣', art: '🥣🥛🍓', gradient: 'linear-gradient(135deg,#fee2e2,#f87171)',
-        image: 'https://images.unsplash.com/photo-1517093157656-b9eccef91cb1?w=600',
-        href: 'https://www.bbcgoodfood.com/howto/guide/healthy-breakfast-cereal',
-        summary: 'Whole-grain cereal with milk and a few berries.',
-        groups: ['Grains', 'Dairy', 'Fruits'],
-        nutrition: { carbs: 45, protein: 9, fat: 4, calories: 240 },
-        notes: ['Quick start', 'Crunchy']
+        id: 'english-breakfast', name: 'Full English Breakfast', meal: 'Breakfast',
+        emoji: '🍳', art: '🍳', gradient: 'linear-gradient(135deg,#fef3c7,#dc2626)',
+        image: 'https://www.themealdb.com/images/media/meals/sqrtwu1511721265.jpg',
+        href: 'https://www.themealdb.com/meal/52896',
+        summary: 'Eggs, sausage, bacon, beans, tomato, mushrooms and toast.',
+        groups: ['Protein', 'Grains', 'Veggies'],
+        nutrition: { carbs: 32, protein: 24, fat: 22, calories: 460 },
+        notes: ['Big morning fuel']
     },
 
     // ===== LUNCH =====
     {
-        id: 'mac-cheese', name: 'Mac & Cheese', meal: 'Lunch',
-        emoji: '🧀', art: '🧀🍝', gradient: 'linear-gradient(135deg,#fed7aa,#f97316)',
-        image: 'https://www.themealdb.com/images/media/meals/qyutlu1511553957.jpg',
-        href: 'https://www.allrecipes.com/recipe/14905/macaroni-and-cheese/',
-        summary: 'Classic baked macaroni with creamy cheddar sauce.',
+        id: 'mac-cheese-grilled', name: 'Grilled Mac & Cheese Sandwich', meal: 'Lunch',
+        emoji: '🥪', art: '🥪', gradient: 'linear-gradient(135deg,#fed7aa,#f97316)',
+        image: 'https://www.themealdb.com/images/media/meals/xutquv1505330523.jpg',
+        href: 'https://www.themealdb.com/meal/52829',
+        summary: 'Mac & cheese pressed between buttered toasted bread.',
         groups: ['Grains', 'Dairy'],
-        nutrition: { carbs: 55, protein: 16, fat: 18, calories: 450 },
-        notes: ['Afternoon energy', 'Comfort food']
+        nutrition: { carbs: 55, protein: 18, fat: 25, calories: 540 },
+        notes: ['Cheesy comfort']
     },
     {
-        id: 'turkey-sandwich', name: 'Turkey & Cheese Sandwich', meal: 'Lunch',
-        emoji: '🥪', art: '🥪', gradient: 'linear-gradient(135deg,#bbf7d0,#16a34a)',
-        image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/turkey-club-sandwich',
-        summary: 'Turkey and cheese on whole-wheat bread.',
+        id: 'big-mac', name: 'Big Mac', meal: 'Lunch',
+        emoji: '🍔', art: '🍔', gradient: 'linear-gradient(135deg,#fde68a,#92400e)',
+        image: 'https://www.themealdb.com/images/media/meals/urzj1d1587670726.jpg',
+        href: 'https://www.themealdb.com/meal/53013',
+        summary: 'Two beef patties, cheese, lettuce and special sauce on a sesame bun.',
         groups: ['Protein', 'Grains', 'Dairy'],
-        nutrition: { carbs: 36, protein: 22, fat: 11, calories: 350 },
-        notes: ['All-day energy']
+        nutrition: { carbs: 45, protein: 25, fat: 30, calories: 540 },
+        notes: ['Diner classic']
     },
     {
-        id: 'chicken-nuggets', name: 'Baked Chicken Nuggets', meal: 'Lunch',
-        emoji: '🍗', art: '🍗', gradient: 'linear-gradient(135deg,#fde68a,#dc2626)',
-        image: 'https://www.themealdb.com/images/media/meals/4ll7as1565130265.jpg',
-        href: 'https://www.allrecipes.com/recipe/229960/chef-johns-chicken-nuggets/',
-        summary: 'Crispy oven-baked breaded chicken nuggets.',
-        groups: ['Protein', 'Grains'],
-        nutrition: { carbs: 18, protein: 24, fat: 14, calories: 320 },
-        notes: ['Fun finger food', 'Power-up protein']
+        id: 'fajita-mac', name: 'Chicken Fajita Mac & Cheese', meal: 'Lunch',
+        emoji: '🧀', art: '🧀', gradient: 'linear-gradient(135deg,#fecaca,#dc2626)',
+        image: 'https://www.themealdb.com/images/media/meals/qrqywr1503066605.jpg',
+        href: 'https://www.themealdb.com/meal/52818',
+        summary: 'Creamy mac & cheese with seasoned chicken and peppers.',
+        groups: ['Grains', 'Dairy', 'Protein', 'Veggies'],
+        nutrition: { carbs: 50, protein: 22, fat: 18, calories: 470 },
+        notes: ['Power lunch']
     },
     {
-        id: 'pizza-slice', name: 'Cheese Pizza Slice', meal: 'Lunch',
-        emoji: '🍕', art: '🍕', gradient: 'linear-gradient(135deg,#fecaca,#dc2626)',
-        image: 'https://www.themealdb.com/images/media/meals/x0lk931587671540.jpg',
-        href: 'https://www.allrecipes.com/recipe/254131/garlic-cheese-pizza/',
-        summary: 'A slice of cheese pizza on a tomato-sauce crust.',
-        groups: ['Grains', 'Dairy'],
-        nutrition: { carbs: 42, protein: 14, fat: 12, calories: 350 },
-        notes: ['Cheesy and fun']
-    },
-    {
-        id: 'quesadilla', name: 'Cheese Quesadilla', meal: 'Lunch',
-        emoji: '🫓', art: '🫓🧀🥑', gradient: 'linear-gradient(135deg,#fde68a,#ca8a04)',
-        image: 'https://images.unsplash.com/photo-1618040996337-11c0d24bf25e?w=600',
-        href: 'https://www.allrecipes.com/recipe/22669/quesadillas/',
-        summary: 'Tortilla folded with melted cheese, served with salsa.',
-        groups: ['Grains', 'Dairy'],
-        nutrition: { carbs: 38, protein: 14, fat: 16, calories: 360 },
-        notes: ['Crispy and gooey']
-    },
-    {
-        id: 'pbj', name: 'Peanut Butter & Jelly', meal: 'Lunch',
-        emoji: '🥪', art: '🥪🍇🥜', gradient: 'linear-gradient(135deg,#fde68a,#a855f7)',
-        image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600',
-        href: 'https://www.allrecipes.com/recipe/21809/perfect-peanut-butter-and-jelly-sandwich/',
-        summary: 'Peanut butter & jelly on whole-wheat bread, plus a banana.',
-        groups: ['Grains', 'Protein', 'Fruits'],
-        nutrition: { carbs: 48, protein: 12, fat: 14, calories: 380 },
-        notes: ['Classic favorite']
+        id: 'beef-patty', name: 'Jamaican Beef Patty', meal: 'Lunch',
+        emoji: '🥟', art: '🥟', gradient: 'linear-gradient(135deg,#fde68a,#ca8a04)',
+        image: 'https://www.themealdb.com/images/media/meals/wsqqsw1515364068.jpg',
+        href: 'https://www.themealdb.com/meal/52938',
+        summary: 'Flaky golden pastry filled with seasoned ground beef.',
+        groups: ['Grains', 'Protein'],
+        nutrition: { carbs: 32, protein: 16, fat: 18, calories: 360 },
+        notes: ['Hand-held & tasty']
     },
 
     // ===== DINNER =====
     {
-        id: 'spaghetti', name: 'Spaghetti & Meatballs', meal: 'Dinner',
+        id: 'spaghetti-bolognese', name: 'Spaghetti Bolognese', meal: 'Dinner',
         emoji: '🍝', art: '🍝', gradient: 'linear-gradient(135deg,#fecaca,#b91c1c)',
         image: 'https://www.themealdb.com/images/media/meals/sutysw1468247559.jpg',
-        href: 'https://www.allrecipes.com/recipe/11691/spaghetti-and-meatballs/',
-        summary: 'Spaghetti tossed in tomato sauce with beef meatballs.',
+        href: 'https://www.themealdb.com/meal/52770',
+        summary: 'Spaghetti tossed in a slow-cooked beef and tomato sauce.',
         groups: ['Grains', 'Protein'],
         nutrition: { carbs: 60, protein: 24, fat: 15, calories: 490 },
         notes: ['Italian feast']
     },
     {
-        id: 'roast-chicken', name: 'Roast Chicken & Rice', meal: 'Dinner',
-        emoji: '🍱', art: '🍗🍚🥕', gradient: 'linear-gradient(135deg,#fde68a,#b45309)',
-        image: 'https://www.themealdb.com/images/media/meals/ysxwuq1487323065.jpg',
-        href: 'https://www.bbcgoodfood.com/recipes/easy-roast-chicken',
-        summary: 'Juicy roast chicken with steamed rice and carrots.',
-        groups: ['Protein', 'Grains', 'Veggies'],
-        nutrition: { carbs: 46, protein: 28, fat: 12, calories: 410 },
-        notes: ['Power dinner']
+        id: 'lasagne', name: 'Lasagne', meal: 'Dinner',
+        emoji: '🍲', art: '🍲', gradient: 'linear-gradient(135deg,#fed7aa,#dc2626)',
+        image: 'https://www.themealdb.com/images/media/meals/wtsvxx1511296896.jpg',
+        href: 'https://www.themealdb.com/meal/52844',
+        summary: 'Layers of pasta, beef ragù, tomato sauce and melted cheese.',
+        groups: ['Grains', 'Protein', 'Dairy'],
+        nutrition: { carbs: 45, protein: 24, fat: 22, calories: 480 },
+        notes: ['Family favorite']
     },
     {
-        id: 'salmon', name: 'Honey Glazed Salmon', meal: 'Dinner',
-        emoji: '🐟', art: '🐟🍋🥦', gradient: 'linear-gradient(135deg,#bae6fd,#0ea5e9)',
-        image: 'https://www.themealdb.com/images/media/meals/1548772327.jpg',
-        href: 'https://www.allrecipes.com/recipe/12720/lemon-baked-salmon/',
-        summary: 'Salmon glazed with honey and lemon, served with broccoli.',
+        id: 'sweet-sour-chicken', name: 'Sweet and Sour Chicken', meal: 'Dinner',
+        emoji: '🍛', art: '🍛', gradient: 'linear-gradient(135deg,#fed7aa,#ea580c)',
+        image: 'https://www.themealdb.com/images/media/meals/arzs741766434335.jpg',
+        href: 'https://www.themealdb.com/meal/53376',
+        summary: 'Crispy chicken with peppers and pineapple in a tangy sauce.',
+        groups: ['Protein', 'Grains', 'Veggies', 'Fruits'],
+        nutrition: { carbs: 55, protein: 24, fat: 12, calories: 440 },
+        notes: ['Sweet & tangy']
+    },
+    {
+        id: 'beef-broccoli', name: 'Beef and Broccoli Stir-Fry', meal: 'Dinner',
+        emoji: '🥡', art: '🥡', gradient: 'linear-gradient(135deg,#bbf7d0,#15803d)',
+        image: 'https://www.themealdb.com/images/media/meals/m0p0j81765568742.jpg',
+        href: 'https://www.themealdb.com/meal/53366',
+        summary: 'Tender beef and broccoli in a savory garlic-soy sauce.',
         groups: ['Protein', 'Veggies'],
-        nutrition: { carbs: 14, protein: 30, fat: 12, calories: 320 },
-        notes: ['Brain power', 'Strong muscles']
+        nutrition: { carbs: 20, protein: 28, fat: 14, calories: 340 },
+        notes: ['Strong muscles']
     },
     {
-        id: 'tacos', name: 'Beef Tacos', meal: 'Dinner',
-        emoji: '🌮', art: '🌮🥑🌶️', gradient: 'linear-gradient(135deg,#fed7aa,#ea580c)',
-        image: 'https://www.themealdb.com/images/media/meals/uvuyxu1503067369.jpg',
-        href: 'https://www.allrecipes.com/recipe/70343/taco-seasoning-i/',
-        summary: 'Soft tortillas filled with seasoned beef, lettuce and cheese.',
-        groups: ['Grains', 'Protein', 'Veggies', 'Dairy'],
-        nutrition: { carbs: 38, protein: 22, fat: 16, calories: 410 },
-        notes: ['Fiesta time!']
-    },
-    {
-        id: 'stir-fry', name: 'Chicken Stir-Fry', meal: 'Dinner',
-        emoji: '🥡', art: '🥡🥦🌶️', gradient: 'linear-gradient(135deg,#bbf7d0,#15803d)',
-        image: 'https://www.themealdb.com/images/media/meals/1529444113.jpg',
-        href: 'https://www.bbcgoodfood.com/recipes/chicken-stir-fry',
-        summary: 'Chicken with mixed veggies and rice in a savory sauce.',
-        groups: ['Protein', 'Veggies', 'Grains'],
+        id: 'teriyaki-chicken', name: 'Teriyaki Chicken Casserole', meal: 'Dinner',
+        emoji: '🍱', art: '🍱', gradient: 'linear-gradient(135deg,#fde68a,#b45309)',
+        image: 'https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg',
+        href: 'https://www.themealdb.com/meal/52772',
+        summary: 'Baked teriyaki chicken with rice and mixed vegetables.',
+        groups: ['Protein', 'Grains', 'Veggies'],
         nutrition: { carbs: 48, protein: 26, fat: 10, calories: 420 },
-        notes: ['Colorful and tasty']
-    },
-    {
-        id: 'beef-burger', name: 'Cheeseburger & Fries', meal: 'Dinner',
-        emoji: '🍔', art: '🍔', gradient: 'linear-gradient(135deg,#fde68a,#92400e)',
-        image: 'https://www.themealdb.com/images/media/meals/urzj1d1587670726.jpg',
-        href: 'https://www.allrecipes.com/recipe/49404/juiciest-hamburgers-ever/',
-        summary: 'Beef burger with cheese on a bun, plus a side of fries.',
-        groups: ['Protein', 'Grains', 'Dairy'],
-        nutrition: { carbs: 50, protein: 26, fat: 24, calories: 560 },
-        notes: ['Diner-style']
+        notes: ['Power dinner']
     },
 
     // ===== SNACKS =====
     {
-        id: 'fruit-bowl', name: 'Rainbow Fruit Bowl', meal: 'Snack',
-        emoji: '🍓', art: '🍓🍎🍇🍌', gradient: 'linear-gradient(135deg,#fbcfe8,#ec4899)',
-        image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/rainbow-fruit-salad',
-        summary: 'Apples, berries, melon and grapes.',
-        groups: ['Fruits'],
-        nutrition: { carbs: 28, protein: 1, fat: 0, calories: 110 },
-        notes: ['Sweet vitamins']
+        id: 'apple-tart', name: 'Apple Frangipan Tart', meal: 'Snack',
+        emoji: '🥧', art: '🥧', gradient: 'linear-gradient(135deg,#fecaca,#ef4444)',
+        image: 'https://www.themealdb.com/images/media/meals/wxywrq1468235067.jpg',
+        href: 'https://www.themealdb.com/meal/52768',
+        summary: 'A buttery tart filled with almond cream and sliced apple.',
+        groups: ['Fruits', 'Grains'],
+        nutrition: { carbs: 35, protein: 4, fat: 12, calories: 270 },
+        notes: ['Sweet treat']
     },
     {
-        id: 'veggie-sticks', name: 'Veggie Sticks & Hummus', meal: 'Snack',
-        emoji: '🥕', art: '🥕🥒🫑', gradient: 'linear-gradient(135deg,#bbf7d0,#15803d)',
-        image: 'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/veggie-sticks-hummus',
-        summary: 'Carrot, cucumber and pepper sticks with hummus.',
-        groups: ['Veggies', 'Protein'],
-        nutrition: { carbs: 18, protein: 5, fat: 6, calories: 140 },
-        notes: ['Crunch crunch!']
+        id: 'pb-cookies', name: 'Peanut Butter Cookies', meal: 'Snack',
+        emoji: '🍪', art: '🍪', gradient: 'linear-gradient(135deg,#fde68a,#a16207)',
+        image: 'https://www.themealdb.com/images/media/meals/1544384070.jpg',
+        href: 'https://www.themealdb.com/meal/52958',
+        summary: 'Three-ingredient soft & chewy peanut butter cookies.',
+        groups: ['Grains', 'Protein'],
+        nutrition: { carbs: 18, protein: 4, fat: 9, calories: 170 },
+        notes: ['Quick energy']
     },
     {
-        id: 'smoothie', name: 'Berry Banana Smoothie', meal: 'Snack',
-        emoji: '🥤', art: '🥤🍓🍌', gradient: 'linear-gradient(135deg,#f9a8d4,#a855f7)',
-        image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600',
-        href: 'https://www.bbcgoodfood.com/recipes/banana-berry-smoothie',
-        summary: 'Banana, mixed berries and yogurt blended frosty.',
-        groups: ['Fruits', 'Dairy'],
-        nutrition: { carbs: 34, protein: 7, fat: 3, calories: 200 },
-        notes: ['Sip the rainbow']
-    },
-    {
-        id: 'apple-pb', name: 'Apple Slices & Peanut Butter', meal: 'Snack',
-        emoji: '🍎', art: '🍎🥜', gradient: 'linear-gradient(135deg,#fecaca,#ef4444)',
-        image: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=600',
-        href: 'https://www.allrecipes.com/recipe/238999/apples-with-peanut-butter/',
-        summary: 'Crisp apple slices with creamy peanut butter dip.',
-        groups: ['Fruits', 'Protein'],
-        nutrition: { carbs: 22, protein: 4, fat: 8, calories: 180 },
-        notes: ['Crunchy & nutty']
+        id: 'choc-rasp-brownie', name: 'Chocolate Raspberry Brownies', meal: 'Snack',
+        emoji: '🍫', art: '🍫', gradient: 'linear-gradient(135deg,#fbcfe8,#9333ea)',
+        image: 'https://www.themealdb.com/images/media/meals/yypvst1511386427.jpg',
+        href: 'https://www.themealdb.com/meal/52860',
+        summary: 'Rich chocolate brownies bursting with fresh raspberries.',
+        groups: ['Grains', 'Fruits'],
+        nutrition: { carbs: 28, protein: 3, fat: 11, calories: 230 },
+        notes: ['Chocolatey']
     }
 ];
 

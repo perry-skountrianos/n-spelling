@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" href="styles.css?v=25">
-    <link rel="stylesheet" href="meal-planner.css?v=1">
+    <link rel="stylesheet" href="meal-planner.css?v=2">
 </head>
 <body>
     <div class="score-display">
@@ -40,8 +40,11 @@
                 </div>
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
+
+            <aside class="goals-panel" id="goalsPanel"></aside>
         </section>
     </div>
+    <div class="confetti-layer" id="confettiLayer"></div>
 
     <div class="modal hidden" id="recipeModal" aria-hidden="true">
         <div class="modal-backdrop"></div>
@@ -61,11 +64,27 @@
                         <option value="Dinner">Dinner</option>
                     </select>
                 </label>
-                <div class="nutrition-grid">
-                    <label><input type="checkbox" id="newRecipeFruit"> 🍎 Fruit</label>
-                    <label><input type="checkbox" id="newRecipeVeg"> 🥦 Veggies</label>
-                    <label><input type="checkbox" id="newRecipeProtein"> 🍗 Protein</label>
-                    <label><input type="checkbox" id="newRecipeCarbs"> 🍞 Carbs</label>
+                <label class="input-group">
+                    <span>Recipe emoji</span>
+                    <input type="text" id="newRecipeEmoji" placeholder="🥗" maxlength="6">
+                </label>
+                <div class="input-group full-width">
+                    <span>Food groups</span>
+                    <div class="nutrition-grid">
+                        <label><input type="checkbox" id="grp_Fruits"> 🍎 Fruits</label>
+                        <label><input type="checkbox" id="grp_Veggies"> 🥦 Veggies</label>
+                        <label><input type="checkbox" id="grp_Protein"> 💪 Protein</label>
+                        <label><input type="checkbox" id="grp_Grains"> 🌾 Grains</label>
+                        <label><input type="checkbox" id="grp_Dairy"> 🥛 Dairy</label>
+                    </div>
+                </div>
+                <div class="input-group full-width">
+                    <span>Nutrition (grams)</span>
+                    <div class="mac2o-inputs">
+                        <input type="number" id="newCarbs" placeholder="Carbs ⚡" min="0" value="30">
+                        <input type="number" id="newProtein" placeholder="Protein 💪" min="0" value="10">
+                        <input type="number" id="newFat" placeholder="Fat 🧠" min="0" value="8">
+                    </div>
                 </div>
                 <label class="input-group full-width">
                     <span>Fun note</span>

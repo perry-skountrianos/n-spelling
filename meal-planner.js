@@ -3,16 +3,116 @@ const profiles = [
     { id: 'constantine', name: 'Constantine', avatar: '🐯' }
 ];
 
+const DAILY_GOALS = {
+    groups: { Fruits: 2, Veggies: 3, Protein: 3, Grains: 4, Dairy: 2 },
+    nutrition: { carbs: 130, protein: 35, fat: 50 }
+};
+
+const GROUP_INFO = {
+    Fruits:  { emoji: '🍎', color: '#ef4444', kid: 'Vitamin power!' },
+    Veggies: { emoji: '🥦', color: '#22c55e', kid: 'Grow tall & strong!' },
+    Protein: { emoji: '💪', color: '#f97316', kid: 'Builds muscles!' },
+    Grains:  { emoji: '🌾', color: '#eab308', kid: 'Yummy energy!' },
+    Dairy:   { emoji: '🥛', color: '#60a5fa', kid: 'Strong bones!' }
+};
+
+const NUTRITION_INFO = {
+    carbs:   { label: 'Energy Fuel',    emoji: '⚡', color: '#f59e0b', kid: 'Powers your run, jump & play!' },
+    protein: { label: 'Muscle Builder', emoji: '💪', color: '#ef4444', kid: 'Helps you grow big and strong!' },
+    fat:     { label: 'Brain Power',    emoji: '🧠', color: '#8b5cf6', kid: 'Helps you think and focus!' }
+};
+
 const defaultRecipes = [
-    { id: 'pancakes', name: 'Pancakes', meal: 'Breakfast', summary: 'Fluffy pancakes with berries and syrup.', tags: ['Fruit', 'Carbs'], notes: ['Energy to run and play', 'Sweet and fun'] },
-    { id: 'oatmeal', name: 'Oatmeal', meal: 'Breakfast', summary: 'Warm oatmeal with banana and honey.', tags: ['Carbs', 'Fruit'], notes: ['Keeps your tummy happy', 'Slow energy for the morning'] },
-    { id: 'yogurt', name: 'Yogurt', meal: 'Breakfast', summary: 'Creamy yogurt with berries and oats.', tags: ['Protein', 'Fruit'], notes: ['Strong bones and teeth', 'Creamy snack'] },
-    { id: 'mac-cheese', name: 'Mac and Cheese', meal: 'Lunch', summary: 'Cheesy pasta that feels like a hug.', tags: ['Carbs', 'Protein'], notes: ['Energy for the afternoon', 'Comfort food'] },
-    { id: 'fish', name: 'Fish', meal: 'Dinner', summary: 'Simple grilled fish with lemon.', tags: ['Protein'], notes: ['Brain food', 'Strong muscles'] },
-    { id: 'chicken-nuggets', name: 'Chicken Nuggets', meal: 'Lunch', summary: 'Crispy nuggets with dipping sauce.', tags: ['Protein'], notes: ['Fun to eat', 'Protein to grow'] },
-    { id: 'chicken', name: 'Chicken', meal: 'Dinner', summary: 'Roasted chicken with soft rice.', tags: ['Protein'], notes: ['Strong and healthy', 'Tasty dinner'] },
-    { id: 'fruit-bowl', name: 'Fruit Bowl', meal: 'Any', summary: 'Fresh fruits like apples, melon and berries.', tags: ['Fruit'], notes: ['Vitamins for a bright day', 'Sweet and crunchy'] },
-    { id: 'veggie-mix', name: 'Veggie Mix', meal: 'Any', summary: 'Colorful vegetables with a light dip.', tags: ['Veggies'], notes: ['Helps you grow tall', 'Crunchy and fun'] }
+    { id: 'pancakes', name: 'Fluffy Pancakes', meal: 'Breakfast',
+      emoji: '🥞', art: '🥞🍓🍯', gradient: 'linear-gradient(135deg,#fde68a,#f59e0b)',
+      summary: 'Stack of fluffy pancakes with berries and syrup.',
+      groups: ['Grains', 'Fruits', 'Dairy'],
+      nutrition: { carbs: 55, protein: 8, fat: 10, calories: 340 },
+      notes: ['Energy to run and play', 'Sweet morning treat'] },
+    { id: 'oatmeal', name: 'Banana Oatmeal', meal: 'Breakfast',
+      emoji: '🥣', art: '🥣🍌🍯', gradient: 'linear-gradient(135deg,#fef3c7,#f97316)',
+      summary: 'Warm oatmeal with banana slices and honey.',
+      groups: ['Grains', 'Fruits'],
+      nutrition: { carbs: 48, protein: 6, fat: 5, calories: 260 },
+      notes: ['Slow energy for school', 'Cozy and warm'] },
+    { id: 'yogurt', name: 'Berry Yogurt Bowl', meal: 'Breakfast',
+      emoji: '🍧', art: '🥛🫐🍓', gradient: 'linear-gradient(135deg,#dbeafe,#a78bfa)',
+      summary: 'Creamy yogurt with berries and crunchy oats.',
+      groups: ['Dairy', 'Fruits'],
+      nutrition: { carbs: 30, protein: 12, fat: 4, calories: 210 },
+      notes: ['Strong bones', 'Cool and creamy'] },
+    { id: 'eggs', name: 'Scrambled Eggs', meal: 'Breakfast',
+      emoji: '🍳', art: '🍳🧀🥖', gradient: 'linear-gradient(135deg,#fef9c3,#facc15)',
+      summary: 'Soft scrambled eggs with toast.',
+      groups: ['Protein', 'Grains'],
+      nutrition: { carbs: 22, protein: 18, fat: 14, calories: 290 },
+      notes: ['Brain food', 'Builds muscles'] },
+    { id: 'mac-cheese', name: 'Mac & Cheese', meal: 'Lunch',
+      emoji: '🧀', art: '🧀🍝', gradient: 'linear-gradient(135deg,#fed7aa,#f97316)',
+      summary: 'Cheesy pasta that feels like a hug.',
+      groups: ['Grains', 'Dairy'],
+      nutrition: { carbs: 60, protein: 14, fat: 16, calories: 440 },
+      notes: ['Afternoon energy', 'Comfort food'] },
+    { id: 'nuggets', name: 'Chicken Nuggets', meal: 'Lunch',
+      emoji: '🍗', art: '🍗🥕🍚', gradient: 'linear-gradient(135deg,#fde68a,#dc2626)',
+      summary: 'Crispy nuggets with veggie sticks.',
+      groups: ['Protein', 'Veggies'],
+      nutrition: { carbs: 25, protein: 22, fat: 18, calories: 380 },
+      notes: ['Fun finger food', 'Power-up protein'] },
+    { id: 'sandwich', name: 'Turkey Sandwich', meal: 'Lunch',
+      emoji: '🥪', art: '🥪🥬🍅', gradient: 'linear-gradient(135deg,#bbf7d0,#16a34a)',
+      summary: 'Turkey with lettuce and tomato on soft bread.',
+      groups: ['Protein', 'Grains', 'Veggies'],
+      nutrition: { carbs: 38, protein: 20, fat: 9, calories: 330 },
+      notes: ['All-day energy', 'Veggies inside!'] },
+    { id: 'pizza', name: 'Veggie Pizza', meal: 'Lunch',
+      emoji: '🍕', art: '🍕🍅🌶️', gradient: 'linear-gradient(135deg,#fecaca,#dc2626)',
+      summary: 'Crispy pizza loaded with colorful veggies.',
+      groups: ['Grains', 'Dairy', 'Veggies'],
+      nutrition: { carbs: 50, protein: 14, fat: 12, calories: 380 },
+      notes: ['Cheesy and fun', 'Sneaky veggies!'] },
+    { id: 'fish', name: 'Grilled Fish', meal: 'Dinner',
+      emoji: '🐟', art: '🐟🍋🥦', gradient: 'linear-gradient(135deg,#bae6fd,#0ea5e9)',
+      summary: 'Tender grilled fish with lemon and broccoli.',
+      groups: ['Protein', 'Veggies'],
+      nutrition: { carbs: 12, protein: 28, fat: 10, calories: 290 },
+      notes: ['Brain power', 'Strong muscles'] },
+    { id: 'chicken', name: 'Roast Chicken & Rice', meal: 'Dinner',
+      emoji: '🍱', art: '🍗🍚🥕', gradient: 'linear-gradient(135deg,#fde68a,#b45309)',
+      summary: 'Juicy chicken with fluffy rice and carrots.',
+      groups: ['Protein', 'Grains', 'Veggies'],
+      nutrition: { carbs: 45, protein: 26, fat: 11, calories: 400 },
+      notes: ['Power dinner', 'Yummy and filling'] },
+    { id: 'spaghetti', name: 'Spaghetti & Meatballs', meal: 'Dinner',
+      emoji: '🍝', art: '🍝🍅🧀', gradient: 'linear-gradient(135deg,#fecaca,#b91c1c)',
+      summary: 'Spaghetti with tomato sauce and meatballs.',
+      groups: ['Grains', 'Protein', 'Veggies'],
+      nutrition: { carbs: 58, protein: 22, fat: 14, calories: 470 },
+      notes: ['Italian feast', 'Energy for play'] },
+    { id: 'tacos', name: 'Taco Night', meal: 'Dinner',
+      emoji: '🌮', art: '🌮🥑🌶️', gradient: 'linear-gradient(135deg,#fed7aa,#ea580c)',
+      summary: 'Soft tacos with beef, cheese, and lettuce.',
+      groups: ['Grains', 'Protein', 'Veggies', 'Dairy'],
+      nutrition: { carbs: 40, protein: 20, fat: 16, calories: 410 },
+      notes: ['Fiesta time!', 'Crunchy and tasty'] },
+    { id: 'fruit-bowl', name: 'Rainbow Fruit Bowl', meal: 'Snack',
+      emoji: '🍓', art: '🍓🍎🍇🍌', gradient: 'linear-gradient(135deg,#fbcfe8,#ec4899)',
+      summary: 'A rainbow of apples, berries, and melon.',
+      groups: ['Fruits'],
+      nutrition: { carbs: 28, protein: 1, fat: 0, calories: 110 },
+      notes: ['Sweet vitamins', 'Bright colors'] },
+    { id: 'veggie-mix', name: 'Veggie Sticks & Dip', meal: 'Snack',
+      emoji: '🥕', art: '🥕🥒🫑', gradient: 'linear-gradient(135deg,#bbf7d0,#15803d)',
+      summary: 'Crunchy carrot, cucumber and pepper sticks.',
+      groups: ['Veggies'],
+      nutrition: { carbs: 12, protein: 2, fat: 4, calories: 80 },
+      notes: ['Crunch crunch!', 'Helps you grow'] },
+    { id: 'smoothie', name: 'Berry Smoothie', meal: 'Snack',
+      emoji: '🥤', art: '🥤🍓🍌', gradient: 'linear-gradient(135deg,#f9a8d4,#a855f7)',
+      summary: 'Frosty berry & banana smoothie.',
+      groups: ['Fruits', 'Dairy'],
+      nutrition: { carbs: 32, protein: 6, fat: 3, calories: 180 },
+      notes: ['Sip the rainbow', 'Cool and creamy'] }
 ];
 
 const meals = ['Breakfast', 'Lunch', 'Dinner'];
@@ -20,6 +120,8 @@ const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 let selectedProfileId = null;
 let customRecipes = [];
 let currentPlan = [];
+let selectedDayIndex = (new Date().getDay() + 6) % 7;
+let confettiTimer = null;
 
 function initMealPlanner() {
     loadCustomRecipes();
@@ -60,6 +162,7 @@ function selectProfile(profileId) {
     loadPlan();
     renderRecipeList();
     renderCalendar();
+    renderGoals();
 }
 
 function loadCustomRecipes() {
@@ -85,46 +188,81 @@ function savePlan() {
     localStorage.setItem(`mealPlannerPlan_${selectedProfileId}`, JSON.stringify(currentPlan));
 }
 
+function getAllRecipes() {
+    return [...defaultRecipes, ...customRecipes];
+}
+
 function renderRecipeList() {
     const recipeList = document.getElementById('recipeList');
     recipeList.innerHTML = '';
-    const recipes = [...defaultRecipes, ...customRecipes];
-    recipes.forEach(recipe => {
+    getAllRecipes().forEach(recipe => {
         const card = document.createElement('div');
         card.className = 'recipe-card';
         card.draggable = true;
         card.dataset.recipeId = recipe.id;
+        const n = recipe.nutrition || { carbs: 0, protein: 0, fat: 0, calories: 0 };
         card.innerHTML = `
-            <div class="recipe-card-title">
-                <div>${recipe.name}</div>
-                <span>${recipe.meal}</span>
+            <div class="recipe-art" style="background:${recipe.gradient || 'linear-gradient(135deg,#e0e7ff,#a5b4fc)'}">
+                <div class="recipe-art-emoji">${recipe.art || recipe.emoji || '🍽️'}</div>
+                <span class="recipe-meal-badge">${recipe.meal}</span>
             </div>
-            <div class="recipe-summary">${recipe.summary}</div>
-            <div class="recipe-meta">
-                ${recipe.tags.map(tag => `<span class="recipe-chip">${tag}</span>`).join('')}
+            <div class="recipe-card-body">
+                <div class="recipe-card-title">${recipe.name}</div>
+                <div class="recipe-summary">${recipe.summary}</div>
+                <div class="recipe-meta">
+                    ${(recipe.groups || []).map(g => `
+                        <span class="recipe-chip" style="background:${GROUP_INFO[g]?.color || '#6366f1'}1a;color:${GROUP_INFO[g]?.color || '#4338ca'}">
+                            ${GROUP_INFO[g]?.emoji || ''} ${g}
+                        </span>`).join('')}
+                </div>
+                <div class="nutri-row">
+                    ${nutriPill('carbs', n.carbs)}
+                    ${nutriPill('protein', n.protein)}
+                    ${nutriPill('fat', n.fat)}
+                    <span class="cal-pill">🔥 ${n.calories || 0} kcal</span>
+                </div>
             </div>
-            <div class="recipe-notes">${recipe.notes.join(' · ')}</div>
         `;
         card.addEventListener('dragstart', event => {
             event.dataTransfer.setData('text/plain', recipe.id);
+            card.classList.add('dragging');
         });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
         recipeList.appendChild(card);
     });
+}
+
+function nutriPill(key, grams) {
+    const info = NUTRITION_INFO[key];
+    return `<span class="nutri-pill" style="background:${info.color}1a;color:${info.color}" title="${info.label}: ${info.kid}">
+        ${info.emoji} ${grams || 0}g
+    </span>`;
 }
 
 function renderCalendar() {
     const calendarGrid = document.getElementById('calendarGrid');
     calendarGrid.innerHTML = '';
     calendarGrid.appendChild(createCalendarHeader(''));
-    days.forEach(day => calendarGrid.appendChild(createCalendarHeader(day)));
+    days.forEach((day, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-header day-header';
+        if (idx === selectedDayIndex) cell.classList.add('today');
+        cell.textContent = day;
+        cell.addEventListener('click', () => {
+            selectedDayIndex = idx;
+            renderCalendar();
+            renderGoals();
+        });
+        calendarGrid.appendChild(cell);
+    });
     meals.forEach((meal, mealIndex) => {
         calendarGrid.appendChild(createRowLabel(meal));
         days.forEach((_, dayIndex) => {
             const slot = document.createElement('div');
             slot.className = 'calendar-slot';
+            if (dayIndex === selectedDayIndex) slot.classList.add('selected-day');
             slot.dataset.day = dayIndex;
             slot.dataset.meal = mealIndex;
-            slot.innerHTML = `<div class="slot-title">${meal}</div>`;
             slot.addEventListener('dragover', event => event.preventDefault());
             slot.addEventListener('dragenter', () => slot.classList.add('drag-over'));
             slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
@@ -134,25 +272,26 @@ function renderCalendar() {
                 const recipeId = event.dataTransfer.getData('text/plain');
                 assignRecipeToSlot(dayIndex, mealIndex, recipeId);
             });
-            const assignedRecipe = getAssignedRecipe(dayIndex, mealIndex);
-            if (assignedRecipe) {
+            const assigned = getAssignedRecipe(dayIndex, mealIndex);
+            if (assigned) {
                 slot.classList.add('filled');
                 const slotCard = document.createElement('div');
                 slotCard.className = 'slot-card';
+                slotCard.style.background = assigned.gradient || '#fff';
                 slotCard.innerHTML = `
-                    <strong>${assignedRecipe.name}</strong>
-                    <div class="slot-chip">${assignedRecipe.tags.join(' · ')}</div>
-                    <div class="recipe-notes">${assignedRecipe.notes.join(' · ')}</div>
-                    <button class="slot-remove">Remove</button>
+                    <div class="slot-emoji">${assigned.emoji || '🍽️'}</div>
+                    <strong>${assigned.name}</strong>
+                    <button class="slot-remove" title="Remove">✕</button>
                 `;
-                slotCard.querySelector('.slot-remove').addEventListener('click', () => {
+                slotCard.querySelector('.slot-remove').addEventListener('click', (e) => {
+                    e.stopPropagation();
                     assignRecipeToSlot(dayIndex, mealIndex, null);
                 });
                 slot.appendChild(slotCard);
             } else {
                 const placeholder = document.createElement('div');
                 placeholder.className = 'slot-empty';
-                placeholder.textContent = 'Drop a recipe here';
+                placeholder.innerHTML = `<span>+</span><small>${meal}</small>`;
                 slot.appendChild(placeholder);
             }
             calendarGrid.appendChild(slot);
@@ -170,30 +309,169 @@ function createCalendarHeader(text) {
 function createRowLabel(text) {
     const label = document.createElement('div');
     label.className = 'calendar-row-label';
-    label.textContent = text;
+    const icon = text === 'Breakfast' ? '☀️' : text === 'Lunch' ? '🥗' : '🌙';
+    label.innerHTML = `<span class="row-icon">${icon}</span><span>${text}</span>`;
     return label;
 }
 
 function assignRecipeToSlot(dayIndex, mealIndex, recipeId) {
+    const previous = currentPlan[dayIndex][mealIndex];
     currentPlan[dayIndex][mealIndex] = recipeId || null;
     savePlan();
     renderCalendar();
+    renderGoals(recipeId && !previous);
 }
 
 function getAssignedRecipe(dayIndex, mealIndex) {
     const recipeId = currentPlan[dayIndex][mealIndex];
     if (!recipeId) return null;
-    return [...defaultRecipes, ...customRecipes].find(r => r.id === recipeId) || null;
+    return getAllRecipes().find(r => r.id === recipeId) || null;
+}
+
+function getDayTotals(dayIndex) {
+    const totals = {
+        groups: { Fruits: 0, Veggies: 0, Protein: 0, Grains: 0, Dairy: 0 },
+        nutrition: { carbs: 0, protein: 0, fat: 0, calories: 0 }
+    };
+    meals.forEach((_, mealIndex) => {
+        const r = getAssignedRecipe(dayIndex, mealIndex);
+        if (!r) return;
+        (r.groups || []).forEach(g => { if (totals.groups[g] !== undefined) totals.groups[g]++; });
+        const n = r.nutrition || {};
+        totals.nutrition.carbs    += n.carbs    || 0;
+        totals.nutrition.protein  += n.protein  || 0;
+        totals.nutrition.fat      += n.fat      || 0;
+        totals.nutrition.calories += n.calories || 0;
+    });
+    return totals;
+}
+
+function renderGoals(animateBump = false) {
+    const goalsPanel = document.getElementById('goalsPanel');
+    if (!goalsPanel) return;
+    const totals = getDayTotals(selectedDayIndex);
+    const dayLabel = days[selectedDayIndex];
+
+    const ringSize = 92;
+    const stroke = 10;
+    const radius = (ringSize - stroke) / 2;
+    const circumference = 2 * Math.PI * radius;
+
+    const ringsHtml = Object.keys(DAILY_GOALS.groups).map(group => {
+        const target = DAILY_GOALS.groups[group];
+        const value  = totals.groups[group];
+        const pct    = Math.min(1, value / target);
+        const offset = circumference * (1 - pct);
+        const info   = GROUP_INFO[group];
+        const done   = value >= target;
+        return `
+            <div class="goal-ring ${done ? 'complete' : ''}" data-group="${group}">
+                <svg width="${ringSize}" height="${ringSize}" viewBox="0 0 ${ringSize} ${ringSize}">
+                    <circle cx="${ringSize/2}" cy="${ringSize/2}" r="${radius}"
+                        fill="none" stroke="#eef2f7" stroke-width="${stroke}"/>
+                    <circle cx="${ringSize/2}" cy="${ringSize/2}" r="${radius}"
+                        fill="none" stroke="${info.color}" stroke-width="${stroke}"
+                        stroke-linecap="round"
+                        stroke-dasharray="${circumference}"
+                        stroke-dashoffset="${offset}"
+                        transform="rotate(-90 ${ringSize/2} ${ringSize/2})"/>
+                </svg>
+                <div class="goal-ring-center">
+                    <div class="goal-emoji">${info.emoji}</div>
+                    <div class="goal-count">${value}/${target}</div>
+                </div>
+                <div class="goal-label">${group}</div>
+                <div class="goal-kid">${done ? '⭐ Done!' : info.kid}</div>
+            </div>
+        `;
+    }).join('');
+
+    const macroHtml = ['carbs', 'protein', 'fat'].map(key => {
+        const target = DAILY_GOALS.nutrition[key];
+        const value  = totals.nutrition[key];
+        const pct    = Math.min(100, Math.round((value / target) * 100));
+        const info   = NUTRITION_INFO[key];
+        return `
+            <div class="macro-item">
+                <div class="macro-head">
+                    <span class="macro-emoji">${info.emoji}</span>
+                    <span class="macro-label">${info.label}</span>
+                    <span class="macro-value">${value}g <small>/ ${target}g</small></span>
+                </div>
+                <div class="macro-bar"><div class="macro-fill" style="width:${pct}%;background:${info.color}"></div></div>
+                <div class="macro-kid">${info.kid}</div>
+            </div>
+        `;
+    }).join('');
+
+    const completeCount = Object.keys(DAILY_GOALS.groups).filter(g => totals.groups[g] >= DAILY_GOALS.groups[g]).length;
+    const totalGroups = Object.keys(DAILY_GOALS.groups).length;
+    const allDone = completeCount === totalGroups;
+
+    goalsPanel.innerHTML = `
+        <div class="panel-header goals-header">
+            <div>
+                <div class="panel-label">Step 3</div>
+                <h2>${dayLabel}'s Plate ${allDone ? '🎉' : ''}</h2>
+                <div class="hint">Fill all 5 circles to complete a healthy day!</div>
+            </div>
+            <div class="goal-progress">
+                <span>${completeCount}/${totalGroups}</span>
+                <small>circles filled</small>
+            </div>
+        </div>
+        <div class="goal-rings">${ringsHtml}</div>
+        <div class="macro-section">
+            <div class="macro-title">
+                <span>Today's Power Meter</span>
+                <span class="cal-total">🔥 ${totals.nutrition.calories} kcal</span>
+            </div>
+            ${macroHtml}
+        </div>
+        ${allDone ? '<div class="celebrate">🌟 Awesome! You planned a super-healthy day! 🌟</div>' : ''}
+    `;
+
+    if (animateBump) {
+        goalsPanel.classList.remove('bump');
+        void goalsPanel.offsetWidth;
+        goalsPanel.classList.add('bump');
+    }
+    if (allDone) launchConfetti();
+}
+
+function launchConfetti() {
+    const layer = document.getElementById('confettiLayer');
+    if (!layer || layer.dataset.active === '1') return;
+    layer.dataset.active = '1';
+    const emojis = ['🎉','⭐','🌟','🍎','🥦','💪','🥛','🌾'];
+    for (let i = 0; i < 28; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+        piece.textContent = emojis[i % emojis.length];
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        piece.style.fontSize = (16 + Math.random() * 16) + 'px';
+        layer.appendChild(piece);
+    }
+    clearTimeout(confettiTimer);
+    confettiTimer = setTimeout(() => {
+        layer.innerHTML = '';
+        layer.dataset.active = '0';
+    }, 2400);
 }
 
 function openRecipeModal() {
     document.getElementById('newRecipeName').value = '';
     document.getElementById('newRecipeNote').value = '';
     document.getElementById('newRecipeMeal').value = 'Breakfast';
-    document.getElementById('newRecipeFruit').checked = false;
-    document.getElementById('newRecipeVeg').checked = false;
-    document.getElementById('newRecipeProtein').checked = false;
-    document.getElementById('newRecipeCarbs').checked = false;
+    document.getElementById('newRecipeEmoji').value = '🍽️';
+    ['Fruits','Veggies','Protein','Grains','Dairy'].forEach(g => {
+        const el = document.getElementById('grp_' + g);
+        if (el) el.checked = false;
+    });
+    document.getElementById('newCarbs').value = 30;
+    document.getElementById('newProtein').value = 10;
+    document.getElementById('newFat').value = 8;
     document.getElementById('recipeModal').classList.remove('hidden');
 }
 
@@ -203,44 +481,28 @@ function closeRecipeModal() {
 
 function saveNewRecipe() {
     const name = document.getElementById('newRecipeName').value.trim();
-    if (!name) {
-        alert('Please enter a recipe name.');
-        return;
-    }
+    if (!name) { alert('Please enter a recipe name.'); return; }
     const meal = document.getElementById('newRecipeMeal').value;
-    const fruit = document.getElementById('newRecipeFruit').checked;
-    const veg = document.getElementById('newRecipeVeg').checked;
-    const protein = document.getElementById('newRecipeProtein').checked;
-    const carbs = document.getElementById('newRecipeCarbs').checked;
+    const emoji = document.getElementById('newRecipeEmoji').value.trim() || '🍽️';
     const note = document.getElementById('newRecipeNote').value.trim();
-    const tags = [];
-    if (fruit) tags.push('Fruit');
-    if (veg) tags.push('Veggies');
-    if (protein) tags.push('Protein');
-    if (carbs) tags.push('Carbs');
-    if (!tags.length) tags.push('Balanced');
+    const groups = ['Fruits','Veggies','Protein','Grains','Dairy'].filter(g => document.getElementById('grp_' + g)?.checked);
+    const carbs   = parseInt(document.getElementById('newCarbs').value, 10)   || 0;
+    const protein = parseInt(document.getElementById('newProtein').value, 10) || 0;
+    const fat     = parseInt(document.getElementById('newFat').value, 10)     || 0;
+    const calories = Math.round(carbs * 4 + protein * 4 + fat * 9);
     const newRecipe = {
         id: `custom-${Date.now()}`,
-        name,
-        meal,
+        name, meal, emoji, art: emoji,
+        gradient: 'linear-gradient(135deg,#ddd6fe,#8b5cf6)',
         summary: note || 'A favorite recipe made by you.',
-        tags,
-        notes: tags.map(tag => getNutritionNote(tag))
+        groups: groups.length ? groups : ['Grains'],
+        nutrition: { carbs, protein, fat, calories },
+        notes: [note || 'Yummy and homemade']
     };
     customRecipes.unshift(newRecipe);
     saveCustomRecipes();
     closeRecipeModal();
     renderRecipeList();
-}
-
-function getNutritionNote(tag) {
-    switch (tag) {
-        case 'Fruit': return 'Vitamin-filled and sweet';
-        case 'Veggies': return 'Helps you grow strong';
-        case 'Protein': return 'Builds muscles';
-        case 'Carbs': return 'Gives you energy';
-        default: return 'Tastes great';
-    }
 }
 
 document.addEventListener('DOMContentLoaded', initMealPlanner);

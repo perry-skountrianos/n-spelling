@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" href="styles.css?v=25">
-    <link rel="stylesheet" href="meal-planner.css?v=2">
+    <link rel="stylesheet" href="meal-planner.css?v=3">
 </head>
 <body>
-    <div class="score-display">
+    <div class="score-display meal-topbar">
         <a href="https://skountrianos.com" class="home-circle" title="Home">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
-        <div class="planner-title">Family Meal Planner</div>
+        <div class="profile-circles" id="profileRow"></div>
+        <div class="topbar-divider"></div>
+        <div class="food-rings" id="foodRings"></div>
+        <div class="topbar-day" id="topbarDay"></div>
     </div>
 
     <div class="meal-app-container">
-        <section class="profile-row" id="profileRow"></section>
+        <section class="macro-bar-row" id="macroBarRow"></section>
 
         <section class="planner-grid">
             <div class="recipe-panel">
@@ -40,8 +43,6 @@
                 </div>
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
-
-            <aside class="goals-panel" id="goalsPanel"></aside>
         </section>
     </div>
     <div class="confetti-layer" id="confettiLayer"></div>
@@ -96,6 +97,6 @@
     </div>
 
     <script src="auth.js"></script>
-    <script src="meal-planner.js?v=1"></script>
+    <script src="meal-planner.js?v=3"></script>
 </body>
 </html>

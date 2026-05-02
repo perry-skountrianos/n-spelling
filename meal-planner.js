@@ -142,12 +142,10 @@ function renderProfiles() {
     profiles.forEach(profile => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'profile-card';
+        card.className = 'profile-circle profile-pick';
         card.dataset.profile = profile.id;
-        card.innerHTML = `
-            <div class="profile-card-avatar">${profile.avatar}</div>
-            <div class="profile-card-name">${profile.name}</div>
-        `;
+        card.title = profile.name;
+        card.innerHTML = `<span class="profile-circle-emoji">${profile.avatar}</span>`;
         card.addEventListener('click', () => selectProfile(profile.id));
         profileRow.appendChild(card);
     });
@@ -156,13 +154,13 @@ function renderProfiles() {
 function selectProfile(profileId) {
     selectedProfileId = profileId;
     localStorage.setItem('mealPlannerProfile', profileId);
-    document.querySelectorAll('.profile-card').forEach(card => {
+    document.querySelectorAll('.profile-pick').forEach(card => {
         card.classList.toggle('active', card.dataset.profile === profileId);
     });
     loadPlan();
     renderRecipeList();
     renderCalendar();
-    renderGoals();
+    renderTopbar();
 }
 
 function loadCustomRecipes() {
@@ -251,7 +249,7 @@ function renderCalendar() {
         cell.addEventListener('click', () => {
             selectedDayIndex = idx;
             renderCalendar();
-            renderGoals();
+            renderTopbar();
         });
         calendarGrid.appendChild(cell);
     });
@@ -319,7 +317,7 @@ function assignRecipeToSlot(dayIndex, mealIndex, recipeId) {
     currentPlan[dayIndex][mealIndex] = recipeId || null;
     savePlan();
     renderCalendar();
-    renderGoals(recipeId && !previous);
+    renderTopbar(recipeId && !previous);
 }
 
 function getAssignedRecipe(dayIndex, mealIndex) {
@@ -346,18 +344,35 @@ function getDayTotals(dayIndex) {
     return totals;
 }
 
-function renderGoals(animateBump = false) {
-    const goalsPanel = document.getElementById('goalsPanel');
-    if (!goalsPanel) return;
-    const totals = getDayTotals(selectedDayIndex);
-    const dayLabel = days[selectedDayIndex];
+function renderTopbar(animateBump = false) {
+    renderFoodRings(animateBump);
+    renderMacroBar();
+    renderTopbarDay();
+}
 
-    const ringSize = 92;
-    const stroke = 10;
+function renderTopbarDay() {
+    const el = document.getElementById('topbarDay');
+    if (!el) return;
+    const totals = getDayTotals(selectedDayIndex);
+    const completeCount = Object.keys(DAILY_GOALS.groups).filter(g => totals.groups[g] >= DAILY_GOALS.groups[g]).length;
+    const total = Object.keys(DAILY_GOALS.groups).length;
+    const dayLabel = days[selectedDayIndex];
+    el.innerHTML = `
+        <div class="topbar-day-label">${dayLabel}'s Plate</div>
+        <div class="topbar-day-progress">${completeCount}/${total} circles ${completeCount === total ? '🎉' : ''}</div>
+    `;
+}
+
+function renderFoodRings(animateBump = false) {
+    const foodRings = document.getElementById('foodRings');
+    if (!foodRings) return;
+    const totals = getDayTotals(selectedDayIndex);
+    const ringSize = 72;
+    const stroke = 7;
     const radius = (ringSize - stroke) / 2;
     const circumference = 2 * Math.PI * radius;
 
-    const ringsHtml = Object.keys(DAILY_GOALS.groups).map(group => {
+    foodRings.innerHTML = Object.keys(DAILY_GOALS.groups).map(group => {
         const target = DAILY_GOALS.groups[group];
         const value  = totals.groups[group];
         const pct    = Math.min(1, value / target);
@@ -365,7 +380,7 @@ function renderGoals(animateBump = false) {
         const info   = GROUP_INFO[group];
         const done   = value >= target;
         return `
-            <div class="goal-ring ${done ? 'complete' : ''}" data-group="${group}">
+            <div class="food-ring ${done ? 'complete' : ''}" title="${group}: ${info.kid}">
                 <svg width="${ringSize}" height="${ringSize}" viewBox="0 0 ${ringSize} ${ringSize}">
                     <circle cx="${ringSize/2}" cy="${ringSize/2}" r="${radius}"
                         fill="none" stroke="#eef2f7" stroke-width="${stroke}"/>
@@ -376,16 +391,28 @@ function renderGoals(animateBump = false) {
                         stroke-dashoffset="${offset}"
                         transform="rotate(-90 ${ringSize/2} ${ringSize/2})"/>
                 </svg>
-                <div class="goal-ring-center">
-                    <div class="goal-emoji">${info.emoji}</div>
-                    <div class="goal-count">${value}/${target}</div>
+                <div class="food-ring-center">
+                    <div class="food-ring-emoji">${info.emoji}</div>
+                    <div class="food-ring-count">${value}/${target}</div>
                 </div>
-                <div class="goal-label">${group}</div>
-                <div class="goal-kid">${done ? '⭐ Done!' : info.kid}</div>
+                <div class="food-ring-label">${group}</div>
             </div>
         `;
     }).join('');
 
+    const allDone = Object.keys(DAILY_GOALS.groups).every(g => totals.groups[g] >= DAILY_GOALS.groups[g]);
+    if (animateBump) {
+        foodRings.classList.remove('bump');
+        void foodRings.offsetWidth;
+        foodRings.classList.add('bump');
+    }
+    if (allDone) launchConfetti();
+}
+
+function renderMacroBar() {
+    const row = document.getElementById('macroBarRow');
+    if (!row) return;
+    const totals = getDayTotals(selectedDayIndex);
     const macroHtml = ['carbs', 'protein', 'fat'].map(key => {
         const target = DAILY_GOALS.nutrition[key];
         const value  = totals.nutrition[key];
@@ -399,44 +426,17 @@ function renderGoals(animateBump = false) {
                     <span class="macro-value">${value}g <small>/ ${target}g</small></span>
                 </div>
                 <div class="macro-bar"><div class="macro-fill" style="width:${pct}%;background:${info.color}"></div></div>
-                <div class="macro-kid">${info.kid}</div>
             </div>
         `;
     }).join('');
-
-    const completeCount = Object.keys(DAILY_GOALS.groups).filter(g => totals.groups[g] >= DAILY_GOALS.groups[g]).length;
-    const totalGroups = Object.keys(DAILY_GOALS.groups).length;
-    const allDone = completeCount === totalGroups;
-
-    goalsPanel.innerHTML = `
-        <div class="panel-header goals-header">
-            <div>
-                <div class="panel-label">Step 3</div>
-                <h2>${dayLabel}'s Plate ${allDone ? '🎉' : ''}</h2>
-                <div class="hint">Fill all 5 circles to complete a healthy day!</div>
-            </div>
-            <div class="goal-progress">
-                <span>${completeCount}/${totalGroups}</span>
-                <small>circles filled</small>
-            </div>
+    row.innerHTML = `
+        ${macroHtml}
+        <div class="macro-cal">
+            <div class="macro-cal-emoji">🔥</div>
+            <div class="macro-cal-value">${totals.nutrition.calories}</div>
+            <div class="macro-cal-label">kcal today</div>
         </div>
-        <div class="goal-rings">${ringsHtml}</div>
-        <div class="macro-section">
-            <div class="macro-title">
-                <span>Today's Power Meter</span>
-                <span class="cal-total">🔥 ${totals.nutrition.calories} kcal</span>
-            </div>
-            ${macroHtml}
-        </div>
-        ${allDone ? '<div class="celebrate">🌟 Awesome! You planned a super-healthy day! 🌟</div>' : ''}
     `;
-
-    if (animateBump) {
-        goalsPanel.classList.remove('bump');
-        void goalsPanel.offsetWidth;
-        goalsPanel.classList.add('bump');
-    }
-    if (allDone) launchConfetti();
 }
 
 function launchConfetti() {

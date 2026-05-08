@@ -114,6 +114,57 @@
             margin-bottom: 8px;
             font-size: 16px;
         }
+        .equation-snap {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f2fbf5 0%, #eef7ff 100%);
+            border: 1px solid #d7eadf;
+            overflow: hidden;
+        }
+        .equation-snap-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #2e7d32;
+        }
+        .equation-snap-track {
+            display: grid;
+            gap: 8px;
+        }
+        .equation-snap-step {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(46, 125, 50, 0.12);
+            font-size: 22px;
+            line-height: 1.2;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: center;
+            animation: equationSnapIn 0.42s ease forwards;
+            animation-delay: calc(var(--step-index) * 0.45s);
+        }
+        .equation-snap-step.is-final {
+            color: #0f7a34;
+            background: rgba(232, 245, 233, 0.98);
+            border-color: rgba(76, 175, 80, 0.35);
+        }
+        @keyframes equationSnapIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
         .quiz-explanation .exp-steps {
             margin: 0;
             padding-left: 20px;
@@ -384,7 +435,7 @@
                     <span class="tts-switch" id="hardSwitch"></span>
                 </div>
                 <button class="gear-option" id="viewReportsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16V8"/><path d="M12 16v-5"/><path d="M16 16v-8"/></svg> Reports</button>
-                <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> New Session</button>
+                <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> Reset</button>
             </div>
         </div>
     </div>
@@ -892,9 +943,36 @@
                 return q.options ? q.options[q.answer] : '';
             }
 
+            function escapeHTML(text) {
+                return String(text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function equationSnapSteps(q) {
+                return Array.isArray(q.resolveSteps) && q.resolveSteps.length ? q.resolveSteps : null;
+            }
+
+            function buildEquationSnapMarkup(q) {
+                const steps = equationSnapSteps(q);
+                if (!steps) return '';
+                return `
+                    <div class="equation-snap">
+                        <span class="equation-snap-label">Equation snaps into place</span>
+                        <div class="equation-snap-track">
+                            ${steps.map((step, index) => `<div class="equation-snap-step${index === steps.length - 1 ? ' is-final' : ''}" style="--step-index:${index};">${escapeHTML(step)}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
             let pendingTimeout = null;
             function finishQuestion(isCorrect, explanationDelay) {
                 const q = questions[current];
+                const snapSteps = isCorrect ? equationSnapSteps(q) : null;
                 if (isCorrect) { correct++; clearWrong(q); }
                 else { wrong++; markWrong(q); }
                 results.push({
@@ -913,6 +991,7 @@
                     let html = '';
                     if (isCorrect) {
                         html = '<span class="exp-title">✓ Correct!</span>';
+                        html += buildEquationSnapMarkup(q);
                         if (text) html += '<div>' + text + '</div>';
                     } else {
                         html = '<span class="exp-title">💡 Step-by-step</span>';
@@ -955,7 +1034,8 @@
                 renderLiveMissed();
                 // Wrong answers get more time to read the explanation
                 const defaultDelay = isCorrect ? 1800 : 6500;
-                const delay = explanationDelay != null ? explanationDelay : defaultDelay;
+                const snapDelay = snapSteps ? 1200 + (snapSteps.length * 500) : defaultDelay;
+                const delay = explanationDelay != null ? explanationDelay : Math.max(defaultDelay, snapDelay);
                 pendingTimeout = setTimeout(() => {
                     if (current < questions.length - 1) {
                         current++;

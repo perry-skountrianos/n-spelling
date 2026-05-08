@@ -57,6 +57,22 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+        @media (min-width: 768px) {
+            #appsContainer.container {
+                width: min(100%, 960px);
+                max-width: 960px;
+            }
+
+            #appsList.apps {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(140px, 1fr));
+                align-items: start;
+            }
+
+            #appsList .app-card {
+                width: 100%;
+            }
+        }
         /* Auth gate */
         .auth-gate {
             text-align: center;

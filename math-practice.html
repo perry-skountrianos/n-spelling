@@ -631,12 +631,7 @@
 
         function render(category, restore) {
             container.innerHTML = '';
-            // Update profile avatar
-            const prof = Profiles.getCurrent();
-            if (prof && prof.avatar) {
-                const avatarEl = document.getElementById('profileAvatar');
-                if (avatarEl) avatarEl.textContent = prof.avatar;
-            }
+            initProfileAvatar();
             let questions, topicLabel, lessonHTML;
             // Pool builder: combine base data + supplementary bank for the same topic
             function poolForTopic(key) {
@@ -1109,6 +1104,16 @@
         // Default to Day 1 if available, else mixed; resume saved session if any
         const firstKey = Object.keys(mathPracticeData)[0];
         if (firstKey) categorySelect.value = firstKey;
+        // Initialize profile avatar immediately
+        function initProfileAvatar() {
+            const prof = Profiles.getCurrent();
+            if (prof && prof.avatar) {
+                const avatarEl = document.getElementById('profileAvatar');
+                if (avatarEl) avatarEl.textContent = prof.avatar;
+            }
+        }
+        initProfileAvatar();
+
         loadSession().then(saved => {
             if (saved && saved.questions && saved.current < saved.questions.length) {
                 if (saved.category && (saved.category === '__all__' || mathPracticeData[saved.category])) {

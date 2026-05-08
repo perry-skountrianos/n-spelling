@@ -21,7 +21,7 @@ const mathPracticeData = {
     // 6.EE — EXPRESSIONS & EQUATIONS
     // =====================================================================
 
-    "Day 1 — Order of Operations (6.EE.1)": {
+    "1 — Order of Operations (6.EE.1)": {
         lesson: `
             <h3>Order of Operations — PEMDAS</h3>
             <p>When an expression has more than one operation, you have to do them in a fixed order:</p>
@@ -63,7 +63,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 2 — Translating & Equivalent Expressions (6.EE.2–4)": {
+    "2 — Translating & Equivalent Expressions (6.EE.2–4)": {
         lesson: `
             <h3>Words → Algebra</h3>
             <p>Translate carefully — order matters with subtraction!</p>
@@ -110,7 +110,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 3 — One-Step Equations (6.EE.5, 6.EE.7)": {
+    "3 — One-Step Equations (6.EE.5, 6.EE.7)": {
         lesson: `
             <h3>Solving One-Step Equations</h3>
             <p>To solve, do the <b>opposite operation</b> on both sides to isolate the variable.</p>
@@ -153,7 +153,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 4 — Inequalities (6.EE.8)": {
+    "4 — Inequalities (6.EE.8)": {
         lesson: `
             <h3>Inequality Symbols</h3>
             <ul>
@@ -197,7 +197,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 5 — Variables, Tables & Equations (6.EE.9)": {
+    "5 — Variables, Tables & Equations (6.EE.9)": {
         lesson: `
             <h3>Independent vs Dependent Variables</h3>
             <ul>
@@ -239,7 +239,7 @@ const mathPracticeData = {
     // 6.NS — THE NUMBER SYSTEM
     // =====================================================================
 
-    "Day 6 — Fraction & Decimal Operations (6.NS.1, 6.NS.3)": {
+    "6 — Fraction & Decimal Operations (6.NS.1, 6.NS.3)": {
         lesson: `
             <h3>Dividing fractions — "Keep, Change, Flip"</h3>
             <p>To divide by a fraction, multiply by its <b>reciprocal</b> (flip it):</p>
@@ -279,7 +279,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 7 — GCF, LCM & Distributive (6.NS.4)": {
+    "7 — GCF, LCM & Distributive (6.NS.4)": {
         lesson: `
             <h3>Greatest Common Factor (GCF)</h3>
             <p>The largest number that divides both numbers evenly.</p>
@@ -321,7 +321,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 8 — Integers & Absolute Value (6.NS.5–7)": {
+    "8 — Integers & Absolute Value (6.NS.5–7)": {
         lesson: `
             <h3>Integers</h3>
             <p>Whole numbers and their opposites: …−3, −2, −1, 0, 1, 2, 3…</p>
@@ -359,7 +359,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 9 — Coordinate Plane (6.NS.6, 6.NS.8)": {
+    "9 — Coordinate Plane (6.NS.6, 6.NS.8)": {
         lesson: `
             <h3>Quadrants</h3>
             <p>The xy-plane has 4 quadrants:</p>
@@ -408,7 +408,7 @@ const mathPracticeData = {
     // 6.RP — RATIOS & PROPORTIONAL RELATIONSHIPS
     // =====================================================================
 
-    "Day 10 — Ratios & Unit Rate (6.RP.1–3)": {
+    "10 — Ratios & Unit Rate (6.RP.1–3)": {
         lesson: `
             <h3>Ratios</h3>
             <p>A ratio compares two quantities. <code>5 : 3</code> means "5 of one thing for every 3 of another".</p>
@@ -451,7 +451,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 11 — Percent Problems (6.RP.3c)": {
+    "11 — Percent Problems (6.RP.3c)": {
         lesson: `
             <h3>Percent basics</h3>
             <p><b>Percent</b> means "per hundred". <code>25% = 25/100 = 0.25</code>.</p>
@@ -495,7 +495,7 @@ const mathPracticeData = {
     // 6.G — GEOMETRY
     // =====================================================================
 
-    "Day 12 — Area of Polygons (6.G.1)": {
+    "12 — Area of Polygons (6.G.1)": {
         lesson: `
             <h3>Area formulas</h3>
             <ul>
@@ -550,7 +550,7 @@ const mathPracticeData = {
         ]
     },
 
-    "Day 13 — Volume & Unit Conversion (6.G.2, 6.G.4)": {
+    "13 — Volume & Unit Conversion (6.G.2, 6.G.4)": {
         lesson: `
             <h3>Volume of a rectangular prism</h3>
             <p><code>V = length × width × height</code> &nbsp;(works even with fractional edges).</p>
@@ -595,7 +595,7 @@ const mathPracticeData = {
     // 6.SP — STATISTICS
     // =====================================================================
 
-    "Day 14 — Statistics: Center, Spread & Plots (6.SP.4–5)": {
+    "14 — Statistics: Center, Spread & Plots (6.SP.4–5)": {
         lesson: `
             <h3>Measures of center</h3>
             <ul>

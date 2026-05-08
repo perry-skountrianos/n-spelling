@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" href="styles.css?v=25">
-    <link rel="stylesheet" href="meal-planner.css?v=5">
+    <link rel="stylesheet" href="meal-planner.css?v=14">
 </head>
 <body>
     <div class="score-display meal-topbar">
@@ -20,7 +20,6 @@
     </div>
 
     <div class="meal-app-container">
-        <section class="macro-bar-row" id="macroBarRow"></section>
 
         <div class="day-panel">
             <div class="day-nav">
@@ -41,7 +40,10 @@
                     <div class="panel-label">Recipes</div>
                     <h2>Pick & drag into a meal</h2>
                 </div>
-                <button class="primary-btn" id="addRecipeBtn">Create your own</button>
+                <div class="panel-header-actions">
+                    <button class="ghost-btn" id="findByIngredientsBtn" title="Find recipes from ingredients you have">🥑 What can I make?</button>
+                    <button class="primary-btn" id="addRecipeBtn">+ Add recipe</button>
+                </div>
             </div>
             <div class="filter-chips" id="filterChips"></div>
             <div class="recipe-list" id="recipeList"></div>
@@ -49,12 +51,62 @@
     </div>
     <div class="confetti-layer" id="confettiLayer"></div>
 
+    <div class="modal hidden" id="ingredientModal" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="ingredientModalTitle">
+            <button class="modal-close" id="closeIngredientBtn" aria-label="Close">×</button>
+            <h3 id="ingredientModalTitle">🥑 What can I make?</h3>
+            <p class="modal-intro">Type ingredients you have at home (one per line or comma-separated) and we'll find recipes that use them.</p>
+            <div class="modal-body">
+                <label class="input-group full-width">
+                    <span>Ingredients</span>
+                    <textarea id="ingredientInput" rows="3" placeholder="avocado, chicken, rice"></textarea>
+                </label>
+                <div class="ingredient-quick">
+                    <span class="ingredient-quick-label">Quick add:</span>
+                    <button type="button" class="ingredient-chip" data-ing="chicken">🍗 chicken</button>
+                    <button type="button" class="ingredient-chip" data-ing="beef">🥩 beef</button>
+                    <button type="button" class="ingredient-chip" data-ing="avocado">🥑 avocado</button>
+                    <button type="button" class="ingredient-chip" data-ing="cheese">🧀 cheese</button>
+                    <button type="button" class="ingredient-chip" data-ing="egg">🥚 egg</button>
+                    <button type="button" class="ingredient-chip" data-ing="rice">🍚 rice</button>
+                    <button type="button" class="ingredient-chip" data-ing="pasta">🍝 pasta</button>
+                    <button type="button" class="ingredient-chip" data-ing="banana">🍌 banana</button>
+                    <button type="button" class="ingredient-chip" data-ing="tomato">🍅 tomato</button>
+                    <button type="button" class="ingredient-chip" data-ing="potato">🥔 potato</button>
+                    <button type="button" class="ingredient-chip" data-ing="broccoli">🥦 broccoli</button>
+                    <button type="button" class="ingredient-chip" data-ing="salmon">🐟 salmon</button>
+                </div>
+                <button type="button" class="primary-btn" id="searchIngredientsBtn">🔎 Find recipes</button>
+                <div class="ingredient-status" id="ingredientStatus"></div>
+                <div class="ingredient-results" id="ingredientResults"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal hidden" id="recipeModal" aria-hidden="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
-            <h3 id="modalTitle">Create a recipe</h3>
+            <h3 id="modalTitle">Add a recipe</h3>
             <div class="modal-body">
+                <div class="url-fetcher">
+                    <label class="input-group full-width">
+                        <span>Paste a recipe URL</span>
+                        <div class="url-row">
+                            <input type="url" id="newRecipeUrl" placeholder="https://www.themealdb.com/meal/52854 or any recipe link">
+                            <button type="button" class="primary-btn" id="fetchUrlBtn">Fetch</button>
+                        </div>
+                    </label>
+                    <div class="fetch-status" id="fetchStatus"></div>
+                    <div class="preview-block hidden" id="previewBlock">
+                        <img id="previewImg" alt="Preview"/>
+                        <div class="preview-text">
+                            <div class="preview-name" id="previewName"></div>
+                            <div class="preview-summary" id="previewSummary"></div>
+                        </div>
+                    </div>
+                </div>
                 <label class="input-group">
                     <span>Recipe name</span>
                     <input type="text" id="newRecipeName" placeholder="e.g. Berry Smoothie">
@@ -65,11 +117,20 @@
                         <option value="Breakfast">Breakfast</option>
                         <option value="Lunch">Lunch</option>
                         <option value="Dinner">Dinner</option>
+                        <option value="Snack">Snack</option>
                     </select>
                 </label>
                 <label class="input-group">
-                    <span>Recipe emoji</span>
-                    <input type="text" id="newRecipeEmoji" placeholder="🥗" maxlength="6">
+                    <span>Emoji (fallback)</span>
+                    <input type="text" id="newRecipeEmoji" placeholder="🍽️" maxlength="6">
+                </label>
+                <label class="input-group full-width">
+                    <span>Image URL (optional)</span>
+                    <input type="url" id="newRecipeImage" placeholder="https://…/photo.jpg">
+                </label>
+                <label class="input-group full-width">
+                    <span>Short description</span>
+                    <input type="text" id="newRecipeSummary" placeholder="What's it like?">
                 </label>
                 <div class="input-group full-width">
                     <span>Food groups</span>
@@ -83,16 +144,15 @@
                 </div>
                 <div class="input-group full-width">
                     <span>Nutrition (grams)</span>
-                    <div class="mac2o-inputs">
+                    <div class="macro-inputs">
                         <input type="number" id="newCarbs" placeholder="Carbs ⚡" min="0" value="30">
                         <input type="number" id="newProtein" placeholder="Protein 💪" min="0" value="10">
                         <input type="number" id="newFat" placeholder="Fat 🧠" min="0" value="8">
+                        <input type="number" id="newSugar" placeholder="Sugar 🍬" min="0" value="5">
+                        <input type="number" id="newFiber" placeholder="Fiber 🌿" min="0" value="2">
+                        <input type="number" id="newSodium" placeholder="Sodium mg 🧂" min="0" value="200">
                     </div>
                 </div>
-                <label class="input-group full-width">
-                    <span>Fun note</span>
-                    <input type="text" id="newRecipeNote" placeholder="e.g. Gives you energy to play">
-                </label>
             </div>
             <button class="primary-btn modal-save" id="saveRecipeBtn">Save recipe</button>
         </div>
@@ -100,6 +160,6 @@
 
     <script src="auth.js"></script>
     <script src="profile.js?v=1"></script>
-    <script src="meal-planner.js?v=7"></script>
+    <script src="meal-planner.js?v=17"></script>
 </body>
 </html>

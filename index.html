@@ -180,6 +180,202 @@
             color: #6e6e73;
             font-weight: 500;
         }
+        /* ===== Profile screen (mirrors styles.css for spelling) ===== */
+        .profile-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 40px 20px;
+        }
+        .profile-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .profile-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 24px 32px;
+            border-radius: 16px;
+            border: 2px solid #e0e0e0;
+            background: #fff;
+            transition: all 0.15s;
+            min-width: 120px;
+            position: relative;
+        }
+        .profile-card:hover {
+            border-color: #000;
+            background: #f9f9f9;
+            transform: scale(1.03);
+        }
+        .profile-avatar {
+            font-size: 0;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .profile-add-btn {
+            background: none;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .profile-add-btn:hover { border-color: #666; color: #333; }
+        .profile-delete-btn {
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #ccc;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: inherit;
+            transition: color 0.15s;
+        }
+        .profile-delete-btn:hover { color: #dc3545; }
+        .app-version { margin-top: 24px; font-size: 11px; color: #ccc; }
+        .profile-card-edit {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: color 0.15s;
+        }
+        .profile-card-edit:hover { color: #333; }
+        /* Profile edit modal */
+        .profile-edit-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-edit-panel {
+            background: #fff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .profile-edit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .profile-edit-header h2 { margin: 0; font-size: 20px; }
+        .profile-edit-close {
+            background: none; border: none;
+            font-size: 22px; cursor: pointer;
+            color: #999;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .profile-edit-close:hover { background: #f0f0f0; color: #333; }
+        .profile-edit-form { padding: 16px 20px; overflow-y: auto; flex: 1; }
+        .profile-edit-form input[type="text"] {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 18px;
+            border: none;
+            border-bottom: 2px solid #e0e0e0;
+            outline: none;
+            font-family: inherit;
+            color: #000;
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+        .profile-edit-form input[type="text"]:focus { border-bottom-color: #000; }
+        .avatar-picker-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 10px;
+        }
+        .avatar-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+        .avatar-option {
+            width: 48px; height: 48px;
+            font-size: 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            padding: 8px;
+        }
+        .avatar-option:hover { border-color: #999; transform: scale(1.1); }
+        .avatar-option.selected { border-color: #2196f3; background: #e3f2fd; }
+        .profile-edit-actions {
+            display: flex;
+            gap: 10px;
+            padding: 12px 20px 16px;
+            border-top: 1px solid #eee;
+            justify-content: flex-end;
+        }
+        .profile-edit-actions button {
+            padding: 10px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 24px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-cancel { background: none; border: 1.5px solid #e0e0e0; color: #666; }
+        .btn-cancel:hover { border-color: #000; color: #000; }
+        .btn-save {
+            background: #000;
+            border: 1.5px solid #000;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .btn-save:hover {
+            background: #333; border-color: #333;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -192,79 +388,262 @@
     </div>
 
     <!-- Main content (hidden until authenticated) -->
-    <div class="container" id="appWrapper" style="display:none;">
-        <!-- Profile selection gate -->
-        <div class="profile-gate" id="profileGate" style="display:none;"></div>
+    <div id="appWrapper" style="display:none;">
+        <!-- Profile selector screen (matches spelling.html) -->
+        <div class="profile-screen" id="profileScreen" style="display:none;">
+            <h1 class="profile-title">Who's practicing?</h1>
+            <div class="profile-list" id="profileList"></div>
+            <button class="profile-add-btn" id="addProfileBtn">+ Add Player</button>
+            <button class="profile-delete-btn" id="deleteProfileBtn">Delete a player</button>
+            <div class="app-version">v49</div>
+        </div>
 
-        <!-- Active profile chip (shown when on the apps screen) -->
-        <button class="profile-chip" id="profileChip" style="display:none;" title="Switch player">
-            <span class="profile-chip-circle" id="profileChipAvatar">🦁</span>
-            <span>
-                <span id="profileChipName">Nicholas</span>
-                <span class="profile-chip-switch">Switch</span>
-            </span>
-        </button>
+        <!-- Profile Edit Modal -->
+        <div class="profile-edit-overlay" id="profileEditOverlay" style="display: none;">
+            <div class="profile-edit-panel">
+                <div class="profile-edit-header">
+                    <h2 id="profileEditTitle">Edit Player</h2>
+                    <button class="profile-edit-close" id="profileEditCloseBtn">✕</button>
+                </div>
+                <div class="profile-edit-form">
+                    <input type="text" id="profileEditName" maxlength="20" placeholder="Player name">
+                    <div class="avatar-picker-label">Choose an icon</div>
+                    <div class="avatar-picker" id="avatarPicker"></div>
+                </div>
+                <div class="profile-edit-actions">
+                    <button type="button" class="btn-cancel" id="cancelProfileEditBtn">Cancel</button>
+                    <button type="button" class="btn-save" id="saveProfileEditBtn">Save</button>
+                </div>
+            </div>
+        </div>
 
-        <div class="apps" id="appsList" style="display:none;">
-            <a href="spelling.html" class="app-link">
-                <div class="app-card">
-                    <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-                    <span class="app-name">Spelling</span>
-                </div>
-            </a>
-            <a href="quizes.html" class="app-link">
-                <div class="app-card">
-                    <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="7" cy="7" r="1"/><circle cx="17" cy="7" r="1"/><circle cx="7" cy="17" r="1"/><circle cx="17" cy="17" r="1"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg></span>
-                    <span class="app-name">Quizes</span>
-                </div>
-            </a>
-            <a href="meal-planner.html" class="app-link">
-                <div class="app-card">
-                    <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M8 17h8"/><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/><path d="M7 17v2M17 17v2"/></svg></span>
-                    <span class="app-name">Meal Planner</span>
-                </div>
-            </a>
-            <!-- Sentences icon removed -->
+        <!-- Apps grid (after a profile is picked) -->
+        <div class="container" id="appsContainer" style="display:none;">
+            <!-- Active profile chip -->
+            <button class="profile-chip" id="profileChip" title="Switch player">
+                <span class="profile-chip-circle" id="profileChipAvatar">🦁</span>
+                <span>
+                    <span id="profileChipName">Nicholas</span>
+                    <span class="profile-chip-switch">Switch</span>
+                </span>
+            </button>
+
+            <div class="apps" id="appsList">
+                <a href="spelling.html" class="app-link">
+                    <div class="app-card">
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                        <span class="app-name">Spelling</span>
+                    </div>
+                </a>
+                <a href="quizes.html" class="app-link">
+                    <div class="app-card">
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="7" cy="7" r="1"/><circle cx="17" cy="7" r="1"/><circle cx="7" cy="17" r="1"/><circle cx="17" cy="17" r="1"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg></span>
+                        <span class="app-name">Quizes</span>
+                    </div>
+                </a>
+                <a href="meal-planner.html" class="app-link">
+                    <div class="app-card">
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M8 17h8"/><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/><path d="M7 17v2M17 17v2"/></svg></span>
+                        <span class="app-name">Meal Planner</span>
+                    </div>
+                </a>
+                <a href="math-practice.html" class="app-link">
+                    <div class="app-card">
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h2M14 8h2M8 12h8M8 16h2M14 16h2"/><path d="M9 7v2M15 7v2"/></svg></span>
+                        <span class="app-name">Math Practice</span>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
+    <!-- Firebase + auth + profiles -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script src="profile.js?v=1"></script>
     <script>
         (function () {
-            const gate     = document.getElementById('profileGate');
-            const apps     = document.getElementById('appsList');
-            const chip     = document.getElementById('profileChip');
-            const chipName = document.getElementById('profileChipName');
-            const chipAv   = document.getElementById('profileChipAvatar');
+            const profileScreen = document.getElementById('profileScreen');
+            const profileList   = document.getElementById('profileList');
+            const appsContainer = document.getElementById('appsContainer');
+            const chip          = document.getElementById('profileChip');
+            const chipName      = document.getElementById('profileChipName');
+            const chipAv        = document.getElementById('profileChipAvatar');
 
-            function showApps(profile) {
-                gate.style.display = 'none';
-                apps.style.display = '';
-                chip.style.display = '';
-                chipName.textContent = profile.name;
-                chipAv.textContent   = profile.avatar;
+            // ===== Twemoji helper =====
+            function emojiToImg(emoji, size) {
+                const cp = [...emoji].map(c => c.codePointAt(0).toString(16)).join('-');
+                const px = size || 48;
+                return `<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cp}.svg" alt="${emoji}" width="${px}" height="${px}" style="display:block;" draggable="false">`;
             }
-            function showGate() {
-                apps.style.display = 'none';
-                chip.style.display = 'none';
-                gate.style.display = '';
-                Profiles.renderGate(gate, showApps);
+
+            // ===== Profile loading from Firebase (with fallback) =====
+            function loadProfileList() {
+                profileList.innerHTML = '';
+                if (typeof db !== 'undefined') {
+                    db.ref('profiles').once('value').then(snapshot => {
+                        const profiles = snapshot.val() || {};
+                        if (!profiles['niko']) {
+                            profiles['niko'] = { name: 'Niko', avatar: '🦁' };
+                            db.ref('profiles/niko').set(profiles['niko']);
+                        }
+                        renderProfiles(profiles);
+                    }).catch(() => renderProfiles({ niko: { name: 'Niko', avatar: '🦁' } }));
+                } else {
+                    renderProfiles({ niko: { name: 'Niko', avatar: '🦁' } });
+                }
+            }
+
+            function renderProfiles(profiles) {
+                profileList.innerHTML = '';
+                Object.entries(profiles).forEach(([id, profile]) => {
+                    const card = document.createElement('div');
+                    card.className = 'profile-card';
+                    card.innerHTML = `<span class="profile-avatar">${emojiToImg(profile.avatar || '🦁', 48)}</span><span class="profile-name">${profile.name}</span><button class="profile-card-edit" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
+                    card.querySelector('.profile-avatar').addEventListener('click', () => selectProfile(id, profile));
+                    card.querySelector('.profile-name').addEventListener('click', () => selectProfile(id, profile));
+                    card.querySelector('.profile-card-edit').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openProfileEdit(id, profile);
+                    });
+                    profileList.appendChild(card);
+                });
+            }
+
+            function selectProfile(id, profile) {
+                Profiles.setCurrent(id);
+                profileScreen.style.display = 'none';
+                appsContainer.style.display = '';
+                chipName.textContent = profile.name || id;
+                chipAv.innerHTML = emojiToImg(profile.avatar || '🦁', 36);
+            }
+
+            function showProfileScreen() {
+                appsContainer.style.display = 'none';
+                profileScreen.style.display = '';
+                loadProfileList();
             }
 
             chip.addEventListener('click', () => {
                 Profiles.clearCurrent();
-                showGate();
+                showProfileScreen();
             });
 
-            // Wait for the auth gate to reveal #appWrapper, then decide which view to show.
+            // ===== Profile edit modal =====
+            const allAvatars = [
+                '🦁','🐱','🐶','🦊','🐻','🐼','🐸','🦄','🐝','🦋','🐯','🐰',
+                '🐨','🐵','🐧','🐙','🦈','🦉','🐺','🦖','🐲','🦅','🦜','🐬',
+                '🦓','🦒','🐘','🐆','🦔','🦩','🦚','🐠','🦑','🦀','🐊','🦕',
+                '⚽','🏀','🏈','⚾','🎾','🏐','🥊','🏆','🥇','🎯',
+                '🚗','🚕','🚙','🚌','🚒','🚑',
+                '🧸','👾','🤖','👻','🎃','⭐','🌈','🚀'
+            ];
+            let editingProfileId = null;
+            let selectedAvatar = '🦁';
+
+            function openProfileEdit(id, profile) {
+                editingProfileId = id;
+                const overlay = document.getElementById('profileEditOverlay');
+                const nameInput = document.getElementById('profileEditName');
+                const title = document.getElementById('profileEditTitle');
+                const picker = document.getElementById('avatarPicker');
+                title.textContent = id ? 'Edit Player' : 'New Player';
+                nameInput.value = profile ? profile.name : '';
+                selectedAvatar = profile ? (profile.avatar || '🦁') : '🦁';
+                picker.innerHTML = '';
+                allAvatars.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'avatar-option' + (a === selectedAvatar ? ' selected' : '');
+                    btn.innerHTML = emojiToImg(a, 28);
+                    btn.addEventListener('click', () => {
+                        selectedAvatar = a;
+                        picker.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    });
+                    picker.appendChild(btn);
+                });
+                overlay.style.display = '';
+                nameInput.focus();
+            }
+
+            document.getElementById('profileEditCloseBtn').addEventListener('click', () => {
+                document.getElementById('profileEditOverlay').style.display = 'none';
+            });
+            document.getElementById('cancelProfileEditBtn').addEventListener('click', () => {
+                document.getElementById('profileEditOverlay').style.display = 'none';
+            });
+            document.getElementById('profileEditOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('profileEditOverlay')) {
+                    document.getElementById('profileEditOverlay').style.display = 'none';
+                }
+            });
+            document.getElementById('saveProfileEditBtn').addEventListener('click', () => {
+                const name = document.getElementById('profileEditName').value.trim();
+                if (!name) { alert('Please enter a name'); return; }
+                if (typeof db === 'undefined') { alert('Database unavailable.'); return; }
+                if (editingProfileId) {
+                    db.ref('profiles/' + editingProfileId).update({ name: name, avatar: selectedAvatar }).then(() => {
+                        document.getElementById('profileEditOverlay').style.display = 'none';
+                        loadProfileList();
+                    });
+                } else {
+                    const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (!id) { alert('Invalid name'); return; }
+                    db.ref('profiles/' + id).set({ name: name, avatar: selectedAvatar }).then(() => {
+                        document.getElementById('profileEditOverlay').style.display = 'none';
+                        loadProfileList();
+                    });
+                }
+            });
+
+            document.getElementById('addProfileBtn').addEventListener('click', () => {
+                const password = prompt('Parent password:');
+                if (password !== 'admin123') {
+                    if (password !== null) alert('Incorrect password');
+                    return;
+                }
+                openProfileEdit(null, null);
+            });
+
+            document.getElementById('deleteProfileBtn').addEventListener('click', () => {
+                const password = prompt('Parent password:');
+                if (password !== 'admin123') {
+                    if (password !== null) alert('Incorrect password');
+                    return;
+                }
+                const name = prompt('Enter player name to delete:');
+                if (!name || !name.trim()) return;
+                const id = name.trim().toLowerCase();
+                if (id === 'niko') { alert('Cannot delete the default profile.'); return; }
+                if (typeof db === 'undefined') return;
+                db.ref('profiles/' + id).once('value').then(snapshot => {
+                    if (!snapshot.exists()) { alert('Profile not found.'); return; }
+                    if (!confirm('Delete player "' + name.trim() + '" and all their data?')) return;
+                    db.ref('profiles/' + id).remove();
+                    db.ref('reports/' + id).remove();
+                    db.ref('sessions/' + id).remove();
+                    db.ref('wordlists/' + id).remove();
+                    db.ref('activeWordList/' + id).remove();
+                    db.ref('mathReports/' + id).remove();
+                    db.ref('mathSessions/' + id).remove();
+                    Object.keys(localStorage).forEach(k => {
+                        if (k.startsWith(id + '_')) localStorage.removeItem(k);
+                    });
+                    if (Profiles.getCurrentId() === id) Profiles.clearCurrent();
+                    loadProfileList();
+                });
+            });
+
+            // Wait for the auth gate to reveal #appWrapper, then always show the
+            // "Who's practicing?" picker first.
             function init() {
                 if (document.getElementById('appWrapper').style.display === 'none') {
                     setTimeout(init, 80);
                     return;
                 }
-                const current = Profiles.getCurrent();
-                if (current) showApps(current);
-                else showGate();
+                showProfileScreen();
             }
             init();
         })();

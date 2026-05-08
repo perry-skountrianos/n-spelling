@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Math Practice — CC6</title>
+    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="quizes.css?v=1">
+    <style>
+        .quiz-app-container { text-align: left !important; max-width: 760px; }
+        .quiz-question { justify-content: flex-start !important; text-align: left !important; }
+        .quiz-options  { align-items: stretch !important; }
+        .gear-menu-wrapper { position: static !important; margin-left: auto; }
+
+        .topic-pill {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0071e3;
+            background: #e3f2fd;
+            border-radius: 999px;
+            padding: 3px 10px;
+            margin-bottom: 10px;
+            letter-spacing: 0.02em;
+        }
+        .progress-counter {
+            font-size: 13px;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .quiz-numeric-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            font-family: inherit;
+            background: #fafafa;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .quiz-numeric-input:focus { border-color: #90caf9; }
+        .quiz-numeric-input.quiz-correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
+        .quiz-numeric-input.quiz-wrong   { border-color: #e53935; background: #ffebee; color: #c62828; }
+        .quiz-submit-btn {
+            margin-top: 10px;
+            padding: 12px 24px;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .quiz-submit-btn:hover:not(:disabled) { background: #0077ed; }
+        .quiz-submit-btn:disabled { background: #c7c7cc; cursor: default; }
+
+        .quiz-multi-hint {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .quiz-option.quiz-multi-selected {
+            border-color: #0071e3;
+            background: #e3f2fd;
+        }
+        .quiz-option.quiz-correct-missed {
+            border-color: #ffa000;
+            background: #fff8e1;
+            color: #e65100;
+        }
+        .quiz-explanation {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #fffbe6;
+            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .quiz-explanation.wrong {
+            background: #ffebee;
+            border-left-color: #e53935;
+            padding: 16px 18px;
+            font-size: 16px;
+        }
+        .quiz-explanation .exp-title {
+            display: block;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #c62828;
+        }
+        .quiz-explanation.correct .exp-title { color: #2e7d32; }
+        .quiz-explanation .exp-correct-answer {
+            display: block;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .quiz-explanation .exp-steps {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .quiz-explanation .exp-steps li { margin-bottom: 4px; }
+        .quiz-result {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 30px 20px;
+            color: #2e7d32;
+        }
+        .quiz-result .restart-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 28px;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        /* ----- Mini-lesson card ----- */
+        .lesson-card {
+            background: #fafbfc;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            font-size: 15.5px;
+            line-height: 1.55;
+            color: #1d1d1f;
+        }
+        .lesson-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0071e3;
+            margin: 12px 0 6px;
+        }
+        .lesson-card h3:first-child { margin-top: 0; }
+        .lesson-card p, .lesson-card ul, .lesson-card ol, .lesson-card table, .lesson-card pre { margin: 6px 0; }
+        .lesson-card ul, .lesson-card ol { padding-left: 22px; }
+        .lesson-card li { margin: 3px 0; }
+        .lesson-card code {
+            background: #f0f3f7;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 0.95em;
+        }
+        .lesson-card pre {
+            background: #f0f3f7;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .lesson-card table th, .lesson-card table td {
+            border-bottom: 1px solid #e8e8ec;
+        }
+        .lesson-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .lesson-toggle {
+            background: none;
+            border: 1px solid #d2d2d7;
+            color: #555;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .lesson-toggle:hover { border-color: #0071e3; color: #0071e3; }
+        .start-practice-btn {
+            display: block;
+            margin: 14px auto 0;
+            padding: 14px 32px;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .start-practice-btn:hover { background: #0077ed; }
+
+        /* ----- TTS speaker buttons ----- */
+        .speak-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        .speak-btn:hover { border-color: #0071e3; }
+        .speak-btn:disabled { opacity: 0.3; cursor: default; }
+        .speak-btn.speaking { border-color: #0071e3; background: #e3f2fd; }
+        .speak-btn svg { width: 20px; height: 20px; }
+        .question-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .question-row .quiz-question { flex: 1; margin: 0; }
+
+        /* ----- TTS toggle in gear menu ----- */
+        .tts-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .tts-toggle-row label { font-weight: 500; font-size: 14px; color: #333; cursor: pointer; }
+        .tts-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: #ccc;
+            border-radius: 22px;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .tts-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 18px; height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: left 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .tts-switch.on { background: #4caf50; }
+        .tts-switch.on::after { left: 20px; }
+    </style>
+</head>
+<body>
+    <div class="score-display" id="scoreDisplay">
+        <a href="index.html" class="home-circle" title="Home">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="remainingCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="correctCount">0</span>
+        </div>
+        <div class="donut-wrapper">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label" id="wrongCount">0</span>
+        </div>
+        <div class="gear-menu-wrapper" id="gearMenuWrapper">
+            <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
+            <div class="gear-dropdown" id="gearDropdown">
+                <div class="gear-option" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;">
+                    <label for="categorySelect" style="font-weight:500;font-size:14px;color:#666;">Topic</label>
+                    <select id="categorySelect" class="quiz-category-select"></select>
+                </div>
+                <div class="gear-option tts-toggle-row" id="hardToggleRow">
+                    <label for="hardSwitch">🔥 Hard mode</label>
+                    <span class="tts-switch" id="hardSwitch"></span>
+                </div>
+                <button class="gear-option" id="viewReportsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16V8"/><path d="M12 16v-5"/><path d="M16 16v-8"/></svg> Reports</button>
+                <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> New Session</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-app-container">
+        <div id="quizContainer"></div>
+    </div>
+
+    <!-- Reports overlay -->
+    <div class="reports-overlay" id="reportsOverlay" style="display: none;">
+        <div class="reports-panel">
+            <div class="reports-header">
+                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16V8"/><path d="M12 16v-5"/><path d="M16 16v-8"/></svg>Math Reports</h2>
+                <button class="reports-close" id="reportsCloseBtn">✕</button>
+            </div>
+            <div class="reports-list" id="reportsList">
+                <p class="reports-loading">Loading reports...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="profile.js"></script>
+    <script src="tts.js?v=38"></script>
+    <script src="math-shapes.js?v=1"></script>
+    <script src="math-practice-data.js?v=3"></script>
+    <script src="math-practice-bank.js?v=2"></script>
+    <script>
+    (function(){
+        // -------- profile bootstrap --------
+        if (typeof Profiles !== 'undefined' && !Profiles.requireProfile()) return;
+        const currentProfile = (typeof Profiles !== 'undefined') ? Profiles.getCurrentId() : 'default';
+        function profileRef(path) { return path + '/' + currentProfile; }
+        function profileKey(k) { return currentProfile + '_' + k; }
+
+        // -------- helpers --------
+        function shuffle(arr){
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // ===================== TTS =====================
+        const synth = window.speechSynthesis;
+        let ttsVoice = null;
+        function pickVoice(){
+            const voices = synth.getVoices();
+            if (!voices.length) return null;
+            const en = voices.filter(v => v.lang && v.lang.startsWith('en'));
+            const preferred = ['Google UK English Female','Samantha','Karen','Moira','Martha','Kate','Serena','Fiona'];
+            for (const name of preferred) {
+                const v = en.find(v => v.name.includes(name));
+                if (v) return v;
+            }
+            return en[0] || voices[0];
+        }
+        synth.getVoices();
+        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => { ttsVoice = pickVoice(); };
+        ttsVoice = pickVoice();
+
+        function ttsCancel(){
+            try { synth.cancel(); } catch(_){}
+            if (window.cloudTTS) try { cloudTTS.stop(); } catch(_){}
+            document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+        }
+        function ttsSpeakBrowser(text, onend){
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 1; u.lang = 'en-GB';
+            if (!ttsVoice) ttsVoice = pickVoice();
+            if (ttsVoice) u.voice = ttsVoice;
+            if (onend) u.onend = onend;
+            synth.speak(u);
+        }
+        function ttsSpeak(text, onend){
+            ttsCancel();
+            if (!text) { if (onend) onend(); return; }
+            if (window.cloudTTS && cloudTTS.enabled && cloudTTS.enabled()) {
+                cloudTTS.speak(text, () => { if (onend) onend(); }).then(ok => {
+                    if (!ok) ttsSpeakBrowser(text, onend);
+                });
+            } else {
+                ttsSpeakBrowser(text, onend);
+            }
+        }
+        function htmlToReadable(html){
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            // Replace some math symbols with spoken words
+            let text = div.textContent || div.innerText || '';
+            text = text.replace(/×/g, ' times ')
+                       .replace(/÷/g, ' divided by ')
+                       .replace(/≤/g, ' less than or equal to ')
+                       .replace(/≥/g, ' greater than or equal to ')
+                       .replace(/</g, ' less than ')
+                       .replace(/>/g, ' greater than ')
+                       .replace(/²/g, ' squared')
+                       .replace(/³/g, ' cubed')
+                       .replace(/\s+/g, ' ')
+                       .trim();
+            return text;
+        }
+
+        // TTS toggle (persisted)
+        const TTS_KEY = 'mathPracticeTTS';
+        let ttsEnabled = false; // auto-read disabled — manual speaker buttons only
+
+        // Speaker icon SVG
+        const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+
+        function makeSpeakBtn(getText, title){
+            const btn = document.createElement('button');
+            btn.className = 'speak-btn';
+            btn.title = title || 'Read aloud';
+            btn.innerHTML = SPEAKER_SVG;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                btn.classList.add('speaking');
+                const text = typeof getText === 'function' ? getText() : getText;
+                ttsSpeak(text, () => btn.classList.remove('speaking'));
+            };
+            return btn;
+        }
+
+        function arraysEqualAsSets(a, b) {
+            if (a.length !== b.length) return false;
+            const sa = [...a].sort(), sb = [...b].sort();
+            return sa.every((v, i) => v === sb[i]);
+        }
+
+        // ===== Hard mode (prefer previously-wrong questions) =====
+        const HARD_KEY = 'mathPracticeHard';
+        const WRONG_KEY = 'mathPracticeWrong'; // map: { sig: count }
+        let hardMode = (localStorage.getItem(HARD_KEY) === '1');
+        function loadWrong() {
+            try { return JSON.parse(localStorage.getItem(WRONG_KEY) || '{}'); } catch(_) { return {}; }
+        }
+        function saveWrong(obj) {
+            try { localStorage.setItem(WRONG_KEY, JSON.stringify(obj)); } catch(_){}
+        }
+        function qSig(q) {
+            // stable signature: topic + question text
+            return (q._topic || '') + '|' + (q.question || '');
+        }
+        function markWrong(q) {
+            const w = loadWrong();
+            const k = qSig(q);
+            w[k] = (w[k] || 0) + 1;
+            saveWrong(w);
+        }
+        function clearWrong(q) {
+            const w = loadWrong();
+            const k = qSig(q);
+            if (w[k]) { delete w[k]; saveWrong(w); }
+        }
+        const hardSwitch = document.getElementById('hardSwitch');
+        const hardToggleRow = document.getElementById('hardToggleRow');
+        function updateHardSwitch(){
+            if (hardMode) hardSwitch.classList.add('on'); else hardSwitch.classList.remove('on');
+        }
+        updateHardSwitch();
+        hardToggleRow.addEventListener('click', (e) => {
+            hardMode = !hardMode;
+            localStorage.setItem(HARD_KEY, hardMode ? '1' : '0');
+            updateHardSwitch();
+            e.stopPropagation();
+        });
+
+        // ===== Answer-choice shuffling =====
+        function shuffleQuestionOptions(q) {
+            // Don't shuffle T/F (label order matters), numerics, or multi-line "ordering" answers
+            if (q.type === 'tf' || q.type === 'numeric' || !q.options) return q;
+            const idxs = q.options.map((_, i) => i);
+            const order = shuffle(idxs); // new positions
+            // order[newPos] = oldIdx → so newOptions[newPos] = oldOptions[oldIdx]
+            const newOptions = order.map(oldIdx => q.options[oldIdx]);
+            // Build oldIdx -> newIdx map
+            const oldToNew = {};
+            order.forEach((oldIdx, newIdx) => { oldToNew[oldIdx] = newIdx; });
+            let newAnswer;
+            if (Array.isArray(q.answer)) {
+                newAnswer = q.answer.map(i => oldToNew[i]).sort((a,b)=>a-b);
+            } else {
+                newAnswer = oldToNew[q.answer];
+            }
+            return { ...q, options: newOptions, answer: newAnswer };
+        }
+
+        // ===== Sample N questions, optionally weighted toward wrong-answered =====
+        const SESSION_SIZE = 10;
+        const ALL_SESSION_SIZE = 20;
+        function pickSession(pool, n) {
+            if (pool.length <= n) return shuffle(pool);
+            if (hardMode) {
+                const wrong = loadWrong();
+                const wrongQs = pool.filter(q => wrong[qSig(q)]);
+                const otherQs = pool.filter(q => !wrong[qSig(q)]);
+                const shuffledWrong = shuffle(wrongQs);
+                const shuffledOther = shuffle(otherQs);
+                const out = shuffledWrong.slice(0, n);
+                if (out.length < n) out.push(...shuffledOther.slice(0, n - out.length));
+                return shuffle(out);
+            }
+            return shuffle(pool).slice(0, n);
+        }
+
+        // ===== Session persistence (resume in-progress) =====
+        const SESSION_LS_KEY = profileKey('mathPracticeSession');
+        function saveSession(state) {
+            try { localStorage.setItem(SESSION_LS_KEY, JSON.stringify(state)); } catch(_){}
+            if (typeof db !== 'undefined') {
+                db.ref('mathSessions/' + currentProfile).set(state).catch(()=>{});
+            }
+        }
+        function clearSession() {
+            try { localStorage.removeItem(SESSION_LS_KEY); } catch(_){}
+            if (typeof db !== 'undefined') {
+                db.ref('mathSessions/' + currentProfile).remove().catch(()=>{});
+            }
+        }
+        async function loadSession() {
+            if (typeof db !== 'undefined') {
+                try {
+                    const snap = await db.ref('mathSessions/' + currentProfile).once('value');
+                    const data = snap.val();
+                    if (data && data.questions && data.questions.length) return data;
+                } catch(_){}
+            }
+            try {
+                const raw = localStorage.getItem(SESSION_LS_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data && data.questions && data.questions.length) return data;
+                }
+            } catch(_){}
+            return null;
+        }
+
+        // ===== Report save =====
+        function saveReport(report) {
+            if (typeof db === 'undefined') return;
+            const id = String(Date.now());
+            db.ref('mathReports/' + currentProfile + '/' + id).set(report).catch(e => console.warn('Math report save failed:', e));
+        }
+
+        function normalizeNumeric(input) {
+            if (input == null) return null;
+            const s = String(input).trim().replace(/,/g, '').replace(/\$/g, '');
+            if (s === '') return null;
+            // Support simple fractions like "2/12" or "1 1/3"
+            const mixed = s.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+            if (mixed) {
+                const whole = parseInt(mixed[1], 10);
+                const num   = parseInt(mixed[2], 10);
+                const den   = parseInt(mixed[3], 10);
+                if (den === 0) return null;
+                const sign = whole < 0 ? -1 : 1;
+                return whole + sign * (num / den);
+            }
+            const frac = s.match(/^(-?\d+)\/(-?\d+)$/);
+            if (frac) {
+                const num = parseInt(frac[1], 10);
+                const den = parseInt(frac[2], 10);
+                if (den === 0) return null;
+                return num / den;
+            }
+            const n = Number(s);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        // -------- donuts --------
+        function updateDonuts(correct, wrong, total) {
+            const remaining = Math.max(total - correct - wrong, 0);
+            document.getElementById('remainingCount').textContent = remaining;
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = wrong;
+            const t = Math.max(total, 1);
+            document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${(remaining/t)*100} ${(1-remaining/t)*100}`);
+            document.getElementById('donutCorrect').setAttribute('stroke-dasharray',   `${(correct/t)*100} ${(1-correct/t)*100}`);
+            document.getElementById('donutWrong').setAttribute('stroke-dasharray',     `${(wrong/t)*100} ${(1-wrong/t)*100}`);
+        }
+
+        // -------- menu --------
+        const gearBtn = document.getElementById('gearBtn');
+        const gearDropdown = document.getElementById('gearDropdown');
+        gearBtn.onclick = () => gearDropdown.classList.toggle('show');
+        document.addEventListener('click', (e) => {
+            if (!gearDropdown.contains(e.target) && !gearBtn.contains(e.target)) {
+                gearDropdown.classList.remove('show');
+            }
+        });
+
+        // -------- categories --------
+        const categorySelect = document.getElementById('categorySelect');
+        const allOpt = document.createElement('option');
+        allOpt.value = '__all__';
+        allOpt.textContent = 'All Topics (mixed)';
+        categorySelect.appendChild(allOpt);
+        for (const cat in mathPracticeData) {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            categorySelect.appendChild(opt);
+        }
+
+        // -------- render --------
+        const container = document.getElementById('quizContainer');
+
+        function render(category, restore) {
+            container.innerHTML = '';
+            let questions, topicLabel, lessonHTML;
+            // Pool builder: combine base data + supplementary bank for the same topic
+            function poolForTopic(key) {
+                const block = mathPracticeData[key];
+                const baseQs = Array.isArray(block) ? block : ((block && block.questions) || []);
+                const bankQs = (typeof mathPracticeBank !== 'undefined' && mathPracticeBank[key]) ? mathPracticeBank[key] : [];
+                return [...baseQs, ...bankQs].map(q => ({ ...q, _topic: key }));
+            }
+            if (restore && restore.questions && restore.questions.length) {
+                questions = restore.questions;
+                topicLabel = restore.topicLabel || null;
+                lessonHTML = restore.lessonHTML || null;
+            } else if (category === '__all__') {
+                const all = [];
+                for (const k in mathPracticeData) {
+                    all.push(...poolForTopic(k));
+                }
+                questions = pickSession(all, ALL_SESSION_SIZE).map(shuffleQuestionOptions);
+                topicLabel = null;
+                lessonHTML = null;
+            } else {
+                const block = mathPracticeData[category];
+                const pool = poolForTopic(category);
+                questions = pickSession(pool, SESSION_SIZE).map(shuffleQuestionOptions);
+                topicLabel = category;
+                lessonHTML = (!Array.isArray(block) && block && block.lesson) ? block.lesson : null;
+            }
+            if (!questions.length) {
+                container.textContent = 'No questions in this topic.';
+                updateDonuts(0,0,1);
+                return;
+            }
+
+            let current = 0, correct = 0, wrong = 0, results = [];
+            const sessionStartedAt = (restore && restore.startedAt) || new Date().toISOString();
+            if (restore) {
+                current = restore.current || 0;
+                correct = restore.correct || 0;
+                wrong = restore.wrong || 0;
+                results = restore.results || [];
+            }
+            updateDonuts(correct, wrong, questions.length);
+
+            function persistSession() {
+                saveSession({
+                    category, topicLabel, lessonHTML,
+                    questions, current, correct, wrong, results,
+                    startedAt: sessionStartedAt,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            // Show lesson first if available (skip lesson if resuming mid-session)
+            if (lessonHTML && !restore) {
+                showLesson();
+            } else {
+                show();
+            }
+
+            function showLesson() {
+                container.innerHTML = `
+                    <div class="topic-pill">${topicLabel}</div>
+                    <div class="question-row">
+                        <div class="quiz-question">Mini-lesson</div>
+                        <button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>
+                    </div>
+                    <div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>
+                    <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
+                `;
+                document.getElementById('startPracticeBtn').onclick = () => { ttsCancel(); show(); };
+                const lessonSpeakBtn = document.getElementById('lessonSpeakBtn');
+                lessonSpeakBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                    lessonSpeakBtn.classList.add('speaking');
+                    const text = htmlToReadable(document.getElementById('lessonCardContent').innerHTML);
+                    ttsSpeak(text, () => lessonSpeakBtn.classList.remove('speaking'));
+                };
+                if (ttsEnabled) {
+                    setTimeout(() => lessonSpeakBtn.click(), 400);
+                }
+            }
+
+            function show() {
+                ttsCancel();
+                const q = questions[current];
+
+                // Header
+                const header = document.createElement('div');
+                header.innerHTML = `
+                    <div class="progress-counter">Question ${current + 1} of ${questions.length}</div>
+                    ${q._topic ? `<div class="topic-pill">${q._topic}</div>` : ''}
+                    ${lessonHTML ? `<div class="lesson-actions"><button class="lesson-toggle" id="lessonToggle">☰ Show lesson</button></div>` : ''}
+                    <div class="question-row">
+                        <div class="quiz-question">${q.question}</div>
+                        <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
+                    </div>
+                `;
+                container.innerHTML = '';
+                container.appendChild(header);
+                if (q.image) {
+                    const img = document.createElement('div');
+                    img.className = 'quiz-image';
+                    img.innerHTML = q.image;
+                    container.appendChild(img);
+                }
+                if (lessonHTML) {
+                    document.getElementById('lessonToggle').onclick = () => showLesson();
+                }
+                const qBtn = document.getElementById('questionSpeakBtn');
+                qBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                    qBtn.classList.add('speaking');
+                    const parts = [q.question];
+                    if (q.options) parts.push(...q.options);
+                    if (q.labels) parts.push(...q.labels);
+                    const text = htmlToReadable(parts.join('. '));
+                    ttsSpeak(text, () => qBtn.classList.remove('speaking'));
+                };
+                if (ttsEnabled) {
+                    setTimeout(() => qBtn.click(), 300);
+                }
+
+                if (q.type === 'multi') {
+                    renderMulti(q);
+                } else if (q.type === 'numeric') {
+                    renderNumeric(q);
+                } else if (q.type === 'tf') {
+                    renderTF(q);
+                } else {
+                    renderMC(q);
+                }
+
+                // Explanation slot (populated by finishQuestion)
+                const exp = document.createElement('div');
+                exp.className = 'quiz-explanation';
+                exp.dataset.text = q.explanation || '';
+                container.appendChild(exp);
+            }
+
+            function correctAnswerText(q) {
+                if (q.type === 'numeric') {
+                    return q.answer + (q.unit ? ' ' + q.unit : '');
+                }
+                if (q.type === 'tf') {
+                    const labels = q.labels || ['True', 'False'];
+                    return labels[q.answer];
+                }
+                if (q.type === 'multi') {
+                    return (q.answer || []).map(i => q.options[i]).join(', ');
+                }
+                // mc
+                return q.options ? q.options[q.answer] : '';
+            }
+
+            function finishQuestion(isCorrect, explanationDelay) {
+                const q = questions[current];
+                if (isCorrect) { correct++; clearWrong(q); }
+                else { wrong++; markWrong(q); }
+                results.push({
+                    topic: q._topic || topicLabel || '',
+                    question: q.question,
+                    type: q.type || 'mc',
+                    correctAnswer: correctAnswerText(q),
+                    isCorrect: isCorrect
+                });
+                updateDonuts(correct, wrong, questions.length);
+                persistSession();
+                const exp = container.querySelector('.quiz-explanation');
+                const text = exp ? exp.dataset.text : '';
+                if (exp) {
+                    exp.classList.add(isCorrect ? 'correct' : 'wrong');
+                    let html = '';
+                    if (isCorrect) {
+                        html = '<span class="exp-title">✓ Correct!</span>';
+                        if (text) html += '<div>' + text + '</div>';
+                    } else {
+                        html = '<span class="exp-title">💡 Step-by-step</span>';
+                        html += '<span class="exp-correct-answer">Correct answer: ' + correctAnswerText(q) + '</span>';
+                        if (text) html += '<div>' + text + '</div>';
+                        html += ' <button class="speak-btn" id="expSpeakBtn" title="Read explanation" style="margin-top:10px;">' + SPEAKER_SVG + '</button>';
+                    }
+                    exp.innerHTML = html;
+                    exp.style.display = '';
+                    const expBtn = document.getElementById('expSpeakBtn');
+                    if (expBtn) {
+                        expBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                            expBtn.classList.add('speaking');
+                            const speech = 'Correct answer: ' + correctAnswerText(q) + '. ' + text;
+                            ttsSpeak(htmlToReadable(speech), () => expBtn.classList.remove('speaking'));
+                        };
+                    }
+                }
+                // Wrong answers get more time to read the explanation
+                const defaultDelay = isCorrect ? 1800 : 6500;
+                const delay = explanationDelay != null ? explanationDelay : defaultDelay;
+                setTimeout(() => {
+                    if (current < questions.length - 1) {
+                        current++;
+                        show();
+                    } else {
+                        ttsCancel();
+                        showFinal();
+                    }
+                }, delay);
+            }
+
+            function showFinal() {
+                const pct = Math.round((correct / questions.length) * 100);
+                // Save report and clear in-progress session
+                saveReport({
+                    date: new Date().toISOString(),
+                    startedAt: sessionStartedAt,
+                    category: category,
+                    topicLabel: topicLabel || (category === '__all__' ? 'All Topics (mixed)' : category),
+                    totalQuestions: questions.length,
+                    correct: correct,
+                    wrong: wrong,
+                    percentage: pct,
+                    hardMode: !!hardMode,
+                    results: results
+                });
+                clearSession();
+                container.innerHTML = `
+                    <div class="quiz-result">
+                        Practice complete!<br>
+                        Score: ${correct} / ${questions.length} <span style="font-weight:500;color:#666;">(${pct}%)</span>
+                        <button class="restart-btn" id="restartBtn">Practice again</button>
+                    </div>
+                `;
+                document.getElementById('restartBtn').onclick = () => render(category);
+            }
+
+            // ---- renderers per type ----
+            function renderMC(q) {
+                const opts = document.createElement('div');
+                opts.className = 'quiz-options';
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.className = 'quiz-option';
+                    btn.onclick = () => {
+                        const isCorrect = (i === q.answer);
+                        if (isCorrect) btn.classList.add('quiz-correct');
+                        else {
+                            btn.classList.add('quiz-wrong');
+                            // highlight correct
+                            opts.querySelectorAll('button')[q.answer].classList.add('quiz-correct');
+                        }
+                        Array.from(opts.querySelectorAll('button')).forEach(b => b.disabled = true);
+                        finishQuestion(isCorrect);
+                    };
+                    opts.appendChild(btn);
+                });
+                container.appendChild(opts);
+            }
+
+            function renderTF(q) {
+                const labels = q.labels || ['True', 'False'];
+                const opts = document.createElement('div');
+                opts.className = 'quiz-options';
+                labels.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.className = 'quiz-option';
+                    btn.onclick = () => {
+                        const isCorrect = (i === q.answer);
+                        if (isCorrect) btn.classList.add('quiz-correct');
+                        else {
+                            btn.classList.add('quiz-wrong');
+                            opts.querySelectorAll('button')[q.answer].classList.add('quiz-correct');
+                        }
+                        Array.from(opts.querySelectorAll('button')).forEach(b => b.disabled = true);
+                        finishQuestion(isCorrect);
+                    };
+                    opts.appendChild(btn);
+                });
+                container.appendChild(opts);
+            }
+
+            function renderMulti(q) {
+                const hint = document.createElement('div');
+                hint.className = 'quiz-multi-hint';
+                hint.textContent = 'Choose ALL that apply, then press Submit.';
+                container.appendChild(hint);
+
+                const opts = document.createElement('div');
+                opts.className = 'quiz-options';
+                const selected = new Set();
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.className = 'quiz-option';
+                    btn.onclick = () => {
+                        if (selected.has(i)) {
+                            selected.delete(i);
+                            btn.classList.remove('quiz-multi-selected');
+                        } else {
+                            selected.add(i);
+                            btn.classList.add('quiz-multi-selected');
+                        }
+                    };
+                    opts.appendChild(btn);
+                });
+                container.appendChild(opts);
+
+                const submit = document.createElement('button');
+                submit.className = 'quiz-submit-btn';
+                submit.textContent = 'Submit';
+                submit.onclick = () => {
+                    const chosen = Array.from(selected);
+                    const correctSet = q.answer;
+                    const isCorrect = arraysEqualAsSets(chosen, correctSet);
+                    const buttons = Array.from(opts.querySelectorAll('button'));
+                    buttons.forEach((b, i) => {
+                        b.disabled = true;
+                        const isAns = correctSet.includes(i);
+                        const isPicked = chosen.includes(i);
+                        b.classList.remove('quiz-multi-selected');
+                        if (isAns && isPicked) b.classList.add('quiz-correct');
+                        else if (!isAns && isPicked) b.classList.add('quiz-wrong');
+                        else if (isAns && !isPicked) b.classList.add('quiz-correct-missed');
+                    });
+                    submit.disabled = true;
+                    finishQuestion(isCorrect);
+                };
+                container.appendChild(submit);
+            }
+
+            function renderNumeric(q) {
+                const wrap = document.createElement('div');
+                wrap.style.display = 'flex';
+                wrap.style.flexDirection = 'column';
+                wrap.style.gap = '8px';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.inputMode = 'decimal';
+                input.autocomplete = 'off';
+                input.className = 'quiz-numeric-input';
+                input.placeholder = q.unit ? `Answer (${q.unit})` : 'Type your answer';
+                wrap.appendChild(input);
+
+                const submit = document.createElement('button');
+                submit.className = 'quiz-submit-btn';
+                submit.textContent = 'Submit';
+                wrap.appendChild(submit);
+                container.appendChild(wrap);
+                setTimeout(() => input.focus(), 50);
+
+                function check() {
+                    const userVal = normalizeNumeric(input.value);
+                    if (userVal === null) {
+                        input.classList.add('quiz-wrong');
+                        return;
+                    }
+                    const expected = (typeof q.answer === 'string') ? normalizeNumeric(q.answer) : q.answer;
+                    const tol = q.tolerance != null ? q.tolerance : 0.0001;
+                    const isCorrect = Math.abs(userVal - expected) <= tol;
+                    input.disabled = true;
+                    submit.disabled = true;
+                    if (isCorrect) {
+                        input.classList.add('quiz-correct');
+                    } else {
+                        input.classList.add('quiz-wrong');
+                    }
+                    finishQuestion(isCorrect);
+                }
+                submit.onclick = check;
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !input.disabled) { e.preventDefault(); check(); }
+                });
+            }
+
+            show();
+        }
+
+        categorySelect.onchange = e => { ttsCancel(); clearSession(); render(e.target.value); };
+        document.getElementById('resetBtn').onclick = () => {
+            ttsCancel();
+            gearDropdown.classList.remove('show');
+            clearSession();
+            render(categorySelect.value);
+        };
+
+        // ===== Reports overlay =====
+        const reportsOverlay = document.getElementById('reportsOverlay');
+        const reportsList = document.getElementById('reportsList');
+        document.getElementById('viewReportsBtn').onclick = () => {
+            gearDropdown.classList.remove('show');
+            reportsOverlay.style.display = 'flex';
+            loadReports();
+        };
+        document.getElementById('reportsCloseBtn').onclick = () => {
+            reportsOverlay.style.display = 'none';
+        };
+        function loadReports() {
+            reportsList.innerHTML = '<p class="reports-loading">Loading reports...</p>';
+            if (typeof db === 'undefined') {
+                reportsList.innerHTML = '<p class="reports-loading">Firebase not available.</p>';
+                return;
+            }
+            db.ref('mathReports/' + currentProfile).orderByKey().once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (!data) {
+                    reportsList.innerHTML = '<p class="reports-loading">No reports saved yet.</p>';
+                    return;
+                }
+                const reports = Object.entries(data).sort((a, b) => Number(b[0]) - Number(a[0]));
+                reportsList.innerHTML = '';
+                reports.forEach(([id, report]) => {
+                    const date = new Date(report.date);
+                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const card = document.createElement('div');
+                    card.className = 'report-card';
+                    const scoreClass = report.percentage >= 80 ? 'report-score-good' : report.percentage >= 50 ? 'report-score-ok' : 'report-score-low';
+                    const topic = report.topicLabel || report.category || 'Math';
+                    card.innerHTML = `
+                        <div class="report-card-header">
+                            <div class="report-date">${dateStr} at ${timeStr}<div style="font-size:11px;color:#0071e3;font-weight:600;margin-top:2px;">${topic}${report.hardMode ? ' \u2022 \ud83d\udd25 Hard' : ''}</div></div>
+                            <div class="report-score ${scoreClass}">${report.percentage}%</div>
+                        </div>
+                        <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalQuestions} questions</div>
+                    `;
+                    if (report.results) {
+                        const wrongQs = report.results.filter(r => !r.isCorrect);
+                        if (wrongQs.length > 0) {
+                            const details = document.createElement('details');
+                            details.className = 'report-details';
+                            const summary = document.createElement('summary');
+                            summary.textContent = `Questions missed (${wrongQs.length})`;
+                            details.appendChild(summary);
+                            const wordsList = document.createElement('div');
+                            wordsList.className = 'report-words';
+                            wrongQs.forEach(r => {
+                                const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 90);
+                                wordsList.innerHTML += `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 90 ? '\u2026' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                            });
+                            details.appendChild(wordsList);
+                            card.appendChild(details);
+                        }
+                    }
+                    reportsList.appendChild(card);
+                });
+            }).catch(e => {
+                console.warn('Failed to load math reports:', e);
+                reportsList.innerHTML = '<p class="reports-loading">Failed to load reports.</p>';
+            });
+        }
+
+        // Default to Day 1 if available, else mixed; resume saved session if any
+        const firstKey = Object.keys(mathPracticeData)[0];
+        if (firstKey) categorySelect.value = firstKey;
+        loadSession().then(saved => {
+            if (saved && saved.questions && saved.current < saved.questions.length) {
+                if (saved.category && (saved.category === '__all__' || mathPracticeData[saved.category])) {
+                    categorySelect.value = saved.category;
+                }
+                render(saved.category || categorySelect.value, saved);
+            } else {
+                render(categorySelect.value);
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

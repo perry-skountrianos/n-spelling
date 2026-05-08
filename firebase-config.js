@@ -35,6 +35,18 @@
 //            ".read": true,
 //            ".write": true
 //          }
+//        },
+//        "mathSessions": {
+//          "$profile": {
+//            ".read": true,
+//            ".write": true
+//          }
+//        },
+//        "mathReports": {
+//          "$profile": {
+//            ".read": true,
+//            ".write": true
+//          }
 //        }
 //      }
 //    }

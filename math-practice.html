@@ -816,7 +816,7 @@
                             <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
                         </div>
                     </div>
-                    ${q.hint ? `<div class="hint-display" id="hintDisplay"></div>` : ''}
+                    <div class="hint-display" id="hintDisplay"></div>
                 `;
                 container.innerHTML = '';
                 container.appendChild(header);
@@ -831,18 +831,17 @@
                 }
                 const hintBtn = document.getElementById('hintBtn');
                 const hintDisplay = document.getElementById('hintDisplay');
-                if (hintBtn && q.hint) {
+                if (hintBtn) {
                     hintBtn.onclick = (e) => {
                         e.stopPropagation();
+                        if (!hintDisplay) return; // No hint display div
                         if (hintDisplay.classList.contains('show')) {
                             hintDisplay.classList.remove('show');
                         } else {
                             hintDisplay.classList.add('show');
-                            hintDisplay.textContent = q.hint;
+                            hintDisplay.textContent = q.hint || 'No hint available yet.';
                         }
                     };
-                } else if (hintBtn) {
-                    hintBtn.disabled = true;
                 }
                 const qBtn = document.getElementById('questionSpeakBtn');
                 qBtn.onclick = (e) => {

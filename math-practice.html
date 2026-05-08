@@ -1010,6 +1010,9 @@
                     const userVal = normalizeNumeric(input.value);
                     if (userVal === null) {
                         input.classList.add('quiz-wrong');
+                        input.disabled = true;
+                        submit.disabled = true;
+                        finishQuestion(false);
                         return;
                     }
                     const expected = (typeof q.answer === 'string') ? normalizeNumeric(q.answer) : q.answer;

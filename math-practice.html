@@ -907,6 +907,14 @@
             function renderLiveMissed() {
                 const wrongSoFar = results.filter(r => !r.isCorrect);
                 let wrap = container.querySelector('#liveMissedWrap');
+                
+                // If no missed questions, remove the wrapper if it exists and return
+                if (wrongSoFar.length === 0) {
+                    if (wrap) wrap.remove();
+                    return;
+                }
+                
+                // If missed questions exist, create/update the wrapper
                 if (!wrap) {
                     wrap = document.createElement('div');
                     wrap.id = 'liveMissedWrap';
@@ -918,12 +926,10 @@
                     <details class="report-details">
                         <summary>Questions missed so far (${wrongSoFar.length})</summary>
                         <div class="report-words">
-                            ${wrongSoFar.length > 0
-                                ? wrongSoFar.map(r => {
-                                    const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 120);
-                                    return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
-                                }).join('')
-                                : '<div class="report-word-item"><div style="font-weight:600;color:#333;">No missed questions yet.</div></div>'}
+                            ${wrongSoFar.map(r => {
+                                const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 120);
+                                return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                            }).join('')}
                         </div>
                     </details>
                 `;

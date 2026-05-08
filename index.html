@@ -525,6 +525,33 @@
                 loadProfileList();
             }
 
+            function showAppsForCurrentProfile() {
+                const id = Profiles.getCurrentId();
+                if (!id) {
+                    showProfileScreen();
+                    return;
+                }
+
+                const applyProfile = (profile) => {
+                    profileScreen.style.display = 'none';
+                    appsContainer.style.display = '';
+                    chipName.textContent = (profile && profile.name) ? profile.name : id;
+                    chipAv.innerHTML = emojiToImg((profile && profile.avatar) ? profile.avatar : '🦁', 36);
+                };
+
+                if (typeof db !== 'undefined') {
+                    db.ref('profiles/' + id).once('value').then(snapshot => {
+                        const profile = snapshot.val();
+                        if (profile) applyProfile(profile);
+                        else applyProfile(Profiles.getCurrent());
+                    }).catch(() => {
+                        applyProfile(Profiles.getCurrent());
+                    });
+                } else {
+                    applyProfile(Profiles.getCurrent());
+                }
+            }
+
             chip.addEventListener('click', () => {
                 Profiles.clearCurrent();
                 showProfileScreen();
@@ -643,7 +670,7 @@
                     setTimeout(init, 80);
                     return;
                 }
-                showProfileScreen();
+                showAppsForCurrentProfile();
             }
             init();
         })();

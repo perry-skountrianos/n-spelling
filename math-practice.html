@@ -145,7 +145,7 @@
             border-radius: 50%;
             background: #fff;
             color: #555;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
@@ -267,14 +267,47 @@
         .speak-btn:disabled { opacity: 0.3; cursor: default; }
         .speak-btn.speaking { border-color: #0071e3; background: #e3f2fd; }
         .speak-btn svg { width: 20px; height: 20px; }
+        .hint-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: 2px solid #f39c12;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            padding: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #f39c12;
+        }
+        .hint-btn:hover { border-color: #e67e22; color: #e67e22; background: #fff8f0; }
+        .hint-btn:disabled { opacity: 0.3; cursor: default; }
+        .hint-display {
+            display: none;
+            margin: 12px 0;
+            padding: 12px 14px;
+            background: #fffbf0;
+            border-left: 4px solid #f39c12;
+            border-radius: 6px;
+            color: #b8860b;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .hint-display.show { display: block; }
         .question-row {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 10px;
         }
         .question-row .quiz-question { flex: 1; margin: 0; }
+        .question-row .question-buttons { display: flex; gap: 8px; }
 
         /* ----- TTS toggle in gear menu ----- */
         .tts-toggle-row {
@@ -778,8 +811,12 @@
                     ${lessonHTML ? `<div class="lesson-actions"><button class="lesson-toggle" id="lessonToggle">☰ Show lesson</button></div>` : ''}
                     <div class="question-row">
                         <div class="quiz-question">${q.question}</div>
-                        <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
+                        <div class="question-buttons">
+                            <button class="hint-btn" id="hintBtn" title="Show hint">💡</button>
+                            <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
+                        </div>
                     </div>
+                    ${q.hint ? `<div class="hint-display" id="hintDisplay"></div>` : ''}
                 `;
                 container.innerHTML = '';
                 container.appendChild(header);
@@ -791,6 +828,21 @@
                 }
                 if (lessonHTML) {
                     document.getElementById('lessonToggle').onclick = () => showLesson();
+                }
+                const hintBtn = document.getElementById('hintBtn');
+                const hintDisplay = document.getElementById('hintDisplay');
+                if (hintBtn && q.hint) {
+                    hintBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (hintDisplay.classList.contains('show')) {
+                            hintDisplay.classList.remove('show');
+                        } else {
+                            hintDisplay.classList.add('show');
+                            hintDisplay.textContent = q.hint;
+                        }
+                    };
+                } else if (hintBtn) {
+                    hintBtn.disabled = true;
                 }
                 const qBtn = document.getElementById('questionSpeakBtn');
                 qBtn.onclick = (e) => {
@@ -872,7 +924,7 @@
                     if (!isCorrect) {
                         html += '<button class="speak-btn" id="expSpeakBtn" title="Read explanation">' + SPEAKER_SVG + '</button>';
                     }
-                    html += '<button class="explain-next-btn" id="nextBtn" title="Next question">Next</button>';
+                    html += '<button class="explain-next-btn" id="nextBtn" title="Next question">→</button>';
                     html += '</div>';
                     exp.innerHTML = html;
                     exp.style.display = 'block';

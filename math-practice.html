@@ -261,7 +261,8 @@
         }
         .tts-switch.on { background: #4caf50; }
         .tts-switch.on::after { left: 20px; }
-        #profileAvatar { font-size: 36px; }
+        #profileAvatar { font-size: 0; }
+        #profileAvatar img { width: 36px; height: 36px; display: block; }
     </style>
 </head>
 <body>
@@ -342,6 +343,11 @@
         const currentProfile = (typeof Profiles !== 'undefined') ? Profiles.getCurrentId() : 'default';
         function profileRef(path) { return path + '/' + currentProfile; }
         function profileKey(k) { return currentProfile + '_' + k; }
+        function emojiToImg(emoji, size) {
+            const cp = [...emoji].map(c => c.codePointAt(0).toString(16)).join('-');
+            const px = size || 36;
+            return '<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/' + cp + '.svg" alt="' + emoji + '" width="' + px + '" height="' + px + '" style="display:block;" draggable="false">';
+        }
 
         // -------- helpers --------
         function shuffle(arr){
@@ -1110,7 +1116,7 @@
             if (!avatarEl) return;
 
             const applyAvatar = (profile) => {
-                if (profile && profile.avatar) avatarEl.textContent = profile.avatar;
+                if (profile && profile.avatar) avatarEl.innerHTML = emojiToImg(profile.avatar, 36);
             };
 
             if (typeof db !== 'undefined') {

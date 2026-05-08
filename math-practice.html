@@ -73,9 +73,45 @@
             margin-bottom: 10px;
             font-style: italic;
         }
-        .quiz-option.quiz-multi-selected {
+        .quiz-multi-option-wrapper {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .quiz-multi-option-wrapper:hover {
+            border-color: #0071e3;
+            background: #f5f9ff;
+        }
+        .quiz-multi-option-wrapper.selected {
             border-color: #0071e3;
             background: #e3f2fd;
+        }
+        .quiz-multi-checkbox {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #0071e3;
+        }
+        .quiz-multi-option-label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 15px;
+            color: #333;
+        }
+        .quiz-multi-option-wrapper.correct .quiz-multi-checkbox {
+            accent-color: #4caf50;
+        }
+        .quiz-multi-option-wrapper.wrong .quiz-multi-checkbox {
+            accent-color: #e53935;
         }
         .quiz-option.quiz-correct-missed {
             border-color: #ffa000;
@@ -1176,19 +1212,31 @@
                 opts.className = 'quiz-options';
                 const selected = new Set();
                 q.options.forEach((opt, i) => {
-                    const btn = document.createElement('button');
-                    btn.textContent = opt;
-                    btn.className = 'quiz-option';
-                    btn.onclick = () => {
-                        if (selected.has(i)) {
-                            selected.delete(i);
-                            btn.classList.remove('quiz-multi-selected');
-                        } else {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'quiz-multi-option-wrapper';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'quiz-multi-checkbox';
+                    checkbox.id = `multi-opt-${i}`;
+                    checkbox.onchange = () => {
+                        if (checkbox.checked) {
                             selected.add(i);
-                            btn.classList.add('quiz-multi-selected');
+                            wrapper.classList.add('selected');
+                        } else {
+                            selected.delete(i);
+                            wrapper.classList.remove('selected');
                         }
                     };
-                    opts.appendChild(btn);
+
+                    const label = document.createElement('label');
+                    label.className = 'quiz-multi-option-label';
+                    label.htmlFor = `multi-opt-${i}`;
+                    label.textContent = opt;
+
+                    wrapper.appendChild(checkbox);
+                    wrapper.appendChild(label);
+                    opts.appendChild(wrapper);
                 });
                 container.appendChild(opts);
 
@@ -1199,15 +1247,16 @@
                     const chosen = Array.from(selected);
                     const correctSet = q.answer;
                     const isCorrect = arraysEqualAsSets(chosen, correctSet);
-                    const buttons = Array.from(opts.querySelectorAll('button'));
-                    buttons.forEach((b, i) => {
-                        b.disabled = true;
+                    const wrappers = Array.from(opts.querySelectorAll('.quiz-multi-option-wrapper'));
+                    wrappers.forEach((wrapper, i) => {
+                        const checkbox = wrapper.querySelector('input[type="checkbox"]');
+                        checkbox.disabled = true;
                         const isAns = correctSet.includes(i);
                         const isPicked = chosen.includes(i);
-                        b.classList.remove('quiz-multi-selected');
-                        if (isAns && isPicked) b.classList.add('quiz-correct');
-                        else if (!isAns && isPicked) b.classList.add('quiz-wrong');
-                        else if (isAns && !isPicked) b.classList.add('quiz-correct-missed');
+                        wrapper.classList.remove('selected');
+                        if (isAns && isPicked) wrapper.classList.add('correct');
+                        else if (!isAns && isPicked) wrapper.classList.add('wrong');
+                        else if (isAns && !isPicked) wrapper.classList.add('correct-missed');
                     });
                     submit.disabled = true;
                     finishQuestion(isCorrect);

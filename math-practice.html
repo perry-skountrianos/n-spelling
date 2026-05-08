@@ -268,6 +268,9 @@
         <a href="index.html" class="home-circle" title="Home">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
+        <div class="profile-circle" id="profileIndicator" title="Switch Player">
+            <span class="profile-circle-avatar" id="profileAvatar">👤</span>
+        </div>
         <div class="donut-wrapper">
             <svg class="donut" viewBox="0 0 36 36">
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
@@ -599,6 +602,16 @@
             }
         });
 
+        // -------- profile circle --------
+        const profileIndicator = document.getElementById('profileIndicator');
+        if (profileIndicator) {
+            profileIndicator.onclick = () => {
+                ttsCancel();
+                Profiles.clearCurrent();
+                window.location.reload();
+            };
+        }
+
         // -------- categories --------
         const categorySelect = document.getElementById('categorySelect');
         const allOpt = document.createElement('option');
@@ -617,6 +630,12 @@
 
         function render(category, restore) {
             container.innerHTML = '';
+            // Update profile avatar
+            const prof = Profiles.getCurrent();
+            if (prof && prof.avatar) {
+                const avatarEl = document.getElementById('profileAvatar');
+                if (avatarEl) avatarEl.textContent = prof.avatar;
+            }
             let questions, topicLabel, lessonHTML;
             // Pool builder: combine base data + supplementary bank for the same topic
             function poolForTopic(key) {
@@ -773,6 +792,7 @@
                 return q.options ? q.options[q.answer] : '';
             }
 
+            let pendingTimeout = null;
             function finishQuestion(isCorrect, explanationDelay) {
                 const q = questions[current];
                 if (isCorrect) { correct++; clearWrong(q); }
@@ -800,8 +820,9 @@
                         if (text) html += '<div>' + text + '</div>';
                         html += ' <button class="speak-btn" id="expSpeakBtn" title="Read explanation" style="margin-top:10px;">' + SPEAKER_SVG + '</button>';
                     }
+                    html += ' <button class="speak-btn" id="nextBtn" title="Next question" style="margin-top:10px;background:#0071e3;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer;">Next</button>';
                     exp.innerHTML = html;
-                    exp.style.display = '';
+                    exp.style.display = 'block';
                     const expBtn = document.getElementById('expSpeakBtn');
                     if (expBtn) {
                         expBtn.onclick = (e) => {
@@ -812,11 +833,25 @@
                             ttsSpeak(htmlToReadable(speech), () => expBtn.classList.remove('speaking'));
                         };
                     }
+                    const nextBtn = document.getElementById('nextBtn');
+                    if (nextBtn) {
+                        nextBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (pendingTimeout) clearTimeout(pendingTimeout);
+                            if (current < questions.length - 1) {
+                                current++;
+                                show();
+                            } else {
+                                ttsCancel();
+                                showFinal();
+                            }
+                        };
+                    }
                 }
                 // Wrong answers get more time to read the explanation
                 const defaultDelay = isCorrect ? 1800 : 6500;
                 const delay = explanationDelay != null ? explanationDelay : defaultDelay;
-                setTimeout(() => {
+                pendingTimeout = setTimeout(() => {
                     if (current < questions.length - 1) {
                         current++;
                         show();

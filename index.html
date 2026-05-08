@@ -511,8 +511,25 @@
                 });
             }
 
+            function syncLocalProfile(id, profile) {
+                try {
+                    const list = Profiles.list();
+                    const idx = list.findIndex(p => p.id === id);
+                    const merged = {
+                        id: id,
+                        name: (profile && profile.name) ? profile.name : id,
+                        avatar: (profile && profile.avatar) ? profile.avatar : '🦁',
+                        age: (profile && typeof profile.age === 'number') ? profile.age : ((idx >= 0 && typeof list[idx].age === 'number') ? list[idx].age : 0)
+                    };
+                    if (idx >= 0) list[idx] = Object.assign({}, list[idx], merged);
+                    else list.push(merged);
+                    Profiles.save(list);
+                } catch (_) {}
+            }
+
             function selectProfile(id, profile) {
                 Profiles.setCurrent(id);
+                syncLocalProfile(id, profile || {});
                 profileScreen.style.display = 'none';
                 appsContainer.style.display = '';
                 chipName.textContent = profile.name || id;
@@ -533,6 +550,7 @@
                 }
 
                 const applyProfile = (profile) => {
+                    syncLocalProfile(id, profile || {});
                     profileScreen.style.display = 'none';
                     appsContainer.style.display = '';
                     chipName.textContent = (profile && profile.name) ? profile.name : id;

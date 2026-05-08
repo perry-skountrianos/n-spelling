@@ -1106,10 +1106,23 @@
         if (firstKey) categorySelect.value = firstKey;
         // Initialize profile avatar immediately
         function initProfileAvatar() {
-            const prof = Profiles.getCurrent();
-            if (prof && prof.avatar) {
-                const avatarEl = document.getElementById('profileAvatar');
-                if (avatarEl) avatarEl.textContent = prof.avatar;
+            const avatarEl = document.getElementById('profileAvatar');
+            if (!avatarEl) return;
+
+            const applyAvatar = (profile) => {
+                if (profile && profile.avatar) avatarEl.textContent = profile.avatar;
+            };
+
+            if (typeof db !== 'undefined') {
+                db.ref('profiles/' + currentProfile).once('value').then(snapshot => {
+                    const profile = snapshot.val();
+                    if (profile) applyAvatar(profile);
+                    else applyAvatar(Profiles.getCurrent());
+                }).catch(() => {
+                    applyAvatar(Profiles.getCurrent());
+                });
+            } else {
+                applyAvatar(Profiles.getCurrent());
             }
         }
         initProfileAvatar();

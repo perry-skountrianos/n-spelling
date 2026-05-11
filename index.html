@@ -31,37 +31,42 @@
             justify-content: center;
         }
         .app-link {
-            display: block;
+                display: flex;
             text-decoration: none;
             color: inherit;
             transition: transform 0.2s;
+                justify-content: center;
         }
         .app-link:hover {
             transform: scale(1.05);
         }
         .app-card {
-            width: 140px;
-            min-height: 210px;
+                width: 168px;
+                height: 168px;
             background: #fff;
-            border-radius: 20px;
-            padding: 1.5rem 1rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+                border-radius: 50%;
+                padding: 1.25rem;
+                box-shadow: 0 10px 28px rgba(0,0,0,0.10);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+                gap: 0.5rem;
+                text-align: center;
         }
         .app-icon {
-            margin-bottom: 0.75rem;
             display: block;
+                line-height: 1;
         }
         .app-icon svg {
             width: 56px;
             height: 56px;
         }
         .app-name {
-            font-size: 0.9rem;
-            font-weight: 500;
+                font-size: 0.95rem;
+                font-weight: 600;
+                line-height: 1.2;
+                max-width: 7.5rem;
         }
         @media (min-width: 640px) {
             #appsContainer.container {
@@ -80,7 +85,7 @@
             }
 
             #appsList .app-card {
-                width: 100%;
+                margin-inline: auto;
             }
         }
         /* Auth gate */
@@ -457,25 +462,25 @@
             <div class="apps" id="appsList">
                 <a href="spelling.html" class="app-link">
                     <div class="app-card">
-                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="14" y2="15"/></svg></span>
                         <span class="app-name">Spelling</span>
                     </div>
                 </a>
                 <a href="quizes.html" class="app-link">
                     <div class="app-card">
-                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="7" cy="7" r="1"/><circle cx="17" cy="7" r="1"/><circle cx="7" cy="17" r="1"/><circle cx="17" cy="17" r="1"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg></span>
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
                         <span class="app-name">Quizes</span>
                     </div>
                 </a>
                 <a href="meal-planner.html" class="app-link">
                     <div class="app-card">
-                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M8 17h8"/><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/><path d="M7 17v2M17 17v2"/></svg></span>
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 10v4M12 9.5v5M15.5 10v4"/><line x1="6" y1="12" x2="18" y2="12"/></svg></span>
                         <span class="app-name">Meal Planner</span>
                     </div>
                 </a>
                 <a href="math-practice.html" class="app-link">
                     <div class="app-card">
-                        <span class="app-icon" style="font-size: 48px; line-height: 1; filter: grayscale(1) brightness(0.7);">🧮</span>
+                        <span class="app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/><path d="M12.5 11.5L11 12.5m1.5-2l-1.5 1m2.5 1l-1.5 1m1.5-2l-1.5 1"/></svg></span>
                         <span class="app-name">Math</span>
                     </div>
                 </a>

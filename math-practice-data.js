@@ -254,9 +254,9 @@ const mathPracticeData = {
 
     "5 — Variables, Tables & Equations (6.EE.9)": {
         video: {
-            id: "vqRZWcsx9_w",
-            title: "Math Antics — What Are Variables?",
-            blurb: "Variables are just placeholders for numbers. This 8-min video makes that crystal clear."
+            id: "WZdZhuUSmpM",
+            title: "Introduction to Algebra — Using Variables",
+            blurb: "Variables are just placeholders for numbers. This short video makes that crystal clear."
         },
         lesson: `
             <h3>Independent vs Dependent Variables</h3>
@@ -399,7 +399,7 @@ const mathPracticeData = {
 
     "8 — Integers & Absolute Value (6.NS.5–7)": {
         video: {
-            id: "nkmu9oH-jPI",
+            id: "OAoLCXpao6s",
             title: "Math Antics — Negative Numbers",
             blurb: "Negative numbers on the number line, opposites, and absolute value — all in one clean explainer."
         },
@@ -442,8 +442,8 @@ const mathPracticeData = {
 
     "9 — Coordinate Plane (6.NS.6, 6.NS.8)": {
         video: {
-            id: "s7NKLWXkEFE",
-            title: "Math Antics — The Coordinate Plane",
+            id: "9Uc62CuQjc4",
+            title: "Math Antics — Graphing On The Coordinate Plane",
             blurb: "Quadrants, ordered pairs, and how (x, y) becomes a dot. Get comfy before plotting shapes!"
         },
         lesson: `

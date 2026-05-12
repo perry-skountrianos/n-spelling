@@ -25,9 +25,10 @@
             max-width: 600px;
         }
         .apps {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+            justify-items: center;
             justify-content: center;
         }
         .app-link {
@@ -41,11 +42,11 @@
             transform: scale(1.05);
         }
         .app-card {
-                width: 168px;
-                height: 168px;
+                width: clamp(120px, 38vw, 168px);
+                height: clamp(120px, 38vw, 168px);
             background: #fff;
                 border-radius: 50%;
-                padding: 1.25rem;
+                padding: 1rem;
                 box-shadow: 0 10px 28px rgba(0,0,0,0.10);
             display: flex;
             flex-direction: column;
@@ -426,7 +427,7 @@
             <div class="profile-list" id="profileList"></div>
             <button class="profile-add-btn" id="addProfileBtn">+ Add Player</button>
             <button class="profile-delete-btn" id="deleteProfileBtn">Delete a player</button>
-            <div class="app-version">v49</div>
+            <div class="app-version">v50</div>
         </div>
 
         <!-- Profile Edit Modal -->

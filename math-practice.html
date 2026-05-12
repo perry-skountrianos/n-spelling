@@ -1396,7 +1396,12 @@
             show();
         }
 
-        categorySelect.onchange = e => { ttsCancel(); clearSession(); render(e.target.value); };
+        categorySelect.onchange = e => {
+            gearDropdown.classList.remove('show');
+            ttsCancel();
+            clearSession();
+            render(e.target.value);
+        };
         document.getElementById('resetBtn').onclick = () => {
             ttsCancel();
             gearDropdown.classList.remove('show');

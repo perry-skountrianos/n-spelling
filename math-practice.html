@@ -421,6 +421,12 @@
            so undo the aspect-ratio padding hack. */
         .lesson-video-frame:fullscreen,
         .lesson-video-frame:-webkit-full-screen { padding-top: 0; width: 100vw; height: 100vh; background: #000; }
+        .lesson-video-frame:fullscreen iframe,
+        .lesson-video-frame:-webkit-full-screen iframe,
+        .lesson-video-frame:fullscreen .lesson-video-clickcatch,
+        .lesson-video-frame:-webkit-full-screen .lesson-video-clickcatch {
+            top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%;
+        }
         /* Pseudo-fullscreen fallback for browsers (notably iOS Safari) that
            refuse to put a non-<video> element into the Fullscreen API. */
         .lesson-video-frame.is-pseudo-fs {
@@ -433,6 +439,18 @@
             border-radius: 0;
             z-index: 2147483647;
             background: #000;
+        }
+        /* In pseudo-fullscreen, let the iframe and click-catch fill the whole
+           viewport so the video itself \u2014 not just the wrapper \u2014 grows. The
+           top cover and bottom controls stay floating above it. */
+        .lesson-video-frame.is-pseudo-fs iframe,
+        .lesson-video-frame.is-pseudo-fs .lesson-video-clickcatch {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
         }
         body.lesson-video-pseudo-fs { overflow: hidden; }
         /* Transparent click-catch overlay above the iframe — swallows hover so

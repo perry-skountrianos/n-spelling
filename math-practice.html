@@ -501,6 +501,7 @@
     <script src="math-shapes.js?v=1"></script>
     <script src="math-practice-data.js?v=4"></script>
     <script src="math-practice-bank.js?v=2"></script>
+    <script src="math-practice-bank-2.js?v=1"></script>
     <script>
     (function(){
         // -------- profile bootstrap --------
@@ -637,6 +638,40 @@
             const k = qSig(q);
             if (w[k]) { delete w[k]; saveWrong(w); }
         }
+
+        // ===== Recently-seen tracking (avoid showing the same Qs back-to-back) =====
+        // Keyed per topic: { topicKey: [sig1, sig2, ...] } most-recent last.
+        const RECENT_KEY = profileKey('mathPracticeRecent');
+        const RECENT_CAP_PER_TOPIC = 30; // remember ~last 30 per topic
+        function loadRecent() {
+            try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '{}'); } catch(_) { return {}; }
+        }
+        function saveRecent(obj) {
+            try { localStorage.setItem(RECENT_KEY, JSON.stringify(obj)); } catch(_){}
+        }
+        function recordRecent(questions) {
+            if (!questions || !questions.length) return;
+            const r = loadRecent();
+            questions.forEach(q => {
+                const topic = q._topic || '__all__';
+                const list = r[topic] || [];
+                const sig = qSig(q);
+                const idx = list.indexOf(sig);
+                if (idx !== -1) list.splice(idx, 1);
+                list.push(sig);
+                while (list.length > RECENT_CAP_PER_TOPIC) list.shift();
+                r[topic] = list;
+            });
+            saveRecent(r);
+        }
+        function recentSetFor(pool) {
+            // Build a Set of sigs that are "recently seen" — across all topics that appear in pool.
+            const r = loadRecent();
+            const topics = new Set(pool.map(q => q._topic || '__all__'));
+            const out = new Set();
+            topics.forEach(t => (r[t] || []).forEach(sig => out.add(sig)));
+            return out;
+        }
         const hardSwitch = document.getElementById('hardSwitch');
         const hardToggleRow = document.getElementById('hardToggleRow');
         function updateHardSwitch(){
@@ -675,6 +710,9 @@
         const ALL_SESSION_SIZE = 20;
         function pickSession(pool, n) {
             if (pool.length <= n) return shuffle(pool);
+            const recent = recentSetFor(pool);
+            const freshPool = pool.filter(q => !recent.has(qSig(q)));
+            const stalePool = pool.filter(q => recent.has(qSig(q)));
             if (hardMode) {
                 const wrong = loadWrong();
                 const wrongQs = pool.filter(q => wrong[qSig(q)]);
@@ -685,7 +723,11 @@
                 if (out.length < n) out.push(...shuffledOther.slice(0, n - out.length));
                 return shuffle(out);
             }
-            return shuffle(pool).slice(0, n);
+            // Prefer fresh questions; only dip into recently-seen if not enough fresh remain.
+            if (freshPool.length >= n) return shuffle(freshPool).slice(0, n);
+            const out = shuffle(freshPool);
+            out.push(...shuffle(stalePool).slice(0, n - out.length));
+            return shuffle(out);
         }
 
         // ===== Session persistence (resume in-progress) =====
@@ -809,7 +851,8 @@
                 const block = mathPracticeData[key];
                 const baseQs = Array.isArray(block) ? block : ((block && block.questions) || []);
                 const bankQs = (typeof mathPracticeBank !== 'undefined' && mathPracticeBank[key]) ? mathPracticeBank[key] : [];
-                return [...baseQs, ...bankQs].map(q => ({ ...q, _topic: key }));
+                const bank2Qs = (typeof mathPracticeBank2 !== 'undefined' && mathPracticeBank2[key]) ? mathPracticeBank2[key] : [];
+                return [...baseQs, ...bankQs, ...bank2Qs].map(q => ({ ...q, _topic: key }));
             }
             if (restore && restore.questions && restore.questions.length) {
                 questions = restore.questions;
@@ -821,12 +864,14 @@
                     all.push(...poolForTopic(k));
                 }
                 questions = pickSession(all, ALL_SESSION_SIZE).map(shuffleQuestionOptions);
+                recordRecent(questions);
                 topicLabel = null;
                 lessonHTML = null;
             } else {
                 const block = mathPracticeData[category];
                 const pool = poolForTopic(category);
                 questions = pickSession(pool, SESSION_SIZE).map(shuffleQuestionOptions);
+                recordRecent(questions);
                 topicLabel = category;
                 lessonHTML = (!Array.isArray(block) && block && block.lesson) ? block.lesson : null;
             }

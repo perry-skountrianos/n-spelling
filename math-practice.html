@@ -409,6 +409,66 @@
         /* In fullscreen, lift the cover above the iframe layer */
         .lesson-video-frame:fullscreen .lesson-video-topcover,
         .lesson-video-frame:-webkit-full-screen .lesson-video-topcover { z-index: 2147483647; }
+        /* Transparent click-catch overlay above the iframe — swallows hover so
+           YouTube's hover chrome (share / "More videos" / YT logo on the
+           bottom) never appears. Click toggles play/pause via our API. */
+        .lesson-video-clickcatch {
+            position: absolute;
+            top: 60px;   /* below topcover */
+            left: 0;
+            right: 0;
+            bottom: 56px; /* above our custom controls */
+            z-index: 3;
+            cursor: pointer;
+            background: transparent;
+        }
+        /* Custom bottom controls — replaces YouTube's native control bar. */
+        .lesson-video-controls {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 56px;
+            background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.78));
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+            z-index: 4;
+            color: #fff;
+            font-size: 13px;
+        }
+        .lvc-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.12s;
+        }
+        .lvc-btn:hover { background: rgba(255,255,255,0.28); }
+        .lvc-time { font-variant-numeric: tabular-nums; opacity: 0.9; min-width: 90px; }
+        .lvc-progress {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.22);
+            border-radius: 999px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .lvc-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff2d55;
+            border-radius: 999px;
+            transition: width 0.18s linear;
+        }
         .start-practice-btn {
             display: block;
             margin: 14px auto 0;
@@ -702,7 +762,19 @@
         function attachYouTubeShield(frameId) {
             const shield = document.getElementById(frameId + '_shield');
             const resumeBtn = document.getElementById(frameId + '_resume');
+            const clickCatch = document.getElementById(frameId + '_click');
+            const playPauseBtn = document.getElementById(frameId + '_playpause');
+            const timeEl = document.getElementById(frameId + '_time');
+            const progressEl = document.getElementById(frameId + '_progress');
+            const progressFill = document.getElementById(frameId + '_progressfill');
+            const fsBtn = document.getElementById(frameId + '_fs');
             if (!shield || !resumeBtn) return;
+            const frameWrap = shield.parentElement; // .lesson-video-frame
+            const fmt = sec => {
+                sec = Math.max(0, Math.floor(sec || 0));
+                const m = Math.floor(sec / 60), s = sec % 60;
+                return `${m}:${s.toString().padStart(2,'0')}`;
+            };
             // Buffer click while API is still loading
             let pendingPlay = false;
             resumeBtn.onclick = () => {
@@ -711,6 +783,8 @@
                 pendingPlay = true;
             };
             loadYouTubeApi().then(YT => {
+                let isPlaying = false;
+                let progressTimer = null;
                 const player = new YT.Player(frameId, {
                     events: {
                         onReady: () => {
@@ -721,8 +795,12 @@
                             // 0 = ended, 2 = paused, 5 = cued → show shield to block end-cards
                             if (ev.data === YT.PlayerState.PLAYING || ev.data === YT.PlayerState.BUFFERING) {
                                 shield.hidden = true;
+                                isPlaying = true;
+                                if (playPauseBtn) playPauseBtn.textContent = '⏸';
                             } else {
                                 shield.hidden = false;
+                                isPlaying = false;
+                                if (playPauseBtn) playPauseBtn.textContent = '▶';
                                 resumeBtn.textContent = '▶ Resume video';
                             }
                         }
@@ -733,6 +811,48 @@
                     resumeBtn.textContent = '▶ Resume video';
                     try { player.playVideo(); } catch (e) {}
                 };
+                const togglePlay = () => {
+                    try { isPlaying ? player.pauseVideo() : player.playVideo(); } catch (e) {}
+                };
+                if (clickCatch) clickCatch.onclick = togglePlay;
+                if (playPauseBtn) playPauseBtn.onclick = togglePlay;
+                if (progressEl) {
+                    progressEl.onclick = e => {
+                        const rect = progressEl.getBoundingClientRect();
+                        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                        try {
+                            const dur = player.getDuration() || 0;
+                            player.seekTo(pct * dur, true);
+                        } catch (err) {}
+                    };
+                }
+                if (fsBtn && frameWrap) {
+                    fsBtn.onclick = () => {
+                        const fn = frameWrap.requestFullscreen || frameWrap.webkitRequestFullscreen;
+                        if (document.fullscreenElement || document.webkitFullscreenElement) {
+                            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                        } else if (fn) {
+                            fn.call(frameWrap);
+                        }
+                    };
+                }
+                // Update progress + time every 500ms
+                progressTimer = setInterval(() => {
+                    try {
+                        const cur = player.getCurrentTime() || 0;
+                        const dur = player.getDuration() || 0;
+                        if (timeEl) timeEl.textContent = `${fmt(cur)} / ${fmt(dur)}`;
+                        if (progressFill && dur > 0) progressFill.style.width = ((cur / dur) * 100) + '%';
+                    } catch (e) {}
+                }, 500);
+                // Stop timer if the wrap is removed from DOM
+                const obs = new MutationObserver(() => {
+                    if (!document.body.contains(frameWrap)) {
+                        clearInterval(progressTimer);
+                        obs.disconnect();
+                    }
+                });
+                obs.observe(document.body, { childList: true, subtree: true });
             });
         }
 
@@ -1090,13 +1210,22 @@
                         ${lessonVideo.blurb ? `<div class="lesson-video-blurb">${lessonVideo.blurb}</div>` : ''}
                         <div class="lesson-video-frame">
                             <iframe id="${videoFrameId}"
-                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
+                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
                                 title="${lessonVideo.title || 'Lesson video'}"
                                 frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
                             <div class="lesson-video-topcover" aria-hidden="true"></div>
+                            <div class="lesson-video-clickcatch" id="${videoFrameId}_click"></div>
+                            <div class="lesson-video-controls" id="${videoFrameId}_controls">
+                                <button type="button" class="lvc-btn" id="${videoFrameId}_playpause" title="Play / Pause">▶</button>
+                                <div class="lvc-time" id="${videoFrameId}_time">0:00 / 0:00</div>
+                                <div class="lvc-progress" id="${videoFrameId}_progress">
+                                    <div class="lvc-progress-fill" id="${videoFrameId}_progressfill"></div>
+                                </div>
+                                <button type="button" class="lvc-btn" id="${videoFrameId}_fs" title="Fullscreen">⛶</button>
+                            </div>
                             <div class="lesson-video-shield" id="${videoFrameId}_shield">
                                 <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Play video</button>
                             </div>

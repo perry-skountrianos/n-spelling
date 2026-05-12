@@ -703,9 +703,19 @@
             const shield = document.getElementById(frameId + '_shield');
             const resumeBtn = document.getElementById(frameId + '_resume');
             if (!shield || !resumeBtn) return;
+            // Buffer click while API is still loading
+            let pendingPlay = false;
+            resumeBtn.onclick = () => {
+                shield.hidden = true;
+                resumeBtn.textContent = '▶ Resume video';
+                pendingPlay = true;
+            };
             loadYouTubeApi().then(YT => {
                 const player = new YT.Player(frameId, {
                     events: {
+                        onReady: () => {
+                            if (pendingPlay) { try { player.playVideo(); } catch (e) {} }
+                        },
                         onStateChange: ev => {
                             // 1 = playing, 3 = buffering → safe to hide shield
                             // 0 = ended, 2 = paused, 5 = cued → show shield to block end-cards
@@ -713,12 +723,14 @@
                                 shield.hidden = true;
                             } else {
                                 shield.hidden = false;
+                                resumeBtn.textContent = '▶ Resume video';
                             }
                         }
                     }
                 });
                 resumeBtn.onclick = () => {
                     shield.hidden = true;
+                    resumeBtn.textContent = '▶ Resume video';
                     try { player.playVideo(); } catch (e) {}
                 };
             });
@@ -1085,8 +1097,8 @@
                                 allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
                             <div class="lesson-video-topcover" aria-hidden="true"></div>
-                            <div class="lesson-video-shield" id="${videoFrameId}_shield" hidden>
-                                <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Resume video</button>
+                            <div class="lesson-video-shield" id="${videoFrameId}_shield">
+                                <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Play video</button>
                             </div>
                         </div>
                     </div>` : '';

@@ -1,0 +1,45 @@
+name: Update version.json
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'version.json'
+      - '.github/workflows/update-version.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Write version.json
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          DATE=$(git log -1 --format=%cI HEAD)
+          MSG=$(git log -1 --format=%s HEAD | head -c 120)
+          cat > version.json <<EOF
+          {
+            "sha": "${SHA}",
+            "date": "${DATE}",
+            "message": $(printf '%s' "$MSG" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')
+          }
+          EOF
+          cat version.json
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet version.json; then
+            echo "No version change."
+            exit 0
+          fi
+          git add version.json
+          git commit -m "chore: update version.json [skip ci]"
+          git push

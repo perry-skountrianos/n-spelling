@@ -944,11 +944,11 @@
                     <div class="question-row">
                         <div class="quiz-question">${q.question}</div>
                         <div class="question-buttons">
-                            <button class="hint-btn" id="hintBtn" title="Show hint">💡</button>
+                            ${q.hint ? `<button class="hint-btn" id="hintBtn" title="Show hint">💡</button>` : ''}
                             <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
                         </div>
                     </div>
-                    <div class="hint-display" id="hintDisplay"></div>
+                    ${q.hint ? `<div class="hint-display" id="hintDisplay"></div>` : ''}
                 `;
                 container.innerHTML = '';
                 container.appendChild(header);
@@ -963,7 +963,7 @@
                 }
                 const hintBtn = document.getElementById('hintBtn');
                 const hintDisplay = document.getElementById('hintDisplay');
-                if (hintBtn) {
+                if (hintBtn && q.hint) {
                     hintBtn.onclick = (e) => {
                         e.stopPropagation();
                         if (!hintDisplay) return; // No hint display div
@@ -971,7 +971,7 @@
                             hintDisplay.classList.remove('show');
                         } else {
                             hintDisplay.classList.add('show');
-                            hintDisplay.textContent = q.hint || 'No hint available yet.';
+                            hintDisplay.textContent = q.hint;
                         }
                     };
                 }
@@ -1113,19 +1113,22 @@
                     }
                 }
                 renderLiveMissed();
-                // Wrong answers get more time to read the explanation
-                const defaultDelay = isCorrect ? 1800 : 6500;
-                const snapDelay = snapSteps ? 1200 + (snapSteps.length * 500) : defaultDelay;
-                const delay = explanationDelay != null ? explanationDelay : Math.max(defaultDelay, snapDelay);
-                pendingTimeout = setTimeout(() => {
-                    if (current < questions.length - 1) {
-                        current++;
-                        show();
-                    } else {
-                        ttsCancel();
-                        showFinal();
-                    }
-                }, delay);
+                // Only auto-advance when the answer is correct. On wrong answers, wait for the
+                // user to read the explanation and press Next explicitly.
+                if (isCorrect) {
+                    const defaultDelay = 1800;
+                    const snapDelay = snapSteps ? 1200 + (snapSteps.length * 500) : defaultDelay;
+                    const delay = explanationDelay != null ? explanationDelay : Math.max(defaultDelay, snapDelay);
+                    pendingTimeout = setTimeout(() => {
+                        if (current < questions.length - 1) {
+                            current++;
+                            show();
+                        } else {
+                            ttsCancel();
+                            showFinal();
+                        }
+                    }, delay);
+                }
             }
 
             function renderLiveMissed() {
@@ -1264,6 +1267,7 @@
                     checkbox.type = 'checkbox';
                     checkbox.className = 'quiz-multi-checkbox';
                     checkbox.id = `multi-opt-${i}`;
+                    checkbox.checked = false; // explicit: no default highlight on any option
                     checkbox.onchange = () => {
                         if (checkbox.checked) {
                             selected.add(i);

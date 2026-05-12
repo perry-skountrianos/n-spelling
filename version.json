@@ -1,5 +1,5 @@
 {
-  "sha": "3a6a36a",
-  "date": "2026-05-12T13:18:08-07:00",
-  "message": "fix(math): give lesson-video iframe explicit height so it fills the frame on desktop"
+  "sha": "d378e4c",
+  "date": "2026-05-12T13:24:43-07:00",
+  "message": "feat(math): include step-by-step explanation under 'Questions missed' dropdowns"
 }

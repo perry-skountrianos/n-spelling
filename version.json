@@ -1,5 +1,5 @@
 {
-  "sha": "844b361",
-  "date": "2026-05-11T22:01:48-07:00",
-  "message": "chore(home): add breathing room between + divider - in Math icon"
+  "sha": "9ca7d0a",
+  "date": "2026-05-12T11:11:11-07:00",
+  "message": "fix: 2x2 app grid on mobile, repair broken lesson videos, prevent video clipping by overlays"
 }

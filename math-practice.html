@@ -710,9 +710,17 @@
     <script src="profile.js"></script>
     <script src="tts.js?v=38"></script>
     <script src="math-practice-topics.js?v=1"></script>
-    <script src="math-practice-questions.js?v=1"></script>
     <script>
-    (function(){
+        // Load the question bank as JSON; resolved before the main IIFE proceeds.
+        window.__mathQuestionsReady = fetch('math-practice-questions.json?v=1', { cache: 'force-cache' })
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(data => { window.mathPracticeQuestions = data; })
+            .catch(err => { console.error('Failed to load math-practice-questions.json:', err); window.mathPracticeQuestions = {}; });
+    </script>
+    <script>
+    (async function(){
+        // Wait for the question bank JSON to land before doing anything else.
+        try { await window.__mathQuestionsReady; } catch(_) {}
         // -------- profile bootstrap --------
         if (typeof Profiles !== 'undefined' && !Profiles.requireProfile()) return;
         const currentProfile = (typeof Profiles !== 'undefined') ? Profiles.getCurrentId() : 'default';
@@ -1001,6 +1009,37 @@
             if (w[k]) { delete w[k]; saveWrong(w); }
         }
 
+        // ===== Per-topic mastery (rolling last 20 answers) =====
+        const MASTERY_KEY = profileKey('mathPracticeMastery');
+        const MASTERY_WINDOW = 20;
+        function loadMastery() {
+            try { return JSON.parse(localStorage.getItem(MASTERY_KEY) || '{}'); } catch(_) { return {}; }
+        }
+        function saveMastery(obj) {
+            try { localStorage.setItem(MASTERY_KEY, JSON.stringify(obj)); } catch(_){}
+        }
+        function recordMastery(topicKey, isCorrect) {
+            if (!topicKey) return;
+            const m = loadMastery();
+            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
+            arr.push(isCorrect ? 1 : 0);
+            while (arr.length > MASTERY_WINDOW) arr.shift();
+            m[topicKey] = arr;
+            saveMastery(m);
+        }
+        function masteryPctFor(topicKey) {
+            const m = loadMastery();
+            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
+            if (!arr.length) return null;
+            const sum = arr.reduce((s, v) => s + v, 0);
+            return Math.round((sum / arr.length) * 100);
+        }
+        function masterySamplesFor(topicKey) {
+            const m = loadMastery();
+            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
+            return arr.length;
+        }
+
         // ===== Recently-seen tracking (avoid showing the same Qs back-to-back) =====
         // Keyed per topic: { topicKey: [sig1, sig2, ...] } most-recent last.
         const RECENT_KEY = profileKey('mathPracticeRecent');
@@ -1199,7 +1238,12 @@
         // -------- menu --------
         const gearBtn = document.getElementById('gearBtn');
         const gearDropdown = document.getElementById('gearDropdown');
-        gearBtn.onclick = () => gearDropdown.classList.toggle('show');
+        gearBtn.onclick = () => {
+            gearDropdown.classList.toggle('show');
+            if (gearDropdown.classList.contains('show') && typeof refreshCategoryMastery === 'function') {
+                refreshCategoryMastery();
+            }
+        };
         document.addEventListener('click', (e) => {
             if (!gearDropdown.contains(e.target) && !gearBtn.contains(e.target)) {
                 gearDropdown.classList.remove('show');
@@ -1228,6 +1272,20 @@
             opt.textContent = cat;
             categorySelect.appendChild(opt);
         }
+        // Refresh each <option> label with the current rolling-mastery %.
+        function refreshCategoryMastery() {
+            for (const opt of categorySelect.options) {
+                if (opt.value === '__all__') continue;
+                const pct = masteryPctFor(opt.value);
+                const samples = masterySamplesFor(opt.value);
+                if (pct == null) {
+                    opt.textContent = opt.value;
+                } else {
+                    opt.textContent = opt.value + ' — ' + pct + '%' + (samples < MASTERY_WINDOW ? ' (' + samples + ')' : '');
+                }
+            }
+        }
+        refreshCategoryMastery();
 
         // -------- render --------
         const container = document.getElementById('quizContainer');
@@ -1515,6 +1573,7 @@
                 const snapSteps = isCorrect ? equationSnapSteps(q) : null;
                 if (isCorrect) { correct++; clearWrong(q); }
                 else { wrong++; markWrong(q); }
+                recordMastery(q._topic || '', isCorrect);
                 results.push({
                     topic: q._topic || topicLabel || '',
                     question: q.question,

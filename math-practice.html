@@ -327,6 +327,57 @@
             border: 1px solid #ffd6e0;
             border-radius: 14px;
         }
+        .lesson-khan-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #eef7ff 0%, #f1ecff 100%);
+            border: 1px solid #cfe2ff;
+            border-radius: 14px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+        }
+        .lesson-khan-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(20, 110, 200, 0.12);
+            border-color: #4a89dc;
+        }
+        .lesson-khan-badge {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #14bf96;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+        .lesson-khan-text { flex: 1; min-width: 0; }
+        .lesson-khan-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a5cb3;
+            line-height: 1.3;
+        }
+        .lesson-khan-blurb {
+            font-size: 12px;
+            color: #555;
+            margin-top: 3px;
+            line-height: 1.35;
+        }
+        .lesson-khan-arrow {
+            flex-shrink: 0;
+            color: #4a89dc;
+            font-size: 18px;
+            font-weight: 700;
+        }
         .lesson-video-title {
             font-weight: 600;
             font-size: 15px;
@@ -1521,7 +1572,7 @@
         function render(category, restore) {
             container.innerHTML = '';
             initProfileAvatar();
-            let questions, topicLabel, lessonHTML, lessonVideo;
+            let questions, topicLabel, lessonHTML, lessonVideo, lessonKhan;
             // Pool builder: read consolidated per-topic question list.
             function poolForTopic(key) {
                 const arr = (mathPracticeQuestions && mathPracticeQuestions[key]) || [];
@@ -1547,6 +1598,7 @@
                 topicLabel = restore.topicLabel || null;
                 lessonHTML = restore.lessonHTML || null;
                 lessonVideo = restore.lessonVideo || null;
+                lessonKhan = restore.lessonKhan || null;
             } else if (hardMode) {
                 // "Missed questions only" mode: pull from all topics, missed only.
                 const missedPool = buildMissedOnlyPool();
@@ -1566,6 +1618,7 @@
                 topicLabel = 'Missed questions only';
                 lessonHTML = null;
                 lessonVideo = null;
+                lessonKhan = null;
             } else if (category === '__all__') {
                 const all = [];
                 for (const k in mathPracticeQuestions) {
@@ -1576,6 +1629,7 @@
                 topicLabel = null;
                 lessonHTML = null;
                 lessonVideo = null;
+                lessonKhan = null;
             } else {
                 const meta = (typeof mathPracticeTopics !== 'undefined' && mathPracticeTopics[category]) || null;
                 const pool = poolForTopic(category);
@@ -1584,6 +1638,7 @@
                 topicLabel = category;
                 lessonHTML = meta && meta.lesson ? meta.lesson : null;
                 lessonVideo = meta && meta.video ? meta.video : null;
+                lessonKhan = meta && meta.khan ? meta.khan : null;
             }
             if (!questions.length) {
                 container.textContent = 'No questions in this topic.';
@@ -1603,7 +1658,7 @@
 
             function persistSession() {
                 saveSession({
-                    category, topicLabel, lessonHTML, lessonVideo,
+                    category, topicLabel, lessonHTML, lessonVideo, lessonKhan,
                     questions, current, correct, wrong, results,
                     startedAt: sessionStartedAt,
                     timestamp: new Date().toISOString()
@@ -1611,7 +1666,7 @@
             }
 
             // Show lesson first if available (skip lesson if resuming mid-session)
-            if ((lessonHTML || lessonVideo) && !restore) {
+            if ((lessonHTML || lessonVideo || lessonKhan) && !restore) {
                 showLesson();
             } else {
                 show();
@@ -1647,6 +1702,15 @@
                         </div>
                     </div>` : '';
                 const lessonBlock = lessonHTML ? `<div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>` : '';
+                const khanHTML = lessonKhan && lessonKhan.url ? `
+                    <a class="lesson-khan-card" href="${lessonKhan.url}" target="_blank" rel="noopener noreferrer">
+                        <div class="lesson-khan-badge">KA</div>
+                        <div class="lesson-khan-text">
+                            <div class="lesson-khan-title">📚 Also on Khan Academy — ${lessonKhan.title || 'Watch the lesson'}</div>
+                            ${lessonKhan.blurb ? `<div class="lesson-khan-blurb">${lessonKhan.blurb}</div>` : ''}
+                        </div>
+                        <div class="lesson-khan-arrow">↗</div>
+                    </a>` : '';
                 container.innerHTML = `
                     <div class="topic-pill">${topicLabel}</div>
                     <div class="question-row">
@@ -1654,6 +1718,7 @@
                         ${lessonHTML ? `<button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>` : ''}
                     </div>
                     ${videoHTML}
+                    ${khanHTML}
                     ${lessonBlock}
                     <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
                 `;

@@ -1,5 +1,5 @@
 {
-  "sha": "f7c2dd1",
-  "date": "2026-05-11T21:45:40-07:00",
-  "message": "chore(home): use +/- icon for Math tile"
+  "sha": "34611ef",
+  "date": "2026-05-11T21:47:40-07:00",
+  "message": "chore(home): math icon = 2x2 grid of operators (+ - x divide)"
 }

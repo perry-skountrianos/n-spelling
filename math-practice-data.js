@@ -22,6 +22,11 @@ const mathPracticeData = {
     // =====================================================================
 
     "1 — Order of Operations (6.EE.1)": {
+        video: {
+            id: "dAgfnK528RA",
+            title: "Math Antics — Order Of Operations",
+            blurb: "Quick, fun 10-min refresher on PEMDAS by Math Antics. Watch this first, then come back and crush the practice! 💪"
+        },
         lesson: `
             <h3>Order of Operations — PEMDAS</h3>
             <p>When an expression has more than one operation, you have to do them in a fixed order:</p>

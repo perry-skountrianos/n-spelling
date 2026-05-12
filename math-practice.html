@@ -319,6 +319,40 @@
             transition: all 0.15s;
         }
         .lesson-toggle:hover { border-color: #0071e3; color: #0071e3; }
+        .lesson-video-wrap {
+            margin: 14px 0 18px;
+            padding: 14px;
+            background: linear-gradient(135deg, #fff5f8 0%, #fff9ef 100%);
+            border: 1px solid #ffd6e0;
+            border-radius: 14px;
+        }
+        .lesson-video-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #d6336c;
+            margin-bottom: 4px;
+        }
+        .lesson-video-blurb {
+            font-size: 13px;
+            color: #6b6b73;
+            margin-bottom: 10px;
+        }
+        .lesson-video-frame {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 */
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 4px 14px rgba(214, 51, 108, 0.15);
+        }
+        .lesson-video-frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
         .start-practice-btn {
             display: block;
             margin: 14px auto 0;
@@ -867,7 +901,7 @@
         function render(category, restore) {
             container.innerHTML = '';
             initProfileAvatar();
-            let questions, topicLabel, lessonHTML;
+            let questions, topicLabel, lessonHTML, lessonVideo;
             // Pool builder: combine base data + supplementary bank for the same topic
             function poolForTopic(key) {
                 const block = mathPracticeData[key];
@@ -880,6 +914,7 @@
                 questions = restore.questions;
                 topicLabel = restore.topicLabel || null;
                 lessonHTML = restore.lessonHTML || null;
+                lessonVideo = restore.lessonVideo || null;
             } else if (category === '__all__') {
                 const all = [];
                 for (const k in mathPracticeData) {
@@ -889,6 +924,7 @@
                 recordRecent(questions);
                 topicLabel = null;
                 lessonHTML = null;
+                lessonVideo = null;
             } else {
                 const block = mathPracticeData[category];
                 const pool = poolForTopic(category);
@@ -896,6 +932,7 @@
                 recordRecent(questions);
                 topicLabel = category;
                 lessonHTML = (!Array.isArray(block) && block && block.lesson) ? block.lesson : null;
+                lessonVideo = (!Array.isArray(block) && block && block.video) ? block.video : null;
             }
             if (!questions.length) {
                 container.textContent = 'No questions in this topic.';
@@ -915,7 +952,7 @@
 
             function persistSession() {
                 saveSession({
-                    category, topicLabel, lessonHTML,
+                    category, topicLabel, lessonHTML, lessonVideo,
                     questions, current, correct, wrong, results,
                     startedAt: sessionStartedAt,
                     timestamp: new Date().toISOString()
@@ -923,33 +960,51 @@
             }
 
             // Show lesson first if available (skip lesson if resuming mid-session)
-            if (lessonHTML && !restore) {
+            if ((lessonHTML || lessonVideo) && !restore) {
                 showLesson();
             } else {
                 show();
             }
 
             function showLesson() {
+                const videoHTML = lessonVideo ? `
+                    <div class="lesson-video-wrap">
+                        <div class="lesson-video-title">🎥 ${lessonVideo.title || 'Watch the video'}</div>
+                        ${lessonVideo.blurb ? `<div class="lesson-video-blurb">${lessonVideo.blurb}</div>` : ''}
+                        <div class="lesson-video-frame">
+                            <iframe
+                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1"
+                                title="${lessonVideo.title || 'Lesson video'}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen
+                                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                        </div>
+                    </div>` : '';
+                const lessonBlock = lessonHTML ? `<div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>` : '';
                 container.innerHTML = `
                     <div class="topic-pill">${topicLabel}</div>
                     <div class="question-row">
                         <div class="quiz-question">Mini-lesson</div>
-                        <button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>
+                        ${lessonHTML ? `<button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>` : ''}
                     </div>
-                    <div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>
+                    ${videoHTML}
+                    ${lessonBlock}
                     <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
                 `;
                 document.getElementById('startPracticeBtn').onclick = () => { ttsCancel(); show(); };
                 const lessonSpeakBtn = document.getElementById('lessonSpeakBtn');
-                lessonSpeakBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
-                    lessonSpeakBtn.classList.add('speaking');
-                    const text = htmlToReadable(document.getElementById('lessonCardContent').innerHTML);
-                    ttsSpeak(text, () => lessonSpeakBtn.classList.remove('speaking'));
-                };
-                if (ttsEnabled) {
-                    setTimeout(() => lessonSpeakBtn.click(), 400);
+                if (lessonSpeakBtn) {
+                    lessonSpeakBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        document.querySelectorAll('.speak-btn.speaking').forEach(b => b.classList.remove('speaking'));
+                        lessonSpeakBtn.classList.add('speaking');
+                        const text = htmlToReadable(document.getElementById('lessonCardContent').innerHTML);
+                        ttsSpeak(text, () => lessonSpeakBtn.classList.remove('speaking'));
+                    };
+                    if (ttsEnabled && !lessonVideo) {
+                        setTimeout(() => lessonSpeakBtn.click(), 400);
+                    }
                 }
             }
 

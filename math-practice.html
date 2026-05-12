@@ -621,6 +621,66 @@
         .tts-switch.on::after { left: 20px; }
         #profileAvatar { font-size: 0; }
         #profileAvatar img { width: 36px; height: 36px; display: block; }
+
+        /* ---- Topic picker (custom dropdown with mastery bars) ---- */
+        .topic-picker-row { cursor: pointer; }
+        .topic-row {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-family: inherit;
+            transition: background 0.12s;
+        }
+        .topic-row:last-child { border-bottom: none; }
+        .topic-row:hover { background: #f7f7f8; }
+        .topic-row.is-selected { background: #eef6ff; }
+        .topic-row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .topic-row-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            line-height: 1.3;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .topic-row-pct {
+            font-size: 13px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+        .topic-row-pct.is-empty { color: #aaa; font-weight: 500; }
+        .topic-row-bar {
+            position: relative;
+            height: 6px;
+            border-radius: 999px;
+            background: #ececef;
+            overflow: hidden;
+        }
+        .topic-row-bar-fill {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            border-radius: 999px;
+            transition: width 0.25s, background 0.25s;
+        }
+        .topic-row-meta {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -655,10 +715,14 @@
         <div class="gear-menu-wrapper" id="gearMenuWrapper">
             <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
             <div class="gear-dropdown" id="gearDropdown">
-                <div class="gear-option" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;">
-                    <label for="categorySelect" style="font-weight:500;font-size:14px;color:#666;">Topic</label>
-                    <select id="categorySelect" class="quiz-category-select"></select>
-                </div>
+                <button type="button" class="gear-option topic-picker-row" id="topicPickerRow" style="flex-direction:column;align-items:stretch;gap:6px;">
+                    <span style="font-weight:500;font-size:14px;color:#666;">Topic</span>
+                    <span style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <span id="topicPickerCurrent" style="color:#222;font-size:15px;flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">All Topics (mixed)</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <select id="categorySelect" class="quiz-category-select" style="display:none;"></select>
+                </button>
                 <div class="gear-option tts-toggle-row" id="hardToggleRow" title="Practice only the questions you've missed before (across all topics)">
                     <label for="hardSwitch">🎯 Missed questions only</label>
                     <span class="tts-switch" id="hardSwitch"></span>
@@ -701,6 +765,17 @@
             <div class="reports-list" id="missedList">
                 <p class="reports-loading">Loading…</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Topic picker overlay -->
+    <div class="reports-overlay" id="topicPickerOverlay" style="display:none;">
+        <div class="reports-panel">
+            <div class="reports-header">
+                <h2>Choose a topic</h2>
+                <button class="reports-close" id="topicPickerCloseBtn">✕</button>
+            </div>
+            <div class="reports-list" id="topicPickerList"></div>
         </div>
     </div>
 
@@ -1272,7 +1347,16 @@
             opt.textContent = cat;
             categorySelect.appendChild(opt);
         }
-        // Refresh each <option> label with the current rolling-mastery %.
+        // ---- Mastery color helper (red → amber → green) ----
+        function masteryColor(pct) {
+            if (pct == null) return '#cfcfd4';
+            const p = Math.max(0, Math.min(100, pct));
+            // hue from 0 (red) at 0% to 130 (green) at 100%
+            const hue = Math.round((p / 100) * 130);
+            return `hsl(${hue}, 70%, 45%)`;
+        }
+        // Refresh: keep native <select> options in sync with mastery (used by the
+        // picker overlay; native <option> styling is limited so the visuals live in the picker).
         function refreshCategoryMastery() {
             for (const opt of categorySelect.options) {
                 if (opt.value === '__all__') continue;
@@ -1284,8 +1368,79 @@
                     opt.textContent = opt.value + ' — ' + pct + '%' + (samples < MASTERY_WINDOW ? ' (' + samples + ')' : '');
                 }
             }
+            // Keep the row label in the gear menu in sync with the current selection.
+            const cur = document.getElementById('topicPickerCurrent');
+            if (cur) {
+                const v = categorySelect.value;
+                cur.textContent = v === '__all__' ? 'All Topics (mixed)' : v;
+            }
         }
         refreshCategoryMastery();
+
+        // ---- Topic picker overlay (rich rows with mastery bars) ----
+        const topicPickerOverlay = document.getElementById('topicPickerOverlay');
+        const topicPickerList = document.getElementById('topicPickerList');
+        const topicPickerRow = document.getElementById('topicPickerRow');
+        function renderTopicPicker() {
+            const current = categorySelect.value;
+            const rows = [];
+            // "All Topics" row (no bar)
+            rows.push(`
+                <button type="button" class="topic-row${current === '__all__' ? ' is-selected' : ''}" data-value="__all__">
+                    <div class="topic-row-head">
+                        <span class="topic-row-name">All Topics (mixed)</span>
+                        <span class="topic-row-pct is-empty">—</span>
+                    </div>
+                    <div class="topic-row-meta">50-question mixed session across every topic</div>
+                </button>
+            `);
+            for (const key in mathPracticeQuestions) {
+                const pct = masteryPctFor(key);
+                const samples = masterySamplesFor(key);
+                const color = masteryColor(pct);
+                const widthPct = pct == null ? 0 : pct;
+                const pctLabel = pct == null
+                    ? `<span class="topic-row-pct is-empty">—</span>`
+                    : `<span class="topic-row-pct" style="color:${color};">${pct}%</span>`;
+                const meta = pct == null
+                    ? `<div class="topic-row-meta">Not practiced yet</div>`
+                    : `<div class="topic-row-meta">Last ${samples} answer${samples === 1 ? '' : 's'}</div>`;
+                const safeKey = key.replace(/"/g, '&quot;');
+                rows.push(`
+                    <button type="button" class="topic-row${current === key ? ' is-selected' : ''}" data-value="${safeKey}">
+                        <div class="topic-row-head">
+                            <span class="topic-row-name">${key}</span>
+                            ${pctLabel}
+                        </div>
+                        <div class="topic-row-bar">
+                            <div class="topic-row-bar-fill" style="width:${widthPct}%;background:${color};"></div>
+                        </div>
+                        ${meta}
+                    </button>
+                `);
+            }
+            topicPickerList.innerHTML = rows.join('');
+            topicPickerList.querySelectorAll('.topic-row').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const v = btn.getAttribute('data-value');
+                    if (categorySelect.value !== v) {
+                        categorySelect.value = v;
+                        categorySelect.dispatchEvent(new Event('change'));
+                    }
+                    topicPickerOverlay.style.display = 'none';
+                });
+            });
+        }
+        topicPickerRow.addEventListener('click', (e) => {
+            // Avoid the gear-dropdown's outside-click handler closing the overlay.
+            e.stopPropagation();
+            gearDropdown.classList.remove('show');
+            renderTopicPicker();
+            topicPickerOverlay.style.display = 'flex';
+        });
+        document.getElementById('topicPickerCloseBtn').onclick = () => {
+            topicPickerOverlay.style.display = 'none';
+        };
 
         // -------- render --------
         const container = document.getElementById('quizContainer');

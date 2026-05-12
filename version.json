@@ -1,5 +1,5 @@
 {
-  "sha": "7bacd7a",
-  "date": "2026-05-12T14:39:31-07:00",
-  "message": "feat(math): per-topic mastery % in topic dropdown + load questions as JSON"
+  "sha": "a167ed0",
+  "date": "2026-05-12T14:49:41-07:00",
+  "message": "feat(math): visual topic picker with mastery bars (red->green)"
 }

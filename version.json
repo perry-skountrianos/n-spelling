@@ -1,5 +1,5 @@
 {
-  "sha": "fcf9d5d",
-  "date": "2026-05-11T21:41:16-07:00",
-  "message": "feat(math): replace YouTube controls with custom UI to fully block off-site links"
+  "sha": "f7c2dd1",
+  "date": "2026-05-11T21:45:40-07:00",
+  "message": "chore(home): use +/- icon for Math tile"
 }

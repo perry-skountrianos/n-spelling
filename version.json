@@ -1,5 +1,5 @@
 {
-  "sha": "1189c72",
-  "date": "2026-05-11T21:34:42-07:00",
-  "message": "feat(math): cover YouTube top-bar (share / More videos / logo) with permanent strip"
+  "sha": "89c0ab4",
+  "date": "2026-05-11T21:38:40-07:00",
+  "message": "feat(math): show shield on initial load so YouTube poster links never appear"
 }

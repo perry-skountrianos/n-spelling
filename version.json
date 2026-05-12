@@ -1,5 +1,5 @@
 {
-  "sha": "61b331a",
-  "date": "2026-05-11T21:31:26-07:00",
-  "message": "feat(math): block YouTube end-screen cards with a pause-overlay shield"
+  "sha": "1189c72",
+  "date": "2026-05-11T21:34:42-07:00",
+  "message": "feat(math): cover YouTube top-bar (share / More videos / logo) with permanent strip"
 }

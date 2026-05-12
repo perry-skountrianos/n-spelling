@@ -1,5 +1,5 @@
 {
-  "sha": "d378e4c",
-  "date": "2026-05-12T13:24:43-07:00",
-  "message": "feat(math): include step-by-step explanation under 'Questions missed' dropdowns"
+  "sha": "051fe16",
+  "date": "2026-05-12T13:32:35-07:00",
+  "message": "feat(math): hard-mode toggle restarts session; add Missed Questions overlay with explanations"
 }

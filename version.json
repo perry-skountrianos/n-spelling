@@ -1,5 +1,5 @@
 {
-  "sha": "dcd46f1",
-  "date": "2026-05-12T14:05:19-07:00",
-  "message": "ui(home): remove 'Switch' label from profile chip"
+  "sha": "cebb2ad",
+  "date": "2026-05-12T14:06:04-07:00",
+  "message": "ui(home): remove static v50 label from profile screen"
 }

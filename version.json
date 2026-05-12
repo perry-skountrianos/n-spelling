@@ -1,5 +1,5 @@
 {
-  "sha": "25705b3",
-  "date": "2026-05-12T11:23:04-07:00",
-  "message": "fix(math): mobile-friendly fullscreen for lesson videos"
+  "sha": "47977aa",
+  "date": "2026-05-12T11:43:50-07:00",
+  "message": "fix(math): expand iframe to fill viewport in fullscreen (native + pseudo)"
 }

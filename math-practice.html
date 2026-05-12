@@ -707,7 +707,7 @@
 
         // ===== Sample N questions, optionally weighted toward wrong-answered =====
         const SESSION_SIZE = 10;
-        const ALL_SESSION_SIZE = 20;
+        const ALL_SESSION_SIZE = 50;
         function pickSession(pool, n) {
             if (pool.length <= n) return shuffle(pool);
             const recent = recentSetFor(pool);

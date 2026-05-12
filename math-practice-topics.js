@@ -9,8 +9,9 @@ const mathPracticeTopics = {
       "blurb": "Quick, fun 10-min refresher on PEMDAS by Math Antics. Watch this first, then come back and crush the practice! 💪"
     },
     "khan": {
+      "id": "eoYThjIAhOc",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-exponents-and-order-of-operations/cc-6th-order-of-operations/v/order-operations-intro",
-      "title": "Order of operations introduction",
+      "title": "Khan Academy — Order of Operations Intro",
       "blurb": "Sal Khan walks through PEMDAS with worked examples. A calmer, deeper take on the same idea."
     }
   },
@@ -22,8 +23,9 @@ const mathPracticeTopics = {
       "blurb": "A fun intro to variables and algebraic expressions — the perfect warm-up before translating words into math."
     },
     "khan": {
+      "id": "640-86yn2wM",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-writing-expressions/v/writing-expressions-with-variables-examples",
-      "title": "Writing basic expressions with variables",
+      "title": "Khan Academy — Writing Expressions with Variables",
       "blurb": "Khan Academy translates word phrases into algebraic expressions — useful for the \"8 less than\" trap."
     }
   },
@@ -35,8 +37,9 @@ const mathPracticeTopics = {
       "blurb": "See how to undo addition or subtraction to solve for x. Watch this, then crush the practice! 💪"
     },
     "khan": {
+      "id": "5FBDqY41GjU",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-solving-equations/v/why-we-do-the-same-thing-to-both-sides-simple-equations",
-      "title": "Same thing to both sides of equations",
+      "title": "Khan Academy — Same Thing to Both Sides",
       "blurb": "Sal shows the balance-scale intuition behind \"do the same thing to both sides\"."
     }
   },
@@ -48,8 +51,9 @@ const mathPracticeTopics = {
       "blurb": "The same balance idea works for inequalities — just don’t forget to flip the sign if you multiply or divide by a negative!"
     },
     "khan": {
+      "id": "ilWDSYnTEFs",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-inequalities/v/plotting-inequalities-on-a-number-line",
-      "title": "Plotting inequalities on a number line",
+      "title": "Khan Academy — Plotting Inequalities on a Number Line",
       "blurb": "Khan Academy walks through open vs closed circles and which direction the arrow points."
     }
   },
@@ -61,8 +65,9 @@ const mathPracticeTopics = {
       "blurb": "Variables are just placeholders for numbers. This short video makes that crystal clear."
     },
     "khan": {
+      "id": "SGC_d7O7_Eg",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-dependent-independent/v/dependent-independent-variables",
-      "title": "Dependent & independent variables",
+      "title": "Khan Academy — Dependent & Independent Variables",
       "blurb": "Sal explains which variable is the input you choose and which depends on it."
     }
   },
@@ -74,8 +79,9 @@ const mathPracticeTopics = {
       "blurb": "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
     },
     "khan": {
+      "id": "f3ySpxX9oeM",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-arithmetic-operations/cc-6th-dividing-fractions/v/conceptual-understanding-of-dividing-fractions-by-fractions",
-      "title": "Understanding division of fractions",
+      "title": "Khan Academy — Understanding Division of Fractions",
       "blurb": "Why \"keep, change, flip\" actually works — the conceptual story behind dividing fractions."
     }
   },
@@ -87,8 +93,9 @@ const mathPracticeTopics = {
       "blurb": "How to find the GCF the easy way — the same trick also unlocks LCM and the distributive property."
     },
     "khan": {
+      "id": "jFd-6EPfnec",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-gcf/v/greatest-common-divisor",
-      "title": "Greatest common factor explained",
+      "title": "Khan Academy — Greatest Common Factor Explained",
       "blurb": "Khan Academy shows GCF via prime factorization, then uses it to factor sums (distributive property)."
     }
   },
@@ -100,8 +107,9 @@ const mathPracticeTopics = {
       "blurb": "Negative numbers on the number line, opposites, and absolute value — all in one clean explainer."
     },
     "khan": {
+      "id": "r6hS_8nm1jM",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-negative-number-topic/cc-6th-absolute-value/v/absolute-value-of-integers",
-      "title": "Absolute value examples",
+      "title": "Khan Academy — Absolute Value Examples",
       "blurb": "Khan Academy treats |n| as \"distance from 0\" with multiple worked examples."
     }
   },
@@ -113,8 +121,9 @@ const mathPracticeTopics = {
       "blurb": "Quadrants, ordered pairs, and how (x, y) becomes a dot. Get comfy before plotting shapes!"
     },
     "khan": {
+      "id": "VhNkWdLGpmA",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:coordinate-plane/cc-6th-coordinate-plane/v/the-coordinate-plane",
-      "title": "Points on the coordinate plane examples",
+      "title": "Khan Academy — Points on the Coordinate Plane",
       "blurb": "Sal plots points across all four quadrants and explains the sign of x and y in each."
     }
   },
@@ -126,8 +135,9 @@ const mathPracticeTopics = {
       "blurb": "What a ratio actually means, plus how to turn any ratio into a unit rate."
     },
     "khan": {
+      "id": "bIKmw0aTmYc",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-ratios-prop-topic/intro-to-ratios/v/ratios-intro",
-      "title": "Intro to ratios",
+      "title": "Khan Academy — Intro to Ratios",
       "blurb": "Khan Academy's introduction with worked examples on part-to-part and part-to-whole ratios."
     }
   },
@@ -139,8 +149,9 @@ const mathPracticeTopics = {
       "blurb": "Percent just means ‘out of 100’. This video makes percent problems feel easy. 💯"
     },
     "khan": {
+      "id": "Lvr2YsxG10o",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-rates-and-percentages/cc-6th-percentages/v/describing-the-meaning-of-percent",
-      "title": "The meaning of percent",
+      "title": "Khan Academy — The Meaning of Percent",
       "blurb": "Sal explains why percent is \"per hundred\" and how to translate between %, fraction, and decimal."
     }
   },
@@ -152,8 +163,9 @@ const mathPracticeTopics = {
       "blurb": "Area of rectangles, triangles, and parallelograms — then combine them for any polygon."
     },
     "khan": {
+      "id": "rRTXKQpblEc",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-plane-figures/cc-6th-area-triangle/v/intuition-for-area-of-a-triangle",
-      "title": "Area of a triangle",
+      "title": "Khan Academy — Area of a Triangle",
       "blurb": "Khan Academy builds the ½ × base × height formula from a rectangle — great intuition."
     }
   },
@@ -165,8 +177,9 @@ const mathPracticeTopics = {
       "blurb": "V = l × w × h, even with fraction sides. Builds the intuition for the cube-counting problems."
     },
     "khan": {
+      "id": "EJTPGyWqhqc",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-geometry-topic/cc-6th-volume-with-fractions/v/volume-of-a-rectangular-prism-with-fractional-dimensions",
-      "title": "Volume of a rectangular prism: fractional dimensions",
+      "title": "Khan Academy — Volume of a Rectangular Prism (Fractional Dimensions)",
       "blurb": "Sal walks through V = l × w × h when the edges are fractions — the trickiest case."
     }
   },
@@ -178,8 +191,9 @@ const mathPracticeTopics = {
       "blurb": "The three most common ways to find the ‘center’ of a data set — with simple examples."
     },
     "khan": {
+      "id": "h8EYEJ32oQ8",
       "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-data-statistics/mean-and-median/v/statistics-intro-mean-median-and-mode",
-      "title": "Statistics intro: Mean, median & mode",
+      "title": "Khan Academy — Statistics Intro: Mean, Median & Mode",
       "blurb": "Khan Academy's classic intro — same three measures, more worked examples."
     }
   }

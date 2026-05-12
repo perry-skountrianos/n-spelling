@@ -1,5 +1,5 @@
 {
-  "sha": "a167ed0",
-  "date": "2026-05-12T14:49:41-07:00",
-  "message": "feat(math): visual topic picker with mastery bars (red->green)"
+  "sha": "f9aafcc",
+  "date": "2026-05-12T14:51:59-07:00",
+  "message": "feat(math): group Math reports by topic with collapsible sections"
 }

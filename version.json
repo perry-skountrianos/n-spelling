@@ -1,5 +1,5 @@
 {
-  "sha": "35757d0",
-  "date": "2026-05-12T13:55:02-07:00",
-  "message": "refactor(math): consolidate question data into math-practice-questions.js + math-practice-topics.js"
+  "sha": "0da6b9a",
+  "date": "2026-05-12T13:57:29-07:00",
+  "message": "chore(math): remove math-shapes.js (SVGs are now baked into questions)"
 }

@@ -1146,35 +1146,43 @@
             if (w[k]) { delete w[k]; saveWrong(w); }
         }
 
-        // ===== Per-topic mastery (rolling last 20 answers) =====
-        const MASTERY_KEY = profileKey('mathPracticeMastery');
-        const MASTERY_WINDOW = 20;
-        function loadMastery() {
-            try { return JSON.parse(localStorage.getItem(MASTERY_KEY) || '{}'); } catch(_) { return {}; }
-        }
-        function saveMastery(obj) {
-            try { localStorage.setItem(MASTERY_KEY, JSON.stringify(obj)); } catch(_){}
-        }
-        function recordMastery(topicKey, isCorrect) {
-            if (!topicKey) return;
-            const m = loadMastery();
-            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
-            arr.push(isCorrect ? 1 : 0);
-            while (arr.length > MASTERY_WINDOW) arr.shift();
-            m[topicKey] = arr;
-            saveMastery(m);
-        }
+        // ===== Per-topic mastery (avg % across saved reports) =====
+        // Cache: { topicKey: { sum: <total percentage>, count: <session count> } }
+        let topicAvgCache = {};
         function masteryPctFor(topicKey) {
-            const m = loadMastery();
-            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
-            if (!arr.length) return null;
-            const sum = arr.reduce((s, v) => s + v, 0);
-            return Math.round((sum / arr.length) * 100);
+            const entry = topicAvgCache[topicKey];
+            if (!entry || !entry.count) return null;
+            return Math.round(entry.sum / entry.count);
         }
         function masterySamplesFor(topicKey) {
-            const m = loadMastery();
-            const arr = Array.isArray(m[topicKey]) ? m[topicKey] : [];
-            return arr.length;
+            const entry = topicAvgCache[topicKey];
+            return entry ? entry.count : 0;
+        }
+        function refreshTopicAvgsFromReports() {
+            if (typeof db === 'undefined') return Promise.resolve();
+            return db.ref('mathReports/' + currentProfile).once('value').then(snap => {
+                const data = snap.val() || {};
+                const acc = {};
+                Object.values(data).forEach(r => {
+                    // Only count single-topic sessions toward that topic's average.
+                    // Skip 'All Topics (mixed)' and 'Missed questions only' buckets.
+                    if (!r || r.category === '__all__') return;
+                    if (r.topicLabel === 'All Topics (mixed)') return;
+                    if (r.topicLabel === 'Missed questions only') return;
+                    const key = r.category || r.topicLabel;
+                    if (!key) return;
+                    if (!acc[key]) acc[key] = { sum: 0, count: 0 };
+                    acc[key].sum += (r.percentage || 0);
+                    acc[key].count += 1;
+                });
+                topicAvgCache = acc;
+                if (typeof refreshCategoryMastery === 'function') refreshCategoryMastery();
+                // If the picker overlay is open, re-render it.
+                const overlay = document.getElementById('topicPickerOverlay');
+                if (overlay && overlay.style.display === 'flex' && typeof renderTopicPicker === 'function') {
+                    renderTopicPicker();
+                }
+            }).catch(()=>{});
         }
 
         // ===== Recently-seen tracking (avoid showing the same Qs back-to-back) =====
@@ -1311,7 +1319,9 @@
         function saveReport(report) {
             if (typeof db === 'undefined') return;
             const id = String(Date.now());
-            db.ref('mathReports/' + currentProfile + '/' + id).set(report).catch(e => console.warn('Math report save failed:', e));
+            db.ref('mathReports/' + currentProfile + '/' + id).set(report)
+                .then(() => { refreshTopicAvgsFromReports(); })
+                .catch(e => console.warn('Math report save failed:', e));
         }
 
         function normalizeNumeric(input) {
@@ -1423,11 +1433,10 @@
             for (const opt of categorySelect.options) {
                 if (opt.value === '__all__') continue;
                 const pct = masteryPctFor(opt.value);
-                const samples = masterySamplesFor(opt.value);
                 if (pct == null) {
                     opt.textContent = opt.value;
                 } else {
-                    opt.textContent = opt.value + ' — ' + pct + '%' + (samples < MASTERY_WINDOW ? ' (' + samples + ')' : '');
+                    opt.textContent = opt.value + ' — ' + pct + '%';
                 }
             }
             // Keep the row label in the gear menu in sync with the current selection.
@@ -1438,6 +1447,8 @@
             }
         }
         refreshCategoryMastery();
+        // Initial load of per-topic averages from saved reports.
+        refreshTopicAvgsFromReports();
 
         // ---- Topic picker overlay (rich rows with mastery bars) ----
         const topicPickerOverlay = document.getElementById('topicPickerOverlay');
@@ -1466,7 +1477,7 @@
                     : `<span class="topic-row-pct" style="color:${color};">${pct}%</span>`;
                 const meta = pct == null
                     ? `<div class="topic-row-meta">Not practiced yet</div>`
-                    : `<div class="topic-row-meta">Last ${samples} answer${samples === 1 ? '' : 's'}</div>`;
+                    : `<div class="topic-row-meta">Avg of ${samples} session${samples === 1 ? '' : 's'}</div>`;
                 const safeKey = key.replace(/"/g, '&quot;');
                 rows.push(`
                     <button type="button" class="topic-row${current === key ? ' is-selected' : ''}" data-value="${safeKey}">
@@ -1790,7 +1801,6 @@
                 const snapSteps = isCorrect ? equationSnapSteps(q) : null;
                 if (isCorrect) { correct++; clearWrong(q); }
                 else { wrong++; markWrong(q); }
-                recordMastery(q._topic || '', isCorrect);
                 results.push({
                     topic: q._topic || topicLabel || '',
                     question: q.question,

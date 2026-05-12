@@ -93,10 +93,10 @@ const mathPracticeTopics = {
       "blurb": "How to find the GCF the easy way — the same trick also unlocks LCM and the distributive property."
     },
     "khan": {
-      "id": "jFd-6EPfnec",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-gcf/v/greatest-common-divisor",
-      "title": "Khan Academy — Greatest Common Factor Explained",
-      "blurb": "Khan Academy shows GCF via prime factorization, then uses it to factor sums (distributive property)."
+      "id": "znmPfDfsir8",
+      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-lcm/v/least-common-multiple-exercise",
+      "title": "Khan Academy — Least Common Multiple",
+      "blurb": "Sal walks through LCM with prime factorization — the other half of this topic (Math Antics covers GCF above)."
     }
   },
   "8 — Integers & Absolute Value (6.NS.5–7)": {

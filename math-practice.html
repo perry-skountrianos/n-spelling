@@ -382,6 +382,33 @@
             transform: translateY(-1px) scale(1.03);
             box-shadow: 0 8px 24px rgba(255,45,85,0.5);
         }
+        /* Permanent cover for YouTube's top-bar chrome (share / "More videos" /
+           YouTube logo). YouTube's own playback controls live at the BOTTOM of
+           the player, so this strip only hides the off-site links. */
+        .lesson-video-topcover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #000;
+            z-index: 4;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .lesson-video-topcover::before {
+            content: '🎬 Lesson video';
+            opacity: 0.9;
+        }
+        /* In fullscreen, lift the cover above the iframe layer */
+        .lesson-video-frame:fullscreen .lesson-video-topcover,
+        .lesson-video-frame:-webkit-full-screen .lesson-video-topcover { z-index: 2147483647; }
         .start-practice-btn {
             display: block;
             margin: 14px auto 0;
@@ -1057,6 +1084,7 @@
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <div class="lesson-video-topcover" aria-hidden="true"></div>
                             <div class="lesson-video-shield" id="${videoFrameId}_shield" hidden>
                                 <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Resume video</button>
                             </div>

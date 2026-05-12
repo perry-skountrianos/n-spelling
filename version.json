@@ -1,5 +1,5 @@
 {
-  "sha": "051fe16",
-  "date": "2026-05-12T13:32:35-07:00",
-  "message": "feat(math): hard-mode toggle restarts session; add Missed Questions overlay with explanations"
+  "sha": "35757d0",
+  "date": "2026-05-12T13:55:02-07:00",
+  "message": "refactor(math): consolidate question data into math-practice-questions.js + math-practice-topics.js"
 }

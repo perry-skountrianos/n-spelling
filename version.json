@@ -1,5 +1,5 @@
 {
-  "sha": "e51ae34",
-  "date": "2026-05-12T16:17:56-07:00",
-  "message": "feat(math): embed Khan Academy videos beside Math Antics (replaces link card)"
+  "sha": "72f8e69",
+  "date": "2026-05-12T16:21:25-07:00",
+  "message": "fix(math): swap KA video for topic 7 to LCM to avoid dup with Math Antics GCF"
 }

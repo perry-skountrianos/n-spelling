@@ -709,9 +709,8 @@
     <script src="profile.js"></script>
     <script src="tts.js?v=38"></script>
     <script src="math-shapes.js?v=1"></script>
-    <script src="math-practice-data.js?v=4"></script>
-    <script src="math-practice-bank.js?v=2"></script>
-    <script src="math-practice-bank-2.js?v=1"></script>
+    <script src="math-practice-topics.js?v=1"></script>
+    <script src="math-practice-questions.js?v=1"></script>
     <script>
     (function(){
         // -------- profile bootstrap --------
@@ -1223,7 +1222,7 @@
         allOpt.value = '__all__';
         allOpt.textContent = 'All Topics (mixed)';
         categorySelect.appendChild(allOpt);
-        for (const cat in mathPracticeData) {
+        for (const cat in mathPracticeQuestions) {
             const opt = document.createElement('option');
             opt.value = cat;
             opt.textContent = cat;
@@ -1237,13 +1236,10 @@
             container.innerHTML = '';
             initProfileAvatar();
             let questions, topicLabel, lessonHTML, lessonVideo;
-            // Pool builder: combine base data + supplementary bank for the same topic
+            // Pool builder: read consolidated per-topic question list.
             function poolForTopic(key) {
-                const block = mathPracticeData[key];
-                const baseQs = Array.isArray(block) ? block : ((block && block.questions) || []);
-                const bankQs = (typeof mathPracticeBank !== 'undefined' && mathPracticeBank[key]) ? mathPracticeBank[key] : [];
-                const bank2Qs = (typeof mathPracticeBank2 !== 'undefined' && mathPracticeBank2[key]) ? mathPracticeBank2[key] : [];
-                return [...baseQs, ...bankQs, ...bank2Qs].map(q => ({ ...q, _topic: key }));
+                const arr = (mathPracticeQuestions && mathPracticeQuestions[key]) || [];
+                return arr.map(q => ({ ...q, _topic: key }));
             }
             if (restore && restore.questions && restore.questions.length) {
                 questions = restore.questions;
@@ -1252,7 +1248,7 @@
                 lessonVideo = restore.lessonVideo || null;
             } else if (category === '__all__') {
                 const all = [];
-                for (const k in mathPracticeData) {
+                for (const k in mathPracticeQuestions) {
                     all.push(...poolForTopic(k));
                 }
                 questions = pickSession(all, ALL_SESSION_SIZE).map(shuffleQuestionOptions);
@@ -1261,13 +1257,13 @@
                 lessonHTML = null;
                 lessonVideo = null;
             } else {
-                const block = mathPracticeData[category];
+                const meta = (typeof mathPracticeTopics !== 'undefined' && mathPracticeTopics[category]) || null;
                 const pool = poolForTopic(category);
                 questions = pickSession(pool, SESSION_SIZE).map(shuffleQuestionOptions);
                 recordRecent(questions);
                 topicLabel = category;
-                lessonHTML = (!Array.isArray(block) && block && block.lesson) ? block.lesson : null;
-                lessonVideo = (!Array.isArray(block) && block && block.video) ? block.video : null;
+                lessonHTML = meta && meta.lesson ? meta.lesson : null;
+                lessonVideo = meta && meta.video ? meta.video : null;
             }
             if (!questions.length) {
                 container.textContent = 'No questions in this topic.';
@@ -1859,12 +1855,8 @@
         }
         function buildQuestionIndex() {
             const map = {};
-            for (const key in mathPracticeData) {
-                const block = mathPracticeData[key];
-                const baseQs = Array.isArray(block) ? block : ((block && block.questions) || []);
-                const bankQs = (typeof mathPracticeBank !== 'undefined' && mathPracticeBank[key]) ? mathPracticeBank[key] : [];
-                const bank2Qs = (typeof mathPracticeBank2 !== 'undefined' && mathPracticeBank2[key]) ? mathPracticeBank2[key] : [];
-                [...baseQs, ...bankQs, ...bank2Qs].forEach(q => {
+            for (const key in mathPracticeQuestions) {
+                (mathPracticeQuestions[key] || []).forEach(q => {
                     const sig = key + '|' + (q.question || '');
                     map[sig] = { q, topic: key };
                 });
@@ -1988,7 +1980,7 @@
         }
 
         // Default to Day 1 if available, else mixed; resume saved session if any
-        const firstKey = Object.keys(mathPracticeData)[0];
+        const firstKey = Object.keys(mathPracticeQuestions)[0];
         if (firstKey) categorySelect.value = firstKey;
         // Initialize profile avatar immediately
         function initProfileAvatar() {
@@ -2015,7 +2007,7 @@
 
         loadSession().then(saved => {
             if (saved && saved.questions && saved.current < saved.questions.length) {
-                if (saved.category && (saved.category === '__all__' || mathPracticeData[saved.category])) {
+                if (saved.category && (saved.category === '__all__' || mathPracticeQuestions[saved.category])) {
                     categorySelect.value = saved.category;
                 }
                 render(saved.category || categorySelect.value, saved);

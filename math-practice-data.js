@@ -83,6 +83,11 @@ const mathPracticeData = {
     },
 
     "2 — Translating & Equivalent Expressions (6.EE.2–4)": {
+        video: {
+            id: "NybHckSEQBI",
+            title: "Math Antics — What Is Algebra?",
+            blurb: "A fun intro to variables and algebraic expressions — the perfect warm-up before translating words into math."
+        },
         lesson: `
             <h3>Words → Algebra</h3>
             <p>Translate carefully — order matters with subtraction!</p>
@@ -138,6 +143,11 @@ const mathPracticeData = {
     },
 
     "3 — One-Step Equations (6.EE.5, 6.EE.7)": {
+        video: {
+            id: "l3XzepN03KQ",
+            title: "Math Antics — Solving Basic Equations Part 1",
+            blurb: "See how to undo addition or subtraction to solve for x. Watch this, then crush the practice! 💪"
+        },
         lesson: `
             <h3>Solving One-Step Equations</h3>
             <p>To solve, do the <b>opposite operation</b> on both sides to isolate the variable.</p>
@@ -188,6 +198,11 @@ const mathPracticeData = {
     },
 
     "4 — Inequalities (6.EE.8)": {
+        video: {
+            id: "Qyd_v3DGzTM",
+            title: "Math Antics — Solving Basic Equations Part 2",
+            blurb: "The same balance idea works for inequalities — just don’t forget to flip the sign if you multiply or divide by a negative!"
+        },
         lesson: `
             <h3>Inequality Symbols</h3>
             <ul>
@@ -238,6 +253,11 @@ const mathPracticeData = {
     },
 
     "5 — Variables, Tables & Equations (6.EE.9)": {
+        video: {
+            id: "vqRZWcsx9_w",
+            title: "Math Antics — What Are Variables?",
+            blurb: "Variables are just placeholders for numbers. This 8-min video makes that crystal clear."
+        },
         lesson: `
             <h3>Independent vs Dependent Variables</h3>
             <ul>
@@ -286,6 +306,11 @@ const mathPracticeData = {
     // =====================================================================
 
     "6 — Fraction & Decimal Operations (6.NS.1, 6.NS.3)": {
+        video: {
+            id: "5juto2ze8Lg",
+            title: "Math Antics — Adding and Subtracting Fractions",
+            blurb: "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
+        },
         lesson: `
             <h3>Dividing fractions — "Keep, Change, Flip"</h3>
             <p>To divide by a fraction, multiply by its <b>reciprocal</b> (flip it):</p>
@@ -326,6 +351,11 @@ const mathPracticeData = {
     },
 
     "7 — GCF, LCM & Distributive (6.NS.4)": {
+        video: {
+            id: "jFd-6EPfnec",
+            title: "Math Antics — Greatest Common Factor",
+            blurb: "How to find the GCF the easy way — the same trick also unlocks LCM and the distributive property."
+        },
         lesson: `
             <h3>Greatest Common Factor (GCF)</h3>
             <p>The largest number that divides both numbers evenly.</p>
@@ -368,6 +398,11 @@ const mathPracticeData = {
     },
 
     "8 — Integers & Absolute Value (6.NS.5–7)": {
+        video: {
+            id: "nkmu9oH-jPI",
+            title: "Math Antics — Negative Numbers",
+            blurb: "Negative numbers on the number line, opposites, and absolute value — all in one clean explainer."
+        },
         lesson: `
             <h3>Integers</h3>
             <p>Whole numbers and their opposites: …−3, −2, −1, 0, 1, 2, 3…</p>
@@ -406,6 +441,11 @@ const mathPracticeData = {
     },
 
     "9 — Coordinate Plane (6.NS.6, 6.NS.8)": {
+        video: {
+            id: "s7NKLWXkEFE",
+            title: "Math Antics — The Coordinate Plane",
+            blurb: "Quadrants, ordered pairs, and how (x, y) becomes a dot. Get comfy before plotting shapes!"
+        },
         lesson: `
             <h3>Quadrants</h3>
             <p>The xy-plane has 4 quadrants:</p>
@@ -455,6 +495,11 @@ const mathPracticeData = {
     // =====================================================================
 
     "10 — Ratios & Unit Rate (6.RP.1–3)": {
+        video: {
+            id: "RQ2nYUBVvqI",
+            title: "Math Antics — Ratios And Rates",
+            blurb: "What a ratio actually means, plus how to turn any ratio into a unit rate."
+        },
         lesson: `
             <h3>Ratios</h3>
             <p>A ratio compares two quantities. <code>5 : 3</code> means "5 of one thing for every 3 of another".</p>
@@ -498,6 +543,11 @@ const mathPracticeData = {
     },
 
     "11 — Percent Problems (6.RP.3c)": {
+        video: {
+            id: "JeVSmq1Nrpw",
+            title: "Math Antics — What Are Percentages?",
+            blurb: "Percent just means ‘out of 100’. This video makes percent problems feel easy. 💯"
+        },
         lesson: `
             <h3>Percent basics</h3>
             <p><b>Percent</b> means "per hundred". <code>25% = 25/100 = 0.25</code>.</p>
@@ -542,6 +592,11 @@ const mathPracticeData = {
     // =====================================================================
 
     "12 — Area of Polygons (6.G.1)": {
+        video: {
+            id: "xCdxURXMdFY",
+            title: "Math Antics — Area",
+            blurb: "Area of rectangles, triangles, and parallelograms — then combine them for any polygon."
+        },
         lesson: `
             <h3>Area formulas</h3>
             <ul>
@@ -597,6 +652,11 @@ const mathPracticeData = {
     },
 
     "13 — Volume & Unit Conversion (6.G.2, 6.G.4)": {
+        video: {
+            id: "qJwecTgce6c",
+            title: "Math Antics — Volume",
+            blurb: "V = l × w × h, even with fraction sides. Builds the intuition for the cube-counting problems."
+        },
         lesson: `
             <h3>Volume of a rectangular prism</h3>
             <p><code>V = length × width × height</code> &nbsp;(works even with fractional edges).</p>
@@ -642,6 +702,11 @@ const mathPracticeData = {
     // =====================================================================
 
     "14 — Statistics: Center, Spread & Plots (6.SP.4–5)": {
+        video: {
+            id: "5C9LBF3b65s",
+            title: "Math Antics — Mean, Median and Mode",
+            blurb: "The three most common ways to find the ‘center’ of a data set — with simple examples."
+        },
         lesson: `
             <h3>Measures of center</h3>
             <ul>

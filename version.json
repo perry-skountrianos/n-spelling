@@ -1,5 +1,5 @@
 {
-  "sha": "f9aafcc",
-  "date": "2026-05-12T14:51:59-07:00",
-  "message": "feat(math): group Math reports by topic with collapsible sections"
+  "sha": "1275f4c",
+  "date": "2026-05-12T15:35:04-07:00",
+  "message": "refactor(math): topic mastery % now comes from saved Reports avg"
 }

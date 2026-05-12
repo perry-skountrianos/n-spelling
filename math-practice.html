@@ -681,6 +681,68 @@
             color: #888;
             margin-top: 4px;
         }
+
+        /* ---- Reports overlay: grouped by topic ---- */
+        .report-group {
+            border-bottom: 1px solid #ececef;
+        }
+        .report-group:last-child { border-bottom: none; }
+        .report-group-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            background: #fafafb;
+            transition: background 0.12s;
+        }
+        .report-group-summary:hover { background: #f3f3f5; }
+        .report-group-summary::-webkit-details-marker { display: none; }
+        .report-group-summary::before {
+            content: '';
+            display: inline-block;
+            width: 0; height: 0;
+            border-left: 5px solid #999;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            margin-right: 8px;
+            transition: transform 0.15s;
+            flex-shrink: 0;
+        }
+        .report-group[open] > .report-group-summary::before {
+            transform: rotate(90deg);
+        }
+        .report-group-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #222;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .report-group-meta {
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .report-group-count { color: #888; }
+        .report-group-avg {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        .report-group-body {
+            padding: 8px 12px 14px;
+            background: #fff;
+        }
+        .report-group-body .report-card {
+            margin: 6px 0;
+        }
     </style>
 </head>
 <body>
@@ -2185,41 +2247,98 @@
                     return;
                 }
                 const reports = Object.entries(data).sort((a, b) => Number(b[0]) - Number(a[0]));
-                reportsList.innerHTML = '';
+
+                // Group by topic. Mixed sessions land in their own bucket.
+                const MIXED_KEY = '__mixed__';
+                const groups = {}; // key -> { label, reports: [...] }
                 reports.forEach(([id, report]) => {
-                    const date = new Date(report.date);
-                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    const card = document.createElement('div');
-                    card.className = 'report-card';
-                    const scoreClass = report.percentage >= 80 ? 'report-score-good' : report.percentage >= 50 ? 'report-score-ok' : 'report-score-low';
-                    const topic = report.topicLabel || report.category || 'Math';
-                    card.innerHTML = `
-                        <div class="report-card-header">
-                            <div class="report-date">${dateStr} at ${timeStr}<div style="font-size:11px;color:#0071e3;font-weight:600;margin-top:2px;">${topic}${report.hardMode ? ' \u2022 \ud83c\udfaf Missed only' : ''}</div></div>
-                            <div class="report-score ${scoreClass}">${report.percentage}%</div>
-                        </div>
-                        <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalQuestions} questions</div>
-                    `;
-                    if (report.results) {
-                        const wrongQs = report.results.filter(r => !r.isCorrect);
-                        if (wrongQs.length > 0) {
-                            const details = document.createElement('details');
-                            details.className = 'report-details';
-                            const summary = document.createElement('summary');
-                            summary.textContent = `Questions missed (${wrongQs.length})`;
-                            details.appendChild(summary);
-                            const wordsList = document.createElement('div');
-                            wordsList.className = 'report-words';
-                            wrongQs.forEach(r => {
-                                const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 90);
-                                wordsList.innerHTML += `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 90 ? '\u2026' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
-                            });
-                            details.appendChild(wordsList);
-                            card.appendChild(details);
-                        }
+                    let groupKey, groupLabel;
+                    if (report.category === '__all__' || report.topicLabel === 'All Topics (mixed)') {
+                        groupKey = MIXED_KEY;
+                        groupLabel = '🎲 All Topics (mixed)';
+                    } else if (report.topicLabel === 'Missed questions only') {
+                        groupKey = '__missed_only__';
+                        groupLabel = '🎯 Missed questions only';
+                    } else {
+                        groupKey = report.category || report.topicLabel || 'Math';
+                        groupLabel = report.topicLabel || report.category || 'Math';
                     }
-                    reportsList.appendChild(card);
+                    if (!groups[groupKey]) groups[groupKey] = { label: groupLabel, reports: [] };
+                    groups[groupKey].reports.push([id, report]);
+                });
+
+                // Order: every topic in mathPracticeQuestions (in declaration order), then Mixed, then Missed-only.
+                const orderedKeys = [];
+                for (const k in mathPracticeQuestions) {
+                    if (groups[k]) orderedKeys.push(k);
+                }
+                if (groups[MIXED_KEY]) orderedKeys.push(MIXED_KEY);
+                if (groups['__missed_only__']) orderedKeys.push('__missed_only__');
+                // Anything left over (legacy keys we didn't expect)
+                for (const k of Object.keys(groups)) {
+                    if (!orderedKeys.includes(k)) orderedKeys.push(k);
+                }
+
+                reportsList.innerHTML = '';
+                orderedKeys.forEach((groupKey, groupIdx) => {
+                    const group = groups[groupKey];
+                    const sec = document.createElement('details');
+                    sec.className = 'report-group';
+                    if (groupIdx === 0) sec.open = true; // expand first group by default
+                    const totalRuns = group.reports.length;
+                    const avgPct = Math.round(
+                        group.reports.reduce((s, [, r]) => s + (r.percentage || 0), 0) / totalRuns
+                    );
+                    const avgColor = masteryColor(avgPct);
+                    const sum = document.createElement('summary');
+                    sum.className = 'report-group-summary';
+                    sum.innerHTML = `
+                        <span class="report-group-name">${group.label}</span>
+                        <span class="report-group-meta">
+                            <span class="report-group-count">${totalRuns} session${totalRuns === 1 ? '' : 's'}</span>
+                            <span class="report-group-avg" style="color:${avgColor};">avg ${avgPct}%</span>
+                        </span>
+                    `;
+                    sec.appendChild(sum);
+                    const groupBody = document.createElement('div');
+                    groupBody.className = 'report-group-body';
+
+                    group.reports.forEach(([id, report]) => {
+                        const date = new Date(report.date);
+                        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        const card = document.createElement('div');
+                        card.className = 'report-card';
+                        const scoreClass = report.percentage >= 80 ? 'report-score-good' : report.percentage >= 50 ? 'report-score-ok' : 'report-score-low';
+                        card.innerHTML = `
+                            <div class="report-card-header">
+                                <div class="report-date">${dateStr} at ${timeStr}${report.hardMode ? '<div style="font-size:11px;color:#0071e3;font-weight:600;margin-top:2px;">\ud83c\udfaf Missed only</div>' : ''}</div>
+                                <div class="report-score ${scoreClass}">${report.percentage}%</div>
+                            </div>
+                            <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalQuestions} questions</div>
+                        `;
+                        if (report.results) {
+                            const wrongQs = report.results.filter(r => !r.isCorrect);
+                            if (wrongQs.length > 0) {
+                                const details = document.createElement('details');
+                                details.className = 'report-details';
+                                const summary = document.createElement('summary');
+                                summary.textContent = `Questions missed (${wrongQs.length})`;
+                                details.appendChild(summary);
+                                const wordsList = document.createElement('div');
+                                wordsList.className = 'report-words';
+                                wrongQs.forEach(r => {
+                                    const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 90);
+                                    wordsList.innerHTML += `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 90 ? '\u2026' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                                });
+                                details.appendChild(wordsList);
+                                card.appendChild(details);
+                            }
+                        }
+                        groupBody.appendChild(card);
+                    });
+                    sec.appendChild(groupBody);
+                    reportsList.appendChild(sec);
                 });
             }).catch(e => {
                 console.warn('Failed to load math reports:', e);

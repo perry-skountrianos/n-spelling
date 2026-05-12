@@ -1,5 +1,5 @@
 {
-  "sha": "72f8e69",
-  "date": "2026-05-12T16:21:25-07:00",
-  "message": "fix(math): swap KA video for topic 7 to LCM to avoid dup with Math Antics GCF"
+  "sha": "e45f69b",
+  "date": "2026-05-12T16:26:47-07:00",
+  "message": "feat(math): apply Math Antics shield+controls to Khan video (prevent click-out)"
 }

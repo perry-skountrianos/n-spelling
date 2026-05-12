@@ -417,6 +417,24 @@
         /* In fullscreen, lift the cover above the iframe layer */
         .lesson-video-frame:fullscreen .lesson-video-topcover,
         .lesson-video-frame:-webkit-full-screen .lesson-video-topcover { z-index: 2147483647; }
+        /* In native fullscreen the frame is sized to the viewport directly,
+           so undo the aspect-ratio padding hack. */
+        .lesson-video-frame:fullscreen,
+        .lesson-video-frame:-webkit-full-screen { padding-top: 0; width: 100vw; height: 100vh; background: #000; }
+        /* Pseudo-fullscreen fallback for browsers (notably iOS Safari) that
+           refuse to put a non-<video> element into the Fullscreen API. */
+        .lesson-video-frame.is-pseudo-fs {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* honor mobile browser UI when present */
+            padding-top: 0;
+            border-radius: 0;
+            z-index: 2147483647;
+            background: #000;
+        }
+        body.lesson-video-pseudo-fs { overflow: hidden; }
         /* Transparent click-catch overlay above the iframe — swallows hover so
            YouTube's hover chrome (share / "More videos" / YT logo on the
            bottom) never appears. Click toggles play/pause via our API. */
@@ -835,14 +853,47 @@
                     };
                 }
                 if (fsBtn && frameWrap) {
+                    const isPseudoFs = () => frameWrap.classList.contains('is-pseudo-fs');
+                    const inNativeFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+                    const enterPseudoFs = () => {
+                        frameWrap.classList.add('is-pseudo-fs');
+                        document.body.classList.add('lesson-video-pseudo-fs');
+                        // Try to lock landscape on phones — best effort, ignore failures.
+                        try {
+                            if (screen.orientation && screen.orientation.lock) {
+                                screen.orientation.lock('landscape').catch(() => {});
+                            }
+                        } catch (e) {}
+                    };
+                    const exitPseudoFs = () => {
+                        frameWrap.classList.remove('is-pseudo-fs');
+                        document.body.classList.remove('lesson-video-pseudo-fs');
+                        try { screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); } catch (e) {}
+                    };
                     fsBtn.onclick = () => {
-                        const fn = frameWrap.requestFullscreen || frameWrap.webkitRequestFullscreen;
-                        if (document.fullscreenElement || document.webkitFullscreenElement) {
+                        if (inNativeFs()) {
                             (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-                        } else if (fn) {
-                            fn.call(frameWrap);
+                            return;
+                        }
+                        if (isPseudoFs()) { exitPseudoFs(); return; }
+                        const fn = frameWrap.requestFullscreen || frameWrap.webkitRequestFullscreen;
+                        if (fn) {
+                            try {
+                                const p = fn.call(frameWrap);
+                                if (p && typeof p.then === 'function') {
+                                    p.catch(() => enterPseudoFs());
+                                }
+                            } catch (e) {
+                                enterPseudoFs();
+                            }
+                        } else {
+                            enterPseudoFs();
                         }
                     };
+                    // Allow Esc / back gesture to leave pseudo-fullscreen.
+                    document.addEventListener('keydown', e => {
+                        if (e.key === 'Escape' && isPseudoFs()) exitPseudoFs();
+                    });
                 }
                 // Update progress + time every 500ms
                 progressTimer = setInterval(() => {

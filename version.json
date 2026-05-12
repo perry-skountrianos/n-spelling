@@ -1,5 +1,5 @@
 {
-  "sha": "0da6b9a",
-  "date": "2026-05-12T13:57:29-07:00",
-  "message": "chore(math): remove math-shapes.js (SVGs are now baked into questions)"
+  "sha": "13e630a",
+  "date": "2026-05-12T14:03:47-07:00",
+  "message": "feat(math): nicer Next button, Missed submenu under Reports, rename Hard mode to 'Missed questions only'"
 }

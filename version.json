@@ -1,5 +1,5 @@
 {
-  "sha": "d1076d5",
-  "date": "2026-05-11T21:13:46-07:00",
-  "message": "feat(math): auto-update version label from version.json via GH Action"
+  "sha": "cd99df1",
+  "date": "2026-05-11T21:19:45-07:00",
+  "message": "feat(math): restrict free-text answer input to numeric characters"
 }

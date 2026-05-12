@@ -353,6 +353,35 @@
             height: 100%;
             border: 0;
         }
+        .lesson-video-shield {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.78);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .lesson-video-shield[hidden] { display: none; }
+        .lesson-video-resume {
+            background: #ff2d55;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 14px 28px;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255,45,85,0.4);
+            transition: transform 0.12s, box-shadow 0.12s;
+        }
+        .lesson-video-resume:hover {
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(255,45,85,0.5);
+        }
         .start-practice-btn {
             display: block;
             margin: 14px auto 0;
@@ -620,7 +649,55 @@
             return text;
         }
 
-        // TTS toggle (persisted)
+        // YouTube IFrame API — load once on demand, then cover the player with our
+        // own overlay whenever the video is paused/ended/cued. This hides the
+        // "share / more videos / YouTube logo" end-screen cards so kids can't
+        // wander off into YouTube.
+        let _ytApiReadyPromise = null;
+        function loadYouTubeApi() {
+            if (_ytApiReadyPromise) return _ytApiReadyPromise;
+            _ytApiReadyPromise = new Promise(resolve => {
+                if (window.YT && window.YT.Player) { resolve(window.YT); return; }
+                const prev = window.onYouTubeIframeAPIReady;
+                window.onYouTubeIframeAPIReady = function () {
+                    if (typeof prev === 'function') { try { prev(); } catch (e) {} }
+                    resolve(window.YT);
+                };
+                if (!document.querySelector('script[data-yt-api]')) {
+                    const s = document.createElement('script');
+                    s.src = 'https://www.youtube.com/iframe_api';
+                    s.dataset.ytApi = '1';
+                    document.head.appendChild(s);
+                }
+            });
+            return _ytApiReadyPromise;
+        }
+        function attachYouTubeShield(frameId) {
+            const shield = document.getElementById(frameId + '_shield');
+            const resumeBtn = document.getElementById(frameId + '_resume');
+            if (!shield || !resumeBtn) return;
+            loadYouTubeApi().then(YT => {
+                const player = new YT.Player(frameId, {
+                    events: {
+                        onStateChange: ev => {
+                            // 1 = playing, 3 = buffering → safe to hide shield
+                            // 0 = ended, 2 = paused, 5 = cued → show shield to block end-cards
+                            if (ev.data === YT.PlayerState.PLAYING || ev.data === YT.PlayerState.BUFFERING) {
+                                shield.hidden = true;
+                            } else {
+                                shield.hidden = false;
+                            }
+                        }
+                    }
+                });
+                resumeBtn.onclick = () => {
+                    shield.hidden = true;
+                    try { player.playVideo(); } catch (e) {}
+                };
+            });
+        }
+
+
         const TTS_KEY = 'mathPracticeTTS';
         let ttsEnabled = false; // auto-read disabled — manual speaker buttons only
 
@@ -967,18 +1044,22 @@
             }
 
             function showLesson() {
+                const videoFrameId = lessonVideo ? `ytFrame_${Math.random().toString(36).slice(2,8)}` : '';
                 const videoHTML = lessonVideo ? `
                     <div class="lesson-video-wrap">
                         <div class="lesson-video-title">🎥 ${lessonVideo.title || 'Watch the video'}</div>
                         ${lessonVideo.blurb ? `<div class="lesson-video-blurb">${lessonVideo.blurb}</div>` : ''}
                         <div class="lesson-video-frame">
-                            <iframe
-                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1"
+                            <iframe id="${videoFrameId}"
+                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
                                 title="${lessonVideo.title || 'Lesson video'}"
                                 frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <div class="lesson-video-shield" id="${videoFrameId}_shield" hidden>
+                                <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Resume video</button>
+                            </div>
                         </div>
                     </div>` : '';
                 const lessonBlock = lessonHTML ? `<div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>` : '';
@@ -1005,6 +1086,9 @@
                     if (ttsEnabled && !lessonVideo) {
                         setTimeout(() => lessonSpeakBtn.click(), 400);
                     }
+                }
+                if (lessonVideo && videoFrameId) {
+                    attachYouTubeShield(videoFrameId);
                 }
             }
 

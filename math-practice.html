@@ -333,24 +333,9 @@
             border: 1px solid #cfe2ff;
         }
         .lesson-khan-wrap .lesson-video-title { color: #1a5cb3; }
-        /* Plain 16:9 frame for the Khan iframe (no overlay strips). */
         .lesson-khan-wrap .lesson-video-frame {
-            padding-top: 56.25%;
             box-shadow: 0 4px 14px rgba(20, 110, 200, 0.15);
         }
-        .lesson-khan-wrap .lesson-video-frame iframe {
-            top: 0;
-            height: 100%;
-        }
-        .lesson-khan-link {
-            display: inline-block;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #1a5cb3;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .lesson-khan-link:hover { text-decoration: underline; }
         .lesson-video-title {
             font-weight: 600;
             font-size: 15px;
@@ -1682,14 +1667,26 @@
                         ${lessonKhan.blurb ? `<div class="lesson-video-blurb">${lessonKhan.blurb}</div>` : ''}
                         <div class="lesson-video-frame">
                             <iframe id="${khanFrameId}"
-                                src="https://www.youtube-nocookie.com/embed/${lessonKhan.id}?rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
+                                src="https://www.youtube-nocookie.com/embed/${lessonKhan.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
                                 title="${lessonKhan.title || 'Khan Academy lesson video'}"
                                 frameborder="0"
-                                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <div class="lesson-video-topcover" aria-hidden="true"></div>
+                            <div class="lesson-video-clickcatch" id="${khanFrameId}_click"></div>
+                            <div class="lesson-video-controls" id="${khanFrameId}_controls">
+                                <button type="button" class="lvc-btn" id="${khanFrameId}_playpause" title="Play / Pause">▶</button>
+                                <div class="lvc-time" id="${khanFrameId}_time">0:00 / 0:00</div>
+                                <div class="lvc-progress" id="${khanFrameId}_progress">
+                                    <div class="lvc-progress-fill" id="${khanFrameId}_progressfill"></div>
+                                </div>
+                                <button type="button" class="lvc-btn" id="${khanFrameId}_fs" title="Fullscreen">⛶</button>
+                            </div>
+                            <div class="lesson-video-shield" id="${khanFrameId}_shield">
+                                <button type="button" class="lesson-video-resume" id="${khanFrameId}_resume">▶ Play video</button>
+                            </div>
                         </div>
-                        ${lessonKhan.url ? `<a class="lesson-khan-link" href="${lessonKhan.url}" target="_blank" rel="noopener noreferrer">Open on khanacademy.org →</a>` : ''}
                     </div>` : '';
                 container.innerHTML = `
                     <div class="topic-pill">${topicLabel}</div>
@@ -1718,6 +1715,9 @@
                 }
                 if (lessonVideo && videoFrameId) {
                     attachYouTubeShield(videoFrameId);
+                }
+                if (lessonKhan && lessonKhan.id && khanFrameId) {
+                    attachYouTubeShield(khanFrameId);
                 }
             }
 

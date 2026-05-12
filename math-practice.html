@@ -1466,6 +1466,8 @@
                     question: q.question,
                     type: q.type || 'mc',
                     correctAnswer: correctAnswerText(q),
+                    explanation: q.explanation || '',
+                    resolveSteps: Array.isArray(q.resolveSteps) ? q.resolveSteps.slice() : null,
                     isCorrect: isCorrect
                 });
                 updateDonuts(correct, wrong, questions.length);
@@ -1560,7 +1562,13 @@
                         <div class="report-words">
                             ${wrongSoFar.map(r => {
                                 const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 120);
-                                return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                                const stepsHtml = (Array.isArray(r.resolveSteps) && r.resolveSteps.length)
+                                    ? `<ol style="margin:6px 0 0 18px;padding:0;font-size:12px;color:#444;">${r.resolveSteps.map(s => `<li>${escapeHTML(s)}</li>`).join('')}</ol>`
+                                    : '';
+                                const expHtml = r.explanation
+                                    ? `<div style="font-size:12px;color:#555;margin-top:4px;">${r.explanation}</div>`
+                                    : '';
+                                return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
                             }).join('')}
                         </div>
                     </details>
@@ -1591,7 +1599,13 @@
                             ${wrongQs.length > 0
                                 ? wrongQs.map(r => {
                                     const qShort = (r.question || '').replace(/<[^>]+>/g, '').slice(0, 120);
-                                    return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                                    const stepsHtml = (Array.isArray(r.resolveSteps) && r.resolveSteps.length)
+                                        ? `<ol style="margin:6px 0 0 18px;padding:0;font-size:12px;color:#444;">${r.resolveSteps.map(s => `<li>${escapeHTML(s)}</li>`).join('')}</ol>`
+                                        : '';
+                                    const expHtml = r.explanation
+                                        ? `<div style="font-size:12px;color:#555;margin-top:4px;">${r.explanation}</div>`
+                                        : '';
+                                    return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div><div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
                                 }).join('')
                                 : '<div class="report-word-item"><div style="font-weight:600;color:#333;">No missed questions in this session.</div></div>'}
                         </div>

@@ -1,5 +1,5 @@
 {
-  "sha": "47977aa",
-  "date": "2026-05-12T11:43:50-07:00",
-  "message": "fix(math): expand iframe to fill viewport in fullscreen (native + pseudo)"
+  "sha": "4e2bd60",
+  "date": "2026-05-12T11:53:03-07:00",
+  "message": "chore: remove Meal Planner app"
 }

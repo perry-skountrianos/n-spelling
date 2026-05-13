@@ -1698,15 +1698,53 @@
         const dailyGoalInput = document.getElementById('dailyGoalInput');
         const dailyGoalRow = document.getElementById('dailyGoalRow');
         if (dailyGoalInput) {
+            const ADMIN_PASSWORD = 'admin123';
+            let goalUnlocked = false;
             dailyGoalInput.value = DailyTime.getGoalMinutes();
+            dailyGoalInput.readOnly = true;
+            dailyGoalInput.style.cursor = 'pointer';
+            dailyGoalInput.title = 'Click to change (password required)';
+            const requestUnlock = () => {
+                if (goalUnlocked) return true;
+                const pw = window.prompt('Enter admin password to change the daily goal:');
+                if (pw === null) return false;
+                if (pw !== ADMIN_PASSWORD) {
+                    alert('Incorrect password.');
+                    return false;
+                }
+                goalUnlocked = true;
+                dailyGoalInput.readOnly = false;
+                dailyGoalInput.style.cursor = '';
+                dailyGoalInput.focus();
+                dailyGoalInput.select();
+                return true;
+            };
             const commitGoal = () => {
                 const v = parseInt(dailyGoalInput.value, 10);
                 if (isNaN(v)) { dailyGoalInput.value = DailyTime.getGoalMinutes(); return; }
                 DailyTime.setGoalMinutes(v);
                 dailyGoalInput.value = DailyTime.getGoalMinutes();
+                // Re-lock after a successful change so future edits re-prompt
+                goalUnlocked = false;
+                dailyGoalInput.readOnly = true;
+                dailyGoalInput.style.cursor = 'pointer';
             };
+            dailyGoalInput.addEventListener('mousedown', (e) => {
+                if (!goalUnlocked) {
+                    e.preventDefault();
+                    requestUnlock();
+                }
+            });
+            dailyGoalInput.addEventListener('focus', () => {
+                if (!goalUnlocked) {
+                    dailyGoalInput.blur();
+                    requestUnlock();
+                }
+            });
             dailyGoalInput.addEventListener('change', commitGoal);
-            dailyGoalInput.addEventListener('blur', commitGoal);
+            dailyGoalInput.addEventListener('blur', () => {
+                if (goalUnlocked) commitGoal();
+            });
             dailyGoalInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') { e.preventDefault(); commitGoal(); dailyGoalInput.blur(); }
             });

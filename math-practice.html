@@ -13,6 +13,114 @@
         .quiz-options  { align-items: stretch !important; }
         .gear-menu-wrapper { position: static !important; margin-left: auto; }
 
+        /* ===== Daily practice timer ===== */
+        .daily-timer-chip {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px 8px 10px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid #e3e6ea;
+            border-radius: 999px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            z-index: 1500;
+            user-select: none;
+            -webkit-user-select: none;
+            backdrop-filter: blur(6px);
+        }
+        .daily-timer-chip.is-paused { opacity: 0.55; }
+        .daily-timer-chip.is-done {
+            background: linear-gradient(135deg, #d1f7d6 0%, #b9f0c2 100%);
+            border-color: #6cc878;
+            color: #1f7a35;
+        }
+        .daily-timer-chip .dt-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #2ea043;
+            box-shadow: 0 0 0 0 rgba(46,160,67,0.45);
+            animation: dtPulse 1.6s ease-out infinite;
+        }
+        .daily-timer-chip.is-paused .dt-dot {
+            background: #999;
+            animation: none;
+        }
+        .daily-timer-chip.is-done .dt-dot {
+            background: #1f7a35;
+            animation: none;
+        }
+        @keyframes dtPulse {
+            0% { box-shadow: 0 0 0 0 rgba(46,160,67,0.45); }
+            70% { box-shadow: 0 0 0 8px rgba(46,160,67,0); }
+            100% { box-shadow: 0 0 0 0 rgba(46,160,67,0); }
+        }
+        .daily-goal-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .daily-goal-row label {
+            font-size: 14px; color: #333; font-weight: 500;
+        }
+        .daily-goal-row input[type="number"] {
+            width: 64px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 14px; text-align: center;
+        }
+        .daily-goal-banner {
+            position: fixed; left: 50%; top: 18px;
+            transform: translateX(-50%) translateY(-160%);
+            background: linear-gradient(135deg, #d1f7d6 0%, #b9f0c2 100%);
+            border: 1px solid #6cc878;
+            color: #1a5d27;
+            padding: 12px 22px; border-radius: 999px;
+            font-weight: 700; font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            z-index: 2000; opacity: 0;
+            transition: transform 0.5s cubic-bezier(.2,.7,.2,1), opacity 0.4s;
+        }
+        .daily-goal-banner.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .daily-history-wrap {
+            margin: 8px 0 18px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid #e3e6ea;
+            border-radius: 12px;
+        }
+        .daily-history-title {
+            font-size: 13px; font-weight: 600; color: #555;
+            margin-bottom: 8px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .daily-history-title .dh-total { font-weight: 500; color: #777; font-size: 12px; }
+        .daily-history-grid {
+            display: grid;
+            grid-template-columns: repeat(14, 1fr);
+            gap: 4px;
+        }
+        .daily-history-cell {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 4px;
+            background: #e8ecef;
+            font-size: 9px;
+            color: #fff;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 2px;
+        }
+        .daily-history-cell.has-progress { color: #fff; font-weight: 600; }
+        .daily-history-cell.is-today { outline: 2px solid #0071e3; outline-offset: 1px; }
+        .daily-history-cell .dh-date {
+            position: absolute; top: 2px; left: 0; right: 0;
+            text-align: center; font-size: 9px; color: rgba(0,0,0,0.45);
+        }
+        .daily-history-cell.has-progress .dh-date { color: rgba(255,255,255,0.85); }
+
         /* Desktop: align gear menu to the far right */
         @media (min-width: 768px) {
             .score-display {
@@ -798,6 +906,10 @@
                     <label for="hardSwitch">🎯 Missed questions only</label>
                     <span class="tts-switch" id="hardSwitch"></span>
                 </div>
+                <div class="gear-option daily-goal-row" id="dailyGoalRow" title="How many minutes per day to practice">
+                    <label for="dailyGoalInput">⏱ Daily goal (min)</label>
+                    <input type="number" id="dailyGoalInput" min="1" max="120" step="1" value="30">
+                </div>
                 <button class="gear-option" id="viewMissedBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Missed questions list</button>
                 <button class="gear-option" id="viewReportsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16V8"/><path d="M12 16v-5"/><path d="M16 16v-8"/></svg> Reports</button>
                 <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> Reset</button>
@@ -809,6 +921,13 @@
     <div class="quiz-app-container">
         <div id="quizContainer"></div>
     </div>
+
+    <!-- Daily practice timer chip & banner -->
+    <div class="daily-timer-chip is-paused" id="dailyTimerChip" title="Daily practice timer">
+        <span class="dt-dot"></span>
+        <span id="dailyTimerText">⏱ 0:00 / 30:00</span>
+    </div>
+    <div class="daily-goal-banner" id="dailyGoalBanner">🎉 Daily goal reached! Great job!</div>
 
     <!-- Reports overlay -->
     <div class="reports-overlay" id="reportsOverlay" style="display: none;">
@@ -877,6 +996,242 @@
             const px = size || 36;
             return '<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/' + cp + '.svg" alt="' + emoji + '" width="' + px + '" height="' + px + '" style="display:block;" draggable="false">';
         }
+
+        // ============= Daily practice timer =============
+        // Tracks active practice seconds per day, configurable goal, cross-device sync.
+        // "Active" = page is the visible tab AND a question was answered in the last 60s.
+        // Storage:
+        //   localStorage[`dailyGoal_<profile>`]      → minutes (number)
+        //   localStorage[`dailyTime_<profile>`]      → { "YYYY-MM-DD": seconds, ... }
+        //   Firebase  mathDailyGoal/<profile>        → minutes (number)
+        //   Firebase  mathDailyTime/<profile>/<YMD>  → seconds (number)
+        const DailyTime = (function() {
+            const GOAL_KEY = 'dailyGoal_' + currentProfile;
+            const TIME_KEY = 'dailyTime_' + currentProfile;
+            const ACTIVE_WINDOW_MS = 60 * 1000;       // 60s since last answered question
+            const MAX_TICK_MS = 5 * 1000;             // ignore tick gaps > 5s (clock fiddle / sleep)
+            const FIREBASE_FLUSH_MS = 10 * 1000;      // push to RTDB at most every 10s
+            const DEFAULT_GOAL_MIN = 30;
+
+            const state = {
+                goalMin: DEFAULT_GOAL_MIN,
+                today: ymd(new Date()),
+                days: {},           // YMD -> seconds (today's value is live)
+                lastActivity: 0,    // ms epoch of last answered question
+                lastTickAt: 0,      // ms epoch of last successful tick (for delta)
+                celebratedToday: false,
+                dirtyTodaySec: 0,   // seconds not yet pushed to firebase
+                lastFirebaseFlushAt: 0,
+                tickerId: null
+            };
+
+            function ymd(d) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return y + '-' + m + '-' + dd;
+            }
+            function fmtMMSS(sec) {
+                sec = Math.max(0, Math.floor(sec));
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return m + ':' + String(s).padStart(2, '0');
+            }
+            function todaySec() { return state.days[state.today] || 0; }
+            function goalSec() { return Math.max(60, state.goalMin * 60); }
+
+            function loadLocal() {
+                try {
+                    const g = parseInt(localStorage.getItem(GOAL_KEY), 10);
+                    if (g >= 1 && g <= 120) state.goalMin = g;
+                } catch(_) {}
+                try {
+                    const t = JSON.parse(localStorage.getItem(TIME_KEY) || '{}');
+                    if (t && typeof t === 'object') state.days = t;
+                } catch(_) {}
+                if (todaySec() >= goalSec()) state.celebratedToday = true; // already done
+            }
+            function saveLocal() {
+                try { localStorage.setItem(GOAL_KEY, String(state.goalMin)); } catch(_) {}
+                try { localStorage.setItem(TIME_KEY, JSON.stringify(state.days)); } catch(_) {}
+            }
+            async function loadRemoteAndMerge() {
+                if (typeof db === 'undefined') return;
+                try {
+                    const [gSnap, tSnap] = await Promise.all([
+                        db.ref('mathDailyGoal/' + currentProfile).once('value'),
+                        db.ref('mathDailyTime/' + currentProfile).once('value')
+                    ]);
+                    const remoteGoal = gSnap.val();
+                    if (typeof remoteGoal === 'number' && remoteGoal >= 1 && remoteGoal <= 120) {
+                        state.goalMin = remoteGoal;
+                    }
+                    const remoteDays = tSnap.val() || {};
+                    // Merge: each day takes max(local, remote)
+                    Object.keys(remoteDays).forEach(k => {
+                        const r = Number(remoteDays[k]) || 0;
+                        const l = Number(state.days[k]) || 0;
+                        if (r > l) state.days[k] = r;
+                    });
+                    // If today's remote was bigger than local, we've already merged. Reset dirty
+                    // to "0" because all current today seconds are already on the server.
+                    state.dirtyTodaySec = 0;
+                    saveLocal();
+                    if (todaySec() >= goalSec()) state.celebratedToday = true;
+                    updateChip();
+                } catch(e) {
+                    console.warn('DailyTime remote load failed:', e);
+                }
+            }
+            async function flushRemote(force) {
+                if (typeof db === 'undefined') return;
+                const now = Date.now();
+                if (!force && (now - state.lastFirebaseFlushAt) < FIREBASE_FLUSH_MS) return;
+                if (state.dirtyTodaySec <= 0 && !force) return;
+                state.lastFirebaseFlushAt = now;
+                try {
+                    await db.ref('mathDailyTime/' + currentProfile + '/' + state.today).set(todaySec());
+                    state.dirtyTodaySec = 0;
+                } catch(e) {
+                    // keep dirty so we retry next flush
+                    console.warn('DailyTime remote flush failed:', e);
+                }
+            }
+            async function pushGoalRemote() {
+                if (typeof db === 'undefined') return;
+                try { await db.ref('mathDailyGoal/' + currentProfile).set(state.goalMin); } catch(_) {}
+            }
+
+            function maybeRollover() {
+                const t = ymd(new Date());
+                if (t !== state.today) {
+                    // Flush yesterday before switching
+                    flushRemote(true);
+                    state.today = t;
+                    state.celebratedToday = (todaySec() >= goalSec());
+                    state.dirtyTodaySec = 0;
+                }
+            }
+
+            // Record that a question was just answered (or practice started). Marks the timer
+            // as actively counting for the next ACTIVE_WINDOW_MS.
+            function recordActivity() {
+                state.lastActivity = Date.now();
+                updateChip();
+            }
+
+            function isCounting() {
+                if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return false;
+                if (!state.lastActivity) return false;
+                return (Date.now() - state.lastActivity) < ACTIVE_WINDOW_MS;
+            }
+
+            function tick() {
+                maybeRollover();
+                const now = Date.now();
+                if (state.lastTickAt && isCounting()) {
+                    const delta = now - state.lastTickAt;
+                    if (delta > 0 && delta <= MAX_TICK_MS) {
+                        const addSec = delta / 1000;
+                        state.days[state.today] = (state.days[state.today] || 0) + addSec;
+                        state.dirtyTodaySec += addSec;
+                        // Crossing the goal: celebrate once per day
+                        if (!state.celebratedToday && todaySec() >= goalSec()) {
+                            state.celebratedToday = true;
+                            showGoalBanner();
+                        }
+                        // Flush local every tick (cheap); throttle remote
+                        saveLocal();
+                        flushRemote(false);
+                    }
+                }
+                state.lastTickAt = now;
+                updateChip();
+            }
+
+            function updateChip() {
+                const chip = document.getElementById('dailyTimerChip');
+                const txt = document.getElementById('dailyTimerText');
+                if (!chip || !txt) return;
+                const cur = todaySec();
+                const goal = goalSec();
+                txt.textContent = '⏱ ' + fmtMMSS(cur) + ' / ' + fmtMMSS(goal);
+                chip.classList.toggle('is-paused', !isCounting());
+                chip.classList.toggle('is-done', cur >= goal);
+            }
+
+            function showGoalBanner() {
+                const banner = document.getElementById('dailyGoalBanner');
+                if (!banner) return;
+                banner.classList.add('show');
+                setTimeout(() => banner.classList.remove('show'), 6000);
+            }
+
+            function setGoalMinutes(m) {
+                m = Math.max(1, Math.min(120, Math.floor(Number(m) || DEFAULT_GOAL_MIN)));
+                state.goalMin = m;
+                state.celebratedToday = (todaySec() >= goalSec());
+                saveLocal();
+                pushGoalRemote();
+                updateChip();
+            }
+
+            function getHistory(days) {
+                const out = [];
+                const now = new Date();
+                for (let i = days - 1; i >= 0; i--) {
+                    const d = new Date(now);
+                    d.setDate(now.getDate() - i);
+                    const k = ymd(d);
+                    out.push({ ymd: k, date: d, seconds: state.days[k] || 0 });
+                }
+                return out;
+            }
+
+            function init() {
+                loadLocal();
+                updateChip();
+                // Async remote merge (non-blocking)
+                loadRemoteAndMerge();
+                // Master tick every second
+                state.lastTickAt = Date.now();
+                state.tickerId = setInterval(tick, 1000);
+                // Visibility change → force a flush + reset tick baseline so we don't credit
+                // background time.
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        state.lastTickAt = Date.now();
+                        // Pull any newer data from other devices
+                        loadRemoteAndMerge();
+                    } else {
+                        flushRemote(true);
+                    }
+                });
+                // Best-effort flush on page hide/unload
+                window.addEventListener('pagehide', () => flushRemote(true));
+                window.addEventListener('beforeunload', (e) => {
+                    flushRemote(true);
+                    const remaining = goalSec() - todaySec();
+                    if (todaySec() > 0 && remaining > 0) {
+                        const mins = Math.ceil(remaining / 60);
+                        e.preventDefault();
+                        e.returnValue = 'You still have ' + mins + ' min to reach today\'s practice goal.';
+                        return e.returnValue;
+                    }
+                });
+            }
+
+            return {
+                init,
+                recordActivity,
+                setGoalMinutes,
+                getGoalMinutes: () => state.goalMin,
+                getTodaySeconds: () => todaySec(),
+                getGoalSeconds: goalSec,
+                getHistory
+            };
+        })();
+        DailyTime.init();
 
         // -------- helpers --------
         function shuffle(arr){
@@ -1246,6 +1601,27 @@
                 render(categorySelect.value);
             } catch(_) {}
         });
+
+        // ===== Daily goal input wiring =====
+        const dailyGoalInput = document.getElementById('dailyGoalInput');
+        const dailyGoalRow = document.getElementById('dailyGoalRow');
+        if (dailyGoalInput) {
+            dailyGoalInput.value = DailyTime.getGoalMinutes();
+            const commitGoal = () => {
+                const v = parseInt(dailyGoalInput.value, 10);
+                if (isNaN(v)) { dailyGoalInput.value = DailyTime.getGoalMinutes(); return; }
+                DailyTime.setGoalMinutes(v);
+                dailyGoalInput.value = DailyTime.getGoalMinutes();
+            };
+            dailyGoalInput.addEventListener('change', commitGoal);
+            dailyGoalInput.addEventListener('blur', commitGoal);
+            dailyGoalInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); commitGoal(); dailyGoalInput.blur(); }
+            });
+            // Keep the gear dropdown open when interacting with the input
+            dailyGoalRow.addEventListener('click', (e) => e.stopPropagation());
+            dailyGoalInput.addEventListener('click', (e) => e.stopPropagation());
+        }
 
         // ===== Answer-choice shuffling =====
         function shuffleQuestionOptions(q) {
@@ -1699,7 +2075,7 @@
                     ${lessonBlock}
                     <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
                 `;
-                document.getElementById('startPracticeBtn').onclick = () => { ttsCancel(); show(); };
+                document.getElementById('startPracticeBtn').onclick = () => { ttsCancel(); DailyTime.recordActivity(); show(); };
                 const lessonSpeakBtn = document.getElementById('lessonSpeakBtn');
                 if (lessonSpeakBtn) {
                     lessonSpeakBtn.onclick = (e) => {
@@ -1842,6 +2218,7 @@
 
             let pendingTimeout = null;
             function finishQuestion(isCorrect, explanationDelay, userAnswer) {
+                DailyTime.recordActivity();
                 const q = questions[current];
                 const snapSteps = isCorrect ? equationSnapSteps(q) : null;
                 if (isCorrect) { correct++; clearWrong(q); }
@@ -2301,6 +2678,50 @@
             renderMissedList();
         };
 
+        // Build the 14-day practice-time mini-grid shown at the top of Reports overlay.
+        function buildDailyHistorySection() {
+            const wrap = document.createElement('div');
+            wrap.className = 'daily-history-wrap';
+            const history = DailyTime.getHistory(14);
+            const goalSec = DailyTime.getGoalSeconds();
+            const todayKey = (function(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+            const totalSec = history.reduce((s, d) => s + d.seconds, 0);
+            const goalMin = Math.round(goalSec / 60);
+            const totalMin = Math.round(totalSec / 60);
+            // Streak: consecutive days ending today that met the goal
+            let streak = 0;
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i].seconds >= goalSec) streak++; else break;
+            }
+            const streakHtml = streak > 0 ? `<span style="color:#1f7a35;">🔥 ${streak}-day streak</span>` : '<span style="color:#999;">No streak yet</span>';
+            wrap.innerHTML = `
+                <div class="daily-history-title">
+                    <span>⏱ Practice time · last 14 days · goal ${goalMin} min/day</span>
+                    <span class="dh-total">${streakHtml} · ${totalMin} min total</span>
+                </div>
+                <div class="daily-history-grid" id="dailyHistoryGrid"></div>
+            `;
+            const grid = wrap.querySelector('#dailyHistoryGrid');
+            history.forEach(d => {
+                const cell = document.createElement('div');
+                cell.className = 'daily-history-cell';
+                const mins = Math.floor(d.seconds / 60);
+                const ratio = Math.min(1, d.seconds / goalSec);
+                if (ratio > 0) {
+                    cell.classList.add('has-progress');
+                    // Green intensity proportional to ratio
+                    const baseAlpha = 0.25 + ratio * 0.55;
+                    cell.style.background = `rgba(46, 160, 67, ${baseAlpha.toFixed(2)})`;
+                }
+                if (d.ymd === todayKey) cell.classList.add('is-today');
+                const dayNum = d.date.getDate();
+                cell.innerHTML = `<span class="dh-date">${dayNum}</span>${mins > 0 ? `<span>${mins}m</span>` : ''}`;
+                cell.title = d.ymd + ': ' + (mins > 0 ? mins + ' min' : 'no practice');
+                grid.appendChild(cell);
+            });
+            return wrap;
+        }
+
         function loadReports() {
             reportsList.innerHTML = '<p class="reports-loading">Loading reports...</p>';
             if (typeof db === 'undefined') {
@@ -2310,7 +2731,9 @@
             db.ref('mathReports/' + currentProfile).orderByKey().once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (!data) {
-                    reportsList.innerHTML = '<p class="reports-loading">No reports saved yet.</p>';
+                    reportsList.innerHTML = '';
+                    try { reportsList.appendChild(buildDailyHistorySection()); } catch(_) {}
+                    reportsList.insertAdjacentHTML('beforeend', '<p class="reports-loading">No reports saved yet.</p>');
                     return;
                 }
                 const reports = Object.entries(data).sort((a, b) => Number(b[0]) - Number(a[0]));
@@ -2347,6 +2770,8 @@
                 }
 
                 reportsList.innerHTML = '';
+                // Practice-time history (14 days)
+                try { reportsList.appendChild(buildDailyHistorySection()); } catch(_) {}
                 orderedKeys.forEach((groupKey, groupIdx) => {
                     const group = groups[groupKey];
                     const sec = document.createElement('details');

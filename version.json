@@ -1,5 +1,5 @@
 {
-  "sha": "9d88c1e",
-  "date": "2026-05-13T09:52:09-07:00",
-  "message": "feat(math): show daily-time sync status + manual Sync now button in menu"
+  "sha": "15cbcee",
+  "date": "2026-05-13T10:10:42-07:00",
+  "message": "ui(math): restore floating timer chip; remove sync row/button + menu timer row"
 }

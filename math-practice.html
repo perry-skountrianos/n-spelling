@@ -1701,22 +1701,30 @@
             const ADMIN_PASSWORD = 'admin123';
             let goalUnlocked = false;
             dailyGoalInput.value = DailyTime.getGoalMinutes();
-            dailyGoalInput.readOnly = true;
-            dailyGoalInput.style.cursor = 'pointer';
-            dailyGoalInput.title = 'Click to change (password required)';
+            const lock = () => {
+                goalUnlocked = false;
+                dailyGoalInput.readOnly = true;
+                dailyGoalInput.style.cursor = 'pointer';
+                dailyGoalInput.title = 'Click to change (password required)';
+            };
+            const unlock = () => {
+                goalUnlocked = true;
+                dailyGoalInput.readOnly = false;
+                dailyGoalInput.style.cursor = '';
+                dailyGoalInput.title = '';
+                setTimeout(() => { dailyGoalInput.focus(); dailyGoalInput.select(); }, 0);
+            };
+            lock();
             const requestUnlock = () => {
                 if (goalUnlocked) return true;
-                const pw = window.prompt('Enter admin password to change the daily goal:');
-                if (pw === null) return false;
+                const raw = window.prompt('Enter admin password to change the daily goal:');
+                if (raw === null) return false;
+                const pw = String(raw).trim();
                 if (pw !== ADMIN_PASSWORD) {
                     alert('Incorrect password.');
                     return false;
                 }
-                goalUnlocked = true;
-                dailyGoalInput.readOnly = false;
-                dailyGoalInput.style.cursor = '';
-                dailyGoalInput.focus();
-                dailyGoalInput.select();
+                unlock();
                 return true;
             };
             const commitGoal = () => {
@@ -1724,30 +1732,29 @@
                 if (isNaN(v)) { dailyGoalInput.value = DailyTime.getGoalMinutes(); return; }
                 DailyTime.setGoalMinutes(v);
                 dailyGoalInput.value = DailyTime.getGoalMinutes();
-                // Re-lock after a successful change so future edits re-prompt
-                goalUnlocked = false;
-                dailyGoalInput.readOnly = true;
-                dailyGoalInput.style.cursor = 'pointer';
+                lock();
             };
-            dailyGoalInput.addEventListener('mousedown', (e) => {
+            // Intercept any attempt to interact with the input while locked.
+            const gate = (e) => {
                 if (!goalUnlocked) {
                     e.preventDefault();
+                    e.stopPropagation();
                     requestUnlock();
                 }
-            });
-            dailyGoalInput.addEventListener('focus', () => {
-                if (!goalUnlocked) {
-                    dailyGoalInput.blur();
-                    requestUnlock();
-                }
-            });
-            dailyGoalInput.addEventListener('change', commitGoal);
-            dailyGoalInput.addEventListener('blur', () => {
-                if (goalUnlocked) commitGoal();
-            });
+            };
+            dailyGoalInput.addEventListener('pointerdown', gate);
+            dailyGoalInput.addEventListener('mousedown', gate);
+            dailyGoalInput.addEventListener('touchstart', gate, { passive: false });
             dailyGoalInput.addEventListener('keydown', (e) => {
+                if (!goalUnlocked) {
+                    // Allow tabbing past, block everything else
+                    if (e.key !== 'Tab') { e.preventDefault(); requestUnlock(); }
+                    return;
+                }
                 if (e.key === 'Enter') { e.preventDefault(); commitGoal(); dailyGoalInput.blur(); }
             });
+            dailyGoalInput.addEventListener('change', () => { if (goalUnlocked) commitGoal(); });
+            dailyGoalInput.addEventListener('blur', () => { if (goalUnlocked) commitGoal(); });
             // Keep the gear dropdown open when interacting with the input
             dailyGoalRow.addEventListener('click', (e) => e.stopPropagation());
             dailyGoalInput.addEventListener('click', (e) => e.stopPropagation());

@@ -1,5 +1,5 @@
 {
-  "sha": "af728cc",
-  "date": "2026-05-13T09:27:14-07:00",
-  "message": "fix(math): timer now counts thinking time; show timing for all questions"
+  "sha": "e632b99",
+  "date": "2026-05-13T09:36:50-07:00",
+  "message": "ui(math): move daily timer from floating chip into gear menu"
 }

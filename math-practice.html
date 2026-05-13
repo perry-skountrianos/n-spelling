@@ -1042,6 +1042,19 @@
         </div>
     </div>
 
+    <!-- Lesson modal: shows a topic's mini-lesson + video(s) in-app -->
+    <div class="reports-overlay" id="lessonModalOverlay" style="display:none;">
+        <div class="reports-panel">
+            <div class="reports-header">
+                <h2 id="lessonModalTitle">Lesson</h2>
+                <button class="reports-close" id="lessonModalCloseBtn">✕</button>
+            </div>
+            <div class="reports-list" id="lessonModalBody">
+                <p class="reports-loading">Loading…</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Topic picker overlay -->
     <div class="reports-overlay" id="topicPickerOverlay" style="display:none;">
         <div class="reports-panel">
@@ -2945,23 +2958,90 @@
             return q.options ? q.options[q.answer] : '';
         }
         // Return an inline "📺 Watch video" link for a topic key, or '' if no video is available.
-        // Picks the first video in `videos[]`, or falls back to legacy `video`.
+        // Opens the in-app lesson modal (does NOT navigate to YouTube).
         function videoLinkHTML(topicKey) {
             try {
                 const meta = (typeof mathPracticeTopics !== 'undefined') ? mathPracticeTopics[topicKey] : null;
                 if (!meta) return '';
                 const list = Array.isArray(meta.videos) ? meta.videos : (meta.video ? [meta.video] : []);
-                if (!list.length) return '';
-                const v = list[0];
-                if (!v || !v.id) return '';
-                const url = 'https://www.youtube.com/watch?v=' + v.id;
-                const title = (v.title || 'Watch lesson video').replace(/"/g, '&quot;');
-                return ' <a href="' + url + '" target="_blank" rel="noopener" title="' + title + '"'
-                    + ' style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;'
-                    + 'background:#e3f2fd;color:#1565c0;font-size:11px;font-weight:600;text-decoration:none;'
-                    + 'vertical-align:middle;">📺 watch video</a>';
+                if (!list.length && !meta.lesson) return '';
+                const key = String(topicKey).replace(/"/g, '&quot;');
+                return ' <button type="button" class="watch-video-btn" data-topic="' + key + '"'
+                    + ' style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;border:none;'
+                    + 'background:#e3f2fd;color:#1565c0;font-size:11px;font-weight:600;cursor:pointer;'
+                    + 'vertical-align:middle;font-family:inherit;">📺 watch video</button>';
             } catch(_) { return ''; }
         }
+
+        // ===== In-app lesson modal =====
+        const lessonModalOverlay = document.getElementById('lessonModalOverlay');
+        const lessonModalTitle = document.getElementById('lessonModalTitle');
+        const lessonModalBody = document.getElementById('lessonModalBody');
+        function closeLessonModal() {
+            if (!lessonModalOverlay) return;
+            // Stop any playing iframes by clearing the body
+            lessonModalBody.innerHTML = '';
+            lessonModalOverlay.style.display = 'none';
+        }
+        document.getElementById('lessonModalCloseBtn').onclick = closeLessonModal;
+        lessonModalOverlay.addEventListener('click', (e) => {
+            if (e.target === lessonModalOverlay) closeLessonModal();
+        });
+        window.openLessonModal = function(topicKey) {
+            const meta = (typeof mathPracticeTopics !== 'undefined') ? mathPracticeTopics[topicKey] : null;
+            if (!meta) return;
+            const list = Array.isArray(meta.videos) ? meta.videos : (meta.video ? [meta.video] : []);
+            lessonModalTitle.textContent = topicKey;
+            const videoEntries = list.map((v) => {
+                if (!v || !v.id) return null;
+                const frameId = `lmFrame_${Math.random().toString(36).slice(2,8)}`;
+                const html = `
+                    <div class="lesson-video-wrap">
+                        <div class="lesson-video-title">🎥 ${escapeHTMLTop(v.title || 'Watch the video')}</div>
+                        ${v.blurb ? `<div class="lesson-video-blurb">${v.blurb}</div>` : ''}
+                        <div class="lesson-video-frame">
+                            <iframe id="${frameId}"
+                                src="https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
+                                title="${escapeHTMLTop(v.title || 'Lesson video')}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen
+                                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <div class="lesson-video-topcover" aria-hidden="true"></div>
+                            <div class="lesson-video-clickcatch" id="${frameId}_click"></div>
+                            <div class="lesson-video-controls" id="${frameId}_controls">
+                                <button type="button" class="lvc-btn" id="${frameId}_playpause" title="Play / Pause">▶</button>
+                                <div class="lvc-time" id="${frameId}_time">0:00 / 0:00</div>
+                                <div class="lvc-progress" id="${frameId}_progress">
+                                    <div class="lvc-progress-fill" id="${frameId}_progressfill"></div>
+                                </div>
+                                <button type="button" class="lvc-btn" id="${frameId}_fs" title="Fullscreen">⛶</button>
+                            </div>
+                            <div class="lesson-video-shield" id="${frameId}_shield">
+                                <button type="button" class="lesson-video-resume" id="${frameId}_resume">▶ Play video</button>
+                            </div>
+                        </div>
+                    </div>`;
+                return { frameId, html };
+            }).filter(Boolean);
+            const videosHTML = videoEntries.map(v => v.html).join('');
+            const lessonBlock = meta.lesson ? `<div class="lesson-card">${meta.lesson}</div>` : '';
+            lessonModalBody.innerHTML = videosHTML + lessonBlock;
+            lessonModalOverlay.style.display = 'flex';
+            // Attach YouTube custom-controls shield, if the helper exists in this scope
+            if (typeof attachYouTubeShield === 'function') {
+                videoEntries.forEach(v => { try { attachYouTubeShield(v.frameId); } catch(_) {} });
+            }
+        };
+        // Delegate clicks on every "📺 watch video" button to openLessonModal
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest && e.target.closest('.watch-video-btn');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const topic = btn.getAttribute('data-topic');
+            if (topic) window.openLessonModal(topic);
+        });
         function buildQuestionIndex() {
             const map = {};
             for (const key in mathPracticeQuestions) {

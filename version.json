@@ -1,5 +1,5 @@
 {
-  "sha": "1ab822c",
-  "date": "2026-05-13T10:27:05-07:00",
-  "message": "feat(math): timer as 4th donut in score row; 10s pause window; mobile fit"
+  "sha": "6f9c9d4",
+  "date": "2026-05-13T10:32:15-07:00",
+  "message": "Math: admin-gated reset day, delete report, auto-save partial on reset"
 }

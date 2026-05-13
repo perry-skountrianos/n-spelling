@@ -926,7 +926,7 @@
     <!-- Daily practice timer chip & banner -->
     <div class="daily-timer-chip is-paused" id="dailyTimerChip" title="Daily practice timer (counts down while you're answering)">
         <span class="dt-dot"></span>
-        <span id="dailyTimerText">⏱ 30:00 left</span>
+        <span id="dailyTimerText">⏱ 20:00 left</span>
     </div>
     <div class="daily-goal-banner" id="dailyGoalBanner">🎉 Daily goal reached! Great job!</div>
 
@@ -999,25 +999,48 @@
         }
 
         // ============= Daily practice timer =============
-        // Tracks active practice seconds per day, configurable goal, cross-device sync.
+        // Tracks active practice seconds per day, configurable goal, multi-device sync.
         // "Active" = page is the visible tab AND a question was answered in the last 60s.
+        //
+        // Multi-device model: each device writes ONLY its own contribution under its
+        // device id. The day total = sum of all device subkeys. So 5 min on phone +
+        // 10 min on laptop = 15 min total visible everywhere.
+        //
         // Storage:
-        //   localStorage[`dailyGoal_<profile>`]      → minutes (number)
-        //   localStorage[`dailyTime_<profile>`]      → { "YYYY-MM-DD": seconds, ... }
-        //   Firebase  mathDailyGoal/<profile>        → minutes (number)
-        //   Firebase  mathDailyTime/<profile>/<YMD>  → seconds (number)
+        //   localStorage[`deviceId`]                            → stable per-browser id
+        //   localStorage[`dailyGoal_<profile>`]                 → minutes (number)
+        //   localStorage[`dailyTime_<profile>`]                 → { YMD: own seconds }
+        //   Firebase  mathDailyGoal/<profile>                   → minutes (number)
+        //   Firebase  mathDailyTime/<profile>/<YMD>/<deviceId>  → seconds (number)
+        //   Firebase  mathDailyTime/<profile>/<YMD>/legacy      → pre-migration value
         const DailyTime = (function() {
             const GOAL_KEY = 'dailyGoal_' + currentProfile;
             const TIME_KEY = 'dailyTime_' + currentProfile;
+            const DEVICE_KEY = 'deviceId';
             const ACTIVE_WINDOW_MS = 60 * 1000;       // 60s since last answered question
             const MAX_TICK_MS = 5 * 1000;             // ignore tick gaps > 5s (clock fiddle / sleep)
             const FIREBASE_FLUSH_MS = 10 * 1000;      // push to RTDB at most every 10s
-            const DEFAULT_GOAL_MIN = 30;
+            const DEFAULT_GOAL_MIN = 20;
+
+            function getDeviceId() {
+                try {
+                    let id = localStorage.getItem(DEVICE_KEY);
+                    if (!id) {
+                        id = 'd_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+                        localStorage.setItem(DEVICE_KEY, id);
+                    }
+                    return id;
+                } catch(_) {
+                    return 'd_anon_' + Math.random().toString(36).slice(2, 10);
+                }
+            }
+            const deviceId = getDeviceId();
 
             const state = {
                 goalMin: DEFAULT_GOAL_MIN,
                 today: ymd(new Date()),
-                days: {},           // YMD -> seconds (today's value is live)
+                ownDays: {},        // YMD -> seconds THIS device contributed
+                otherDays: {},      // YMD -> seconds from OTHER devices (incl. legacy)
                 lastActivity: 0,    // ms epoch of last answered question
                 lastTickAt: 0,      // ms epoch of last successful tick (for delta)
                 celebratedToday: false,
@@ -1038,7 +1061,10 @@
                 const s = sec % 60;
                 return m + ':' + String(s).padStart(2, '0');
             }
-            function todaySec() { return state.days[state.today] || 0; }
+            function ownSec(ymdKey) { return Number(state.ownDays[ymdKey]) || 0; }
+            function otherSec(ymdKey) { return Number(state.otherDays[ymdKey]) || 0; }
+            function dayTotal(ymdKey) { return ownSec(ymdKey) + otherSec(ymdKey); }
+            function todaySec() { return dayTotal(state.today); }
             function goalSec() { return Math.max(60, state.goalMin * 60); }
 
             function loadLocal() {
@@ -1048,13 +1074,18 @@
                 } catch(_) {}
                 try {
                     const t = JSON.parse(localStorage.getItem(TIME_KEY) || '{}');
-                    if (t && typeof t === 'object') state.days = t;
+                    if (t && typeof t === 'object') {
+                        // Backward-compat: old shape was { YMD: totalSeconds }. We now treat
+                        // this as this device's own contribution (since prior data was written
+                        // by this device under the old single-key model).
+                        state.ownDays = t;
+                    }
                 } catch(_) {}
-                if (todaySec() >= goalSec()) state.celebratedToday = true; // already done
+                if (todaySec() >= goalSec()) state.celebratedToday = true;
             }
             function saveLocal() {
                 try { localStorage.setItem(GOAL_KEY, String(state.goalMin)); } catch(_) {}
-                try { localStorage.setItem(TIME_KEY, JSON.stringify(state.days)); } catch(_) {}
+                try { localStorage.setItem(TIME_KEY, JSON.stringify(state.ownDays)); } catch(_) {}
             }
             async function loadRemoteAndMerge() {
                 if (typeof db === 'undefined') return;
@@ -1068,14 +1099,35 @@
                         state.goalMin = remoteGoal;
                     }
                     const remoteDays = tSnap.val() || {};
-                    // Merge: each day takes max(local, remote)
-                    Object.keys(remoteDays).forEach(k => {
-                        const r = Number(remoteDays[k]) || 0;
-                        const l = Number(state.days[k]) || 0;
-                        if (r > l) state.days[k] = r;
+                    const newOther = {};
+                    const pendingMigrations = [];
+                    Object.keys(remoteDays).forEach(ymdKey => {
+                        const v = remoteDays[ymdKey];
+                        if (typeof v === 'number') {
+                            // Legacy single-number per day. Treat as "other" contribution
+                            // and migrate to a `legacy` subkey so child writes don't destroy it.
+                            newOther[ymdKey] = v;
+                            pendingMigrations.push({ ymd: ymdKey, value: v });
+                        } else if (v && typeof v === 'object') {
+                            let othersSum = 0;
+                            let ownRemote = 0;
+                            Object.keys(v).forEach(devKey => {
+                                const sec = Number(v[devKey]) || 0;
+                                if (devKey === deviceId) ownRemote = sec;
+                                else othersSum += sec;
+                            });
+                            newOther[ymdKey] = othersSum;
+                            // Reconcile own: take max(local, remote) in case localStorage was wiped
+                            const localOwn = ownSec(ymdKey);
+                            if (ownRemote > localOwn) state.ownDays[ymdKey] = ownRemote;
+                        }
                     });
-                    // If today's remote was bigger than local, we've already merged. Reset dirty
-                    // to "0" because all current today seconds are already on the server.
+                    state.otherDays = newOther;
+                    // Best-effort migrate legacy numeric days into a `legacy` subkey.
+                    pendingMigrations.forEach(m => {
+                        db.ref('mathDailyTime/' + currentProfile + '/' + m.ymd + '/legacy')
+                          .set(m.value).catch(()=>{});
+                    });
                     state.dirtyTodaySec = 0;
                     saveLocal();
                     if (todaySec() >= goalSec()) state.celebratedToday = true;
@@ -1091,10 +1143,11 @@
                 if (state.dirtyTodaySec <= 0 && !force) return;
                 state.lastFirebaseFlushAt = now;
                 try {
-                    await db.ref('mathDailyTime/' + currentProfile + '/' + state.today).set(todaySec());
+                    // Write only THIS device's contribution under its own subkey.
+                    await db.ref('mathDailyTime/' + currentProfile + '/' + state.today + '/' + deviceId)
+                            .set(ownSec(state.today));
                     state.dirtyTodaySec = 0;
                 } catch(e) {
-                    // keep dirty so we retry next flush
                     console.warn('DailyTime remote flush failed:', e);
                 }
             }
@@ -1134,7 +1187,7 @@
                     const delta = now - state.lastTickAt;
                     if (delta > 0 && delta <= MAX_TICK_MS) {
                         const addSec = delta / 1000;
-                        state.days[state.today] = (state.days[state.today] || 0) + addSec;
+                        state.ownDays[state.today] = ownSec(state.today) + addSec;
                         state.dirtyTodaySec += addSec;
                         // Crossing the goal: celebrate once per day
                         if (!state.celebratedToday && todaySec() >= goalSec()) {
@@ -1188,7 +1241,7 @@
                     const d = new Date(now);
                     d.setDate(now.getDate() - i);
                     const k = ymd(d);
-                    out.push({ ymd: k, date: d, seconds: state.days[k] || 0 });
+                    out.push({ ymd: k, date: d, seconds: dayTotal(k) });
                 }
                 return out;
             }

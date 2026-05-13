@@ -1443,15 +1443,8 @@
                 });
                 // Best-effort flush on page hide/unload
                 window.addEventListener('pagehide', () => flushRemote(true));
-                window.addEventListener('beforeunload', (e) => {
+                window.addEventListener('beforeunload', () => {
                     flushRemote(true);
-                    const remaining = goalSec() - todaySec();
-                    if (todaySec() > 0 && remaining > 0) {
-                        const mins = Math.ceil(remaining / 60);
-                        e.preventDefault();
-                        e.returnValue = 'You still have ' + mins + ' min to reach today\'s practice goal.';
-                        return e.returnValue;
-                    }
                 });
             }
 

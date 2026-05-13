@@ -11,11 +11,18 @@ const mathPracticeTopics = {
   },
   "2 — Translating & Equivalent Expressions (6.EE.2–4)": {
     "lesson": "\n            <h3>Words → Algebra</h3>\n            <p>Translate carefully — order matters with subtraction!</p>\n            <ul>\n                <li><b>\"Sum of\"</b> = + &nbsp;&nbsp; <b>\"Difference\"</b> = − &nbsp;&nbsp; <b>\"Product\"</b> = × &nbsp;&nbsp; <b>\"Quotient\"</b> = ÷</li>\n                <li><b>\"Twice a number\"</b> = 2n &nbsp;&nbsp; <b>\"3 more than n\"</b> = n + 3</li>\n                <li><b>\"8 less than the product of 6 and x\"</b> = <code>6x − 8</code> (NOT <code>8 − 6x</code>) — \"less than\" flips the order!</li>\n            </ul>\n            <h3>Equivalent Expressions</h3>\n            <p>Two expressions are equivalent if they always give the same value for any input.</p>\n            <ul>\n                <li><b>Distributive property:</b> <code>a(b + c) = ab + ac</code>. So <code>3(x + 4) = 3x + 12</code>.</li>\n                <li><b>Combining like terms:</b> <code>4x + 6x = 10x</code> (same variable adds). But <code>9x + 2y</code> can't be simplified to <code>11xy</code> — different variables don't combine.</li>\n                <li><b>Multiplying coefficients:</b> <code>4(6x) = 24x</code>.</li>\n            </ul>\n        ",
-    "video": {
-      "id": "NybHckSEQBI",
-      "title": "Math Antics — What Is Algebra?",
-      "blurb": "A fun intro to variables and algebraic expressions — the perfect warm-up before translating words into math."
-    }
+    "videos": [
+      {
+        "id": "NybHckSEQBI",
+        "title": "Math Antics — What Is Algebra?",
+        "blurb": "A fun intro to variables and algebraic expressions — the perfect warm-up before translating words into math."
+      },
+      {
+        "id": "640-86yn2wM",
+        "title": "Khan Academy — Writing Expressions with Variables",
+        "blurb": "Khan turns word phrases into algebraic expressions — useful for the \"8 less than\" trap and combining like terms."
+      }
+    ]
   },
   "3 — One-Step Equations (6.EE.5, 6.EE.7)": {
     "lesson": "\n            <h3>Solving One-Step Equations</h3>\n            <p>To solve, do the <b>opposite operation</b> on both sides to isolate the variable.</p>\n            <table style=\"border-collapse:collapse;margin:8px 0;\">\n                <tr><th style=\"text-align:left;padding:4px 12px 4px 0;\">Equation</th><th style=\"text-align:left;padding:4px;\">Do this to both sides</th></tr>\n                <tr><td style=\"padding:4px 12px 4px 0;\"><code>x + 7 = 12</code></td><td>Subtract 7 → <code>x = 5</code></td></tr>\n                <tr><td style=\"padding:4px 12px 4px 0;\"><code>x − 4 = 9</code></td><td>Add 4 → <code>x = 13</code></td></tr>\n                <tr><td style=\"padding:4px 12px 4px 0;\"><code>5x = 30</code></td><td>Divide by 5 → <code>x = 6</code></td></tr>\n                <tr><td style=\"padding:4px 12px 4px 0;\"><code>x ÷ 3 = 8</code></td><td>Multiply by 3 → <code>x = 24</code></td></tr>\n            </table>\n            <h3>Dividing fractions / by a fraction</h3>\n            <p>To divide a fraction by a whole number, multiply the <b>denominator</b> by the whole number:</p>\n            <p><code>4w = 2/3</code> &nbsp;→&nbsp; <code>w = (2/3) ÷ 4 = (2/3) × (1/4) = 2/12</code> (= 1/6). <i>Common mistake: writing 2/7 — that adds 4 to the denominator instead of multiplying.</i></p>\n            <h3>Checking solutions</h3>\n            <p>Plug the value back in. If both sides match, it's a solution. Example: is <code>x=5</code> a solution to <code>2x + 4 = 14</code>? <code>2(5) + 4 = 14 ✓</code> Yes.</p>\n        ",
@@ -27,35 +34,58 @@ const mathPracticeTopics = {
   },
   "4 — Inequalities (6.EE.8)": {
     "lesson": "\n            <h3>Inequality Symbols</h3>\n            <ul>\n                <li><code>&lt;</code> \"less than\" &nbsp;&nbsp; <code>&gt;</code> \"greater than\"</li>\n                <li><code>≤</code> \"less than or equal to\" — use for \"<i>at most</i>\", \"<i>no more than</i>\"</li>\n                <li><code>≥</code> \"greater than or equal to\" — use for \"<i>at least</i>\", \"<i>no less than</i>\"</li>\n            </ul>\n            <h3>Number-line graphs</h3>\n            <ul>\n                <li><b>Open circle</b> ○ on the number → strict inequality (<code>&lt;</code> or <code>&gt;</code>) — that number is NOT included.</li>\n                <li><b>Closed/filled circle</b> ● on the number → ≤ or ≥ — that number IS included.</li>\n                <li>Arrow points the direction of the solution.</li>\n            </ul>\n            <h3>Solving inequalities</h3>\n            <p>Treat the inequality like an equation: <code>2x ≥ 14</code> → divide by 2 → <code>x ≥ 7</code>.</p>\n            <h3>Comparing negatives</h3>\n            <p>On the number line, the number farther <b>right</b> is greater. So <code>−3 &gt; −7</code> because −3 is to the right of −7.</p>\n        ",
-    "video": {
-      "id": "Qyd_v3DGzTM",
-      "title": "Math Antics — Solving Basic Equations Part 2",
-      "blurb": "The same balance idea works for inequalities — just don’t forget to flip the sign if you multiply or divide by a negative!"
-    }
+    "videos": [
+      {
+        "id": "ilWDSYnTEFs",
+        "title": "Khan Academy — Plotting Inequalities on a Number Line",
+        "blurb": "Open vs closed circles, and which direction the arrow points — exactly what's tested."
+      },
+      {
+        "id": "Qyd_v3DGzTM",
+        "title": "Math Antics — Solving Basic Equations Part 2",
+        "blurb": "The same balance idea works for inequalities — just don't forget to flip the sign if you multiply or divide by a negative!"
+      }
+    ]
   },
   "5 — Variables, Tables & Equations (6.EE.9)": {
     "lesson": "\n            <h3>Independent vs Dependent Variables</h3>\n            <ul>\n                <li><b>Independent variable</b> = the input you choose freely (often <i>x</i>, \"boxes sold\", \"hours worked\").</li>\n                <li><b>Dependent variable</b> = the output that <i>depends on</i> the input (often <i>y</i>, \"money earned\", \"distance traveled\").</li>\n            </ul>\n            <h3>Building an equation from a real situation</h3>\n            <ol>\n                <li>Find the <b>rate</b> per unit. (e.g., a box of 20 bars at $1.50 each → $30 per box.)</li>\n                <li>Multiply the rate by the input variable, plus any fixed amount.</li>\n                <li>Result: <code>m = 30b</code> — money equals $30 times boxes.</li>\n            </ol>\n            <h3>Reading a table</h3>\n            <p>Look for the pattern: when one column doubles, does the other double? If yes, it's a <b>proportional relationship</b> (always passes through 0). The pattern in a table is the rate — divide one column by the other to find it.</p>\n        ",
-    "video": {
-      "id": "WZdZhuUSmpM",
-      "title": "Introduction to Algebra — Using Variables",
-      "blurb": "Variables are just placeholders for numbers. This short video makes that crystal clear."
-    }
+    "videos": [
+      {
+        "id": "SGC_d7O7_Eg",
+        "title": "Khan Academy — Dependent & Independent Variables",
+        "blurb": "Which variable is the input you choose, and which one depends on it? A short clear explainer."
+      }
+    ]
   },
   "6 — Fraction & Decimal Operations (6.NS.1, 6.NS.3)": {
     "lesson": "\n            <h3>Dividing fractions — \"Keep, Change, Flip\"</h3>\n            <p>To divide by a fraction, multiply by its <b>reciprocal</b> (flip it):</p>\n            <p><code>(1/2) ÷ (3/4) = (1/2) × (4/3) = 4/6 = 2/3</code></p>\n            <p><b>Word-problem trick:</b> if \"1/3 of the trip is 1/4 mile\", then total = part ÷ fraction = <code>(1/4) ÷ (1/3) = (1/4) × 3 = 3/4 mile</code>.</p>\n            <h3>Fraction → Decimal</h3>\n            <p>Divide numerator by denominator: <code>3/4 = 3 ÷ 4 = 0.75</code>.</p>\n            <h3>Decimal arithmetic — no calculator</h3>\n            <ul>\n                <li><b>Adding/Subtracting:</b> line up the decimal points.</li>\n                <li><b>Multiplying:</b> ignore decimals, multiply, then count total decimal places. <code>$24.50 × 6</code>: 2450×6 = 14700 → 2 decimal places → $147.00.</li>\n                <li><b>Dividing by a decimal:</b> shift the decimal in BOTH numbers until the divisor is a whole number, then divide normally.</li>\n            </ul>\n        ",
-    "video": {
-      "id": "5juto2ze8Lg",
-      "title": "Math Antics — Adding and Subtracting Fractions",
-      "blurb": "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
-    }
+    "videos": [
+      {
+        "id": "f3ySpxX9oeM",
+        "title": "Khan Academy — Understanding Division of Fractions",
+        "blurb": "Why 'keep, change, flip' actually works — the conceptual story behind dividing by a fraction."
+      },
+      {
+        "id": "5juto2ze8Lg",
+        "title": "Math Antics — Adding and Subtracting Fractions",
+        "blurb": "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
+      }
+    ]
   },
   "7 — GCF, LCM & Distributive (6.NS.4)": {
     "lesson": "\n            <h3>Greatest Common Factor (GCF)</h3>\n            <p>The largest number that divides both numbers evenly.</p>\n            <p><b>Method (prime factorization):</b></p>\n            <ul>\n                <li>Break each number into primes: 48 = 2·2·2·2·3 ; 64 = 2·2·2·2·2·2</li>\n                <li>Multiply the primes they SHARE: 2·2·2·2 = <b>16</b>. So GCF(48, 64) = 16.</li>\n            </ul>\n            <h3>Least Common Multiple (LCM)</h3>\n            <p>The smallest number that BOTH numbers divide into.</p>\n            <p><b>Quick method:</b> list multiples until you find a match.</p>\n            <ul>\n                <li>Multiples of 8: 8, 16, <b>24</b>, 32, 40…</li>\n                <li>Multiples of 12: 12, <b>24</b>, 36…</li>\n                <li>LCM(8, 12) = 24.</li>\n            </ul>\n            <h3>Distributive property with GCF</h3>\n            <p>Use GCF to factor a sum: <code>48 + 64 = 16(3 + 4)</code>.</p>\n        ",
-    "video": {
-      "id": "jFd-6EPfnec",
-      "title": "Math Antics — Greatest Common Factor",
-      "blurb": "How to find the GCF the easy way — the same trick also unlocks LCM and the distributive property."
-    }
+    "videos": [
+      {
+        "id": "jFd-6EPfnec",
+        "title": "Math Antics — Greatest Common Factor",
+        "blurb": "How to find the GCF the easy way — the same trick also unlocks the distributive property."
+      },
+      {
+        "id": "znmPfDfsir8",
+        "title": "Khan Academy — Least Common Multiple",
+        "blurb": "Sal walks through LCM using prime factorization — the other half of this topic."
+      }
+    ]
   },
   "8 — Integers & Absolute Value (6.NS.5–7)": {
     "lesson": "\n            <h3>Integers</h3>\n            <p>Whole numbers and their opposites: …−3, −2, −1, 0, 1, 2, 3…</p>\n            <h3>Opposites</h3>\n            <p>The opposite of a number is the same distance from 0 on the other side. The opposite of <b>−3</b> is <b>3</b>. So <code>−(−3) = 3</code>.</p>\n            <h3>Absolute Value</h3>\n            <p><code>|n|</code> = the distance from 0 — always non-negative.</p>\n            <p><code>|−6| = 6</code> &nbsp;&nbsp; <code>|3| = 3</code></p>\n            <h3>Comparing negative numbers</h3>\n            <p>On the number line, the rightmost number is biggest. <code>−3 &gt; −7</code> (−3 is closer to 0).</p>\n            <h3>Subtraction as distance / temperature differences</h3>\n            <p>\"How much warmer was 65°F than −28°F?\" → <code>65 − (−28) = 65 + 28 = 93°</code>.</p>\n        ",
@@ -99,11 +129,18 @@ const mathPracticeTopics = {
   },
   "13 — Volume & Unit Conversion (6.G.2, 6.G.4)": {
     "lesson": "\n            <h3>Volume of a rectangular prism</h3>\n            <p><code>V = length × width × height</code> &nbsp;(works even with fractional edges).</p>\n            <svg viewBox=\"0 0 300 200\" width=\"100%\" style=\"max-width:300px;display:block;margin:8px auto 14px;\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"60,30 240,30 240,130 60,130\" fill=\"none\" stroke=\"#1976d2\" stroke-width=\"1.5\" stroke-dasharray=\"3 3\"/><rect x=\"30\" y=\"60\" width=\"180\" height=\"100\" fill=\"rgba(33,150,243,0.12)\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"30\" y1=\"60\" x2=\"60\" y2=\"30\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"210\" y1=\"60\" x2=\"240\" y2=\"30\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"210\" y1=\"160\" x2=\"240\" y2=\"130\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"30\" y1=\"160\" x2=\"60\" y2=\"130\" stroke=\"#1976d2\" stroke-width=\"1.5\" stroke-dasharray=\"3 3\"/><text x=\"120\" y=\"178\" font-size=\"13\" font-weight=\"600\" fill=\"#333\" text-anchor=\"middle\" font-family=\"-apple-system,Segoe UI,sans-serif\">length</text><text x=\"20\" y=\"115\" font-size=\"13\" font-weight=\"600\" fill=\"#333\" text-anchor=\"end\" font-family=\"-apple-system,Segoe UI,sans-serif\">height</text><text x=\"228\" y=\"50\" font-size=\"13\" font-weight=\"600\" fill=\"#666\" text-anchor=\"start\" font-family=\"-apple-system,Segoe UI,sans-serif\">width</text></svg>\n            <p>Cube: <code>V = s³</code>.</p>\n            <svg viewBox=\"0 0 260 220\" width=\"100%\" style=\"max-width:300px;display:block;margin:8px auto 14px;\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"50,40 200,40 200,170 50,170\" fill=\"none\" stroke=\"#1976d2\" stroke-width=\"1.5\" stroke-dasharray=\"3 3\"/><rect x=\"20\" y=\"70\" width=\"150\" height=\"130\" fill=\"rgba(33,150,243,0.12)\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"20\" y1=\"70\" x2=\"50\" y2=\"40\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"170\" y1=\"70\" x2=\"200\" y2=\"40\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"170\" y1=\"200\" x2=\"200\" y2=\"170\" stroke=\"#1976d2\" stroke-width=\"2\"/><line x1=\"20\" y1=\"200\" x2=\"50\" y2=\"170\" stroke=\"#1976d2\" stroke-width=\"1.5\" stroke-dasharray=\"3 3\"/><text x=\"95\" y=\"215\" font-size=\"13\" font-weight=\"600\" fill=\"#333\" text-anchor=\"middle\" font-family=\"-apple-system,Segoe UI,sans-serif\">s</text><text x=\"10\" y=\"140\" font-size=\"13\" font-weight=\"600\" fill=\"#333\" text-anchor=\"end\" font-family=\"-apple-system,Segoe UI,sans-serif\">s</text></svg>\n            <h3>\"Tank with water X inches below the top\"</h3>\n            <p>Find the height of the WATER (tank height − empty space), not the tank, then multiply.</p>\n            <p>Example: 16 in × 10⅓ in × 22 in tank, water 4 in below top → water height = 22 − 4 = 18 in. V_water = 16 × 10⅓ × 18 = 16 × 31/3 × 18 = 2,976 in³.</p>\n            <h3>Unit conversion of AREA — the trap!</h3>\n            <p>To convert in² to ft², you divide by <b>144</b> (because 1 ft² = 12 × 12 = 144 in²), NOT by 12.</p>\n            <p>Jada's mistake: 2880 in² ÷ 12 = 240. WRONG. Correct: 2880 ÷ 144 = 20 ft².</p>\n            <h3>Yards to feet for area</h3>\n            <p>1 yard = 3 feet, so 1 yd² = 3 × 3 = 9 ft². Or convert each side first: 35 yd × 50 yd → 105 ft × 150 ft = 15,750 ft².</p>\n        ",
-    "video": {
-      "id": "qJwecTgce6c",
-      "title": "Math Antics — Volume",
-      "blurb": "V = l × w × h, even with fraction sides. Builds the intuition for the cube-counting problems."
-    }
+    "videos": [
+      {
+        "id": "qJwecTgce6c",
+        "title": "Math Antics — Volume",
+        "blurb": "V = l × w × h. Builds the intuition for the cube-counting problems."
+      },
+      {
+        "id": "EJTPGyWqhqc",
+        "title": "Khan Academy — Volume with Fractional Sides",
+        "blurb": "Worked example with fractional edge lengths — the trickiest case in this topic."
+      }
+    ]
   },
   "14 — Statistics: Center, Spread & Plots (6.SP.4–5)": {
     "lesson": "\n            <h3>Measures of center</h3>\n            <ul>\n                <li><b>Mean</b> = average. Sum of values ÷ how many. Sensitive to outliers.</li>\n                <li><b>Median</b> = middle value when sorted. (For even count, average the two middle values.) Resistant to outliers.</li>\n                <li><b>Mode</b> = most frequent value.</li>\n            </ul>\n            <p><b>Pick MEDIAN</b> when there's a big outlier (e.g. Brazil's area dwarfs the other countries).</p>\n            <h3>Measures of spread</h3>\n            <ul>\n                <li><b>Range</b> = max − min</li>\n                <li><b>IQR (interquartile range)</b> = Q3 − Q1 = spread of the middle 50%</li>\n            </ul>\n            <h3>Box plot anatomy</h3>\n            <pre>     |---[==Q1==median==Q3==]---|\n   min                          max</pre>\n            <h3>Dot plots</h3>\n            <p>Each X represents one data value. The TALLEST stack = mode. To find the median, count to the middle X.</p>\n            <p>Skewed data (long tail one way) → mean is pulled toward the tail; median stays near the cluster.</p>\n        ",

@@ -2176,7 +2176,7 @@
         function render(category, restore) {
             container.innerHTML = '';
             initProfileAvatar();
-            let questions, topicLabel, lessonHTML, lessonVideo;
+            let questions, topicLabel, lessonHTML, lessonVideos;
             // Pool builder: read consolidated per-topic question list.
             function poolForTopic(key) {
                 const arr = (mathPracticeQuestions && mathPracticeQuestions[key]) || [];
@@ -2201,7 +2201,7 @@
                 questions = restore.questions;
                 topicLabel = restore.topicLabel || null;
                 lessonHTML = restore.lessonHTML || null;
-                lessonVideo = restore.lessonVideo || null;
+                lessonVideos = restore.lessonVideos || (restore.lessonVideo ? [restore.lessonVideo] : []);
             } else if (hardMode) {
                 // "Missed questions only" mode: pull from all topics, missed only.
                 const missedPool = buildMissedOnlyPool();
@@ -2220,7 +2220,7 @@
                 recordRecent(questions);
                 topicLabel = 'Missed questions only';
                 lessonHTML = null;
-                lessonVideo = null;
+                lessonVideos = [];
             } else if (category === '__all__') {
                 const all = [];
                 for (const k in mathPracticeQuestions) {
@@ -2230,7 +2230,7 @@
                 recordRecent(questions);
                 topicLabel = null;
                 lessonHTML = null;
-                lessonVideo = null;
+                lessonVideos = [];
             } else {
                 const meta = (typeof mathPracticeTopics !== 'undefined' && mathPracticeTopics[category]) || null;
                 const pool = poolForTopic(category);
@@ -2238,7 +2238,7 @@
                 recordRecent(questions);
                 topicLabel = category;
                 lessonHTML = meta && meta.lesson ? meta.lesson : null;
-                lessonVideo = meta && meta.video ? meta.video : null;
+                lessonVideos = (meta && Array.isArray(meta.videos)) ? meta.videos.slice() : (meta && meta.video ? [meta.video] : []);
             }
             if (!questions.length) {
                 container.textContent = 'No questions in this topic.';
@@ -2259,7 +2259,7 @@
 
             function persistSession() {
                 saveSession({
-                    category, topicLabel, lessonHTML, lessonVideo,
+                    category, topicLabel, lessonHTML, lessonVideos,
                     questions, current, correct, wrong, results,
                     startedAt: sessionStartedAt,
                     timestamp: new Date().toISOString()
@@ -2293,41 +2293,47 @@
             };
 
             // Show lesson first if available (skip lesson if resuming mid-session)
-            if ((lessonHTML || lessonVideo) && !restore) {
+            if ((lessonHTML || (lessonVideos && lessonVideos.length)) && !restore) {
                 showLesson();
             } else {
                 show();
             }
 
             function showLesson() {
-                const videoFrameId = lessonVideo ? `ytFrame_${Math.random().toString(36).slice(2,8)}` : '';
-                const videoHTML = lessonVideo ? `
-                    <div class="lesson-video-wrap">
-                        <div class="lesson-video-title">🎥 ${lessonVideo.title || 'Watch the video'}</div>
-                        ${lessonVideo.blurb ? `<div class="lesson-video-blurb">${lessonVideo.blurb}</div>` : ''}
-                        <div class="lesson-video-frame">
-                            <iframe id="${videoFrameId}"
-                                src="https://www.youtube-nocookie.com/embed/${lessonVideo.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
-                                title="${lessonVideo.title || 'Lesson video'}"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowfullscreen
-                                referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                            <div class="lesson-video-topcover" aria-hidden="true"></div>
-                            <div class="lesson-video-clickcatch" id="${videoFrameId}_click"></div>
-                            <div class="lesson-video-controls" id="${videoFrameId}_controls">
-                                <button type="button" class="lvc-btn" id="${videoFrameId}_playpause" title="Play / Pause">▶</button>
-                                <div class="lvc-time" id="${videoFrameId}_time">0:00 / 0:00</div>
-                                <div class="lvc-progress" id="${videoFrameId}_progress">
-                                    <div class="lvc-progress-fill" id="${videoFrameId}_progressfill"></div>
+                const videoEntries = (lessonVideos || []).map((v) => {
+                    if (!v || !v.id) return null;
+                    const frameId = `ytFrame_${Math.random().toString(36).slice(2,8)}`;
+                    const html = `
+                        <div class="lesson-video-wrap">
+                            <div class="lesson-video-title">🎥 ${v.title || 'Watch the video'}</div>
+                            ${v.blurb ? `<div class="lesson-video-blurb">${v.blurb}</div>` : ''}
+                            <div class="lesson-video-frame">
+                                <iframe id="${frameId}"
+                                    src="https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
+                                    title="${v.title || 'Lesson video'}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen
+                                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                                <div class="lesson-video-topcover" aria-hidden="true"></div>
+                                <div class="lesson-video-clickcatch" id="${frameId}_click"></div>
+                                <div class="lesson-video-controls" id="${frameId}_controls">
+                                    <button type="button" class="lvc-btn" id="${frameId}_playpause" title="Play / Pause">▶</button>
+                                    <div class="lvc-time" id="${frameId}_time">0:00 / 0:00</div>
+                                    <div class="lvc-progress" id="${frameId}_progress">
+                                        <div class="lvc-progress-fill" id="${frameId}_progressfill"></div>
+                                    </div>
+                                    <button type="button" class="lvc-btn" id="${frameId}_fs" title="Fullscreen">⛶</button>
                                 </div>
-                                <button type="button" class="lvc-btn" id="${videoFrameId}_fs" title="Fullscreen">⛶</button>
+                                <div class="lesson-video-shield" id="${frameId}_shield">
+                                    <button type="button" class="lesson-video-resume" id="${frameId}_resume">▶ Play video</button>
+                                </div>
                             </div>
-                            <div class="lesson-video-shield" id="${videoFrameId}_shield">
-                                <button type="button" class="lesson-video-resume" id="${videoFrameId}_resume">▶ Play video</button>
-                            </div>
-                        </div>
-                    </div>` : '';
+                        </div>`;
+                    return { frameId, html };
+                }).filter(Boolean);
+                const videosHTML = videoEntries.map(v => v.html).join('');
+                const hasVideo = videoEntries.length > 0;
                 const lessonBlock = lessonHTML ? `<div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>` : '';
                 container.innerHTML = `
                     <button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${topicLabel}</button>
@@ -2335,7 +2341,7 @@
                         <div class="quiz-question">Mini-lesson</div>
                         ${lessonHTML ? `<button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>` : ''}
                     </div>
-                    ${videoHTML}
+                    ${videosHTML}
                     ${lessonBlock}
                     <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
                 `;
@@ -2349,13 +2355,11 @@
                         const text = htmlToReadable(document.getElementById('lessonCardContent').innerHTML);
                         ttsSpeak(text, () => lessonSpeakBtn.classList.remove('speaking'));
                     };
-                    if (ttsEnabled && !lessonVideo) {
+                    if (ttsEnabled && !hasVideo) {
                         setTimeout(() => lessonSpeakBtn.click(), 400);
                     }
                 }
-                if (lessonVideo && videoFrameId) {
-                    attachYouTubeShield(videoFrameId);
-                }
+                videoEntries.forEach(v => attachYouTubeShield(v.frameId));
             }
 
             function show() {

@@ -16,25 +16,26 @@
         /* ===== Daily practice timer ===== */
         .daily-timer-chip {
             position: fixed;
-            bottom: 14px;
-            right: 14px;
+            bottom: 18px;
+            right: 18px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px 8px 10px;
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid #e3e6ea;
+            gap: 10px;
+            padding: 10px 16px 10px 14px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 2px solid #4a90e2;
             border-radius: 999px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+            font-size: 15px;
+            font-weight: 700;
+            color: #1f3a5f;
             z-index: 1500;
             user-select: none;
             -webkit-user-select: none;
             backdrop-filter: blur(6px);
+            font-variant-numeric: tabular-nums;
         }
-        .daily-timer-chip.is-paused { opacity: 0.55; }
+        .daily-timer-chip.is-paused { opacity: 0.7; border-color: #b8c2cc; color: #555; }
         .daily-timer-chip.is-done {
             background: linear-gradient(135deg, #d1f7d6 0%, #b9f0c2 100%);
             border-color: #6cc878;
@@ -923,9 +924,9 @@
     </div>
 
     <!-- Daily practice timer chip & banner -->
-    <div class="daily-timer-chip is-paused" id="dailyTimerChip" title="Daily practice timer">
+    <div class="daily-timer-chip is-paused" id="dailyTimerChip" title="Daily practice timer (counts down while you're answering)">
         <span class="dt-dot"></span>
-        <span id="dailyTimerText">⏱ 0:00 / 30:00</span>
+        <span id="dailyTimerText">⏱ 30:00 left</span>
     </div>
     <div class="daily-goal-banner" id="dailyGoalBanner">🎉 Daily goal reached! Great job!</div>
 
@@ -1155,9 +1156,13 @@
                 if (!chip || !txt) return;
                 const cur = todaySec();
                 const goal = goalSec();
-                txt.textContent = '⏱ ' + fmtMMSS(cur) + ' / ' + fmtMMSS(goal);
-                chip.classList.toggle('is-paused', !isCounting());
-                chip.classList.toggle('is-done', cur >= goal);
+                const remaining = Math.max(0, goal - cur);
+                const done = cur >= goal;
+                txt.textContent = done
+                    ? '✓ Done for today! (' + fmtMMSS(cur) + ')'
+                    : '⏱ ' + fmtMMSS(remaining) + ' left';
+                chip.classList.toggle('is-paused', !isCounting() && !done);
+                chip.classList.toggle('is-done', done);
             }
 
             function showGoalBanner() {

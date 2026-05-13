@@ -1,5 +1,5 @@
 {
-  "sha": "7d76ae7",
-  "date": "2026-05-13T11:17:55-07:00",
-  "message": "Left-align topic pill and Show lesson on the same row"
+  "sha": "790f4e9",
+  "date": "2026-05-13T11:20:13-07:00",
+  "message": "Fix topic+lesson row: rename .topic-row to .topic-header-row to avoid CSS collision"
 }

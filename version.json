@@ -1,5 +1,5 @@
 {
-  "sha": "bf89592",
-  "date": "2026-05-13T10:53:57-07:00",
-  "message": "Math: remove Khan Academy videos from lesson cards (kept Math Antics)"
+  "sha": "dbfa46c",
+  "date": "2026-05-13T11:01:09-07:00",
+  "message": "Curate multi-video lesson sets per topic (incl. Khan Academy where needed)"
 }

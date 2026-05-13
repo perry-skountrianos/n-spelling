@@ -1,5 +1,5 @@
 {
-  "sha": "500babe",
-  "date": "2026-05-13T09:18:49-07:00",
-  "message": "feat(math): capture and display per-question answer time in reports"
+  "sha": "af728cc",
+  "date": "2026-05-13T09:27:14-07:00",
+  "message": "fix(math): timer now counts thinking time; show timing for all questions"
 }

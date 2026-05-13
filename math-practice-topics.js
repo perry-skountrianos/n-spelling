@@ -69,6 +69,11 @@ const mathPracticeTopics = {
         "id": "5juto2ze8Lg",
         "title": "Math Antics — Adding and Subtracting Fractions",
         "blurb": "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
+      },
+      {
+        "id": "EGfO_QlcI4Y",
+        "title": "Khan Academy — Adding Fractions with Unlike Denominators",
+        "blurb": "Step-by-step Khan walkthrough for adding and subtracting fractions when the bottoms don't match."
       }
     ]
   },

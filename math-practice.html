@@ -17,8 +17,8 @@
         .daily-timer-chip { display: none !important; }
         /* Donut ring styling tweaks specific to the timer donut */
         .donut-ring.is-paused { opacity: 0.45; }
-        .donut-timer-label { font-variant-numeric: tabular-nums; }
-        /* Apple Fitness-style combined activity ring (Remaining/Correct/Wrong) */
+        .donut-timer-label { font-variant-numeric: tabular-nums; font-weight: 500; }
+        /* Single activity ring filled with green (correct) + red (wrong) */
         .activity-rings-label {
             position: absolute;
             top: 50%; left: 50%;
@@ -26,7 +26,7 @@
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             line-height: 1.05;
-            font-weight: 700;
+            font-weight: 500;
             font-variant-numeric: tabular-nums;
             font-size: 13px;
             pointer-events: none;
@@ -946,16 +946,14 @@
         <div class="profile-circle" id="profileIndicator" title="Switch Player">
             <span class="profile-circle-avatar" id="profileAvatar">👤</span>
         </div>
-        <div class="donut-wrapper activity-rings" title="Remaining · Correct · Wrong">
+        <div class="donut-wrapper activity-rings" title="Correct · Wrong · Remaining">
             <svg class="donut" viewBox="0 0 36 36">
-                <!-- Backgrounds -->
+                <!-- Single neutral background ring -->
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="rgba(33,150,243,0.18)" stroke-width="2.6"/>
-                <circle class="donut-bg" cx="18" cy="18" r="12.2" fill="none" stroke="rgba(76,175,80,0.18)" stroke-width="2.6"/>
-                <circle class="donut-bg" cx="18" cy="18" r="8.5"  fill="none" stroke="rgba(220,53,69,0.18)" stroke-width="2.6"/>
-                <!-- Progress rings -->
-                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="2.6" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutRemainingTitle">Remaining: 0</title></circle>
-                <circle class="donut-ring" id="donutCorrect"   cx="18" cy="18" r="12.2" fill="none" stroke="#4caf50" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutCorrectTitle">Correct: 0</title></circle>
-                <circle class="donut-ring" id="donutWrong"     cx="18" cy="18" r="8.5"  fill="none" stroke="#dc3545" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutWrongTitle">Wrong: 0</title></circle>
+                <!-- Correct (green) arc, starts at 12 o'clock -->
+                <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutCorrectTitle">Correct: 0</title></circle>
+                <!-- Wrong (red) arc, starts where the green arc ends -->
+                <circle class="donut-ring" id="donutWrong"   cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutWrongTitle">Wrong: 0</title></circle>
             </svg>
             <div class="activity-rings-label">
                 <span class="ar-count ar-remaining" id="remainingCount">0</span>
@@ -2032,18 +2030,28 @@
         }
 
         // -------- donuts --------
+        // Single ring at r=15.9 with two stacked arcs: green (correct) starts at
+        // 12 o'clock and grows clockwise; red (wrong) starts where green ends.
+        // With the SVG rotated -90deg, stroke-dashoffset=25 anchors the dash to
+        // the top of the circle. Pushing the red arc forward by `correctLen`
+        // means subtracting it from that offset.
         function updateDonuts(correct, wrong, total) {
             const remaining = Math.max(total - correct - wrong, 0);
             document.getElementById('remainingCount').textContent = remaining;
             document.getElementById('correctCount').textContent = correct;
             document.getElementById('wrongCount').textContent = wrong;
             const t = Math.max(total, 1);
-            document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${(remaining/t)*100} ${(1-remaining/t)*100}`);
-            document.getElementById('donutCorrect').setAttribute('stroke-dasharray',   `${(correct/t)*100} ${(1-correct/t)*100}`);
-            document.getElementById('donutWrong').setAttribute('stroke-dasharray',     `${(wrong/t)*100} ${(1-wrong/t)*100}`);
-            const rT = document.getElementById('donutRemainingTitle'); if (rT) rT.textContent = `Remaining: ${remaining}`;
-            const cT = document.getElementById('donutCorrectTitle');   if (cT) cT.textContent = `Correct: ${correct}`;
-            const wT = document.getElementById('donutWrongTitle');     if (wT) wT.textContent = `Wrong: ${wrong}`;
+            const correctLen = (correct / t) * 100;
+            const wrongLen = (wrong / t) * 100;
+            const correctEl = document.getElementById('donutCorrect');
+            const wrongEl = document.getElementById('donutWrong');
+            correctEl.setAttribute('stroke-dasharray', `${correctLen} ${100 - correctLen}`);
+            correctEl.setAttribute('stroke-dashoffset', '25');
+            wrongEl.setAttribute('stroke-dasharray', `${wrongLen} ${100 - wrongLen}`);
+            // Shift red so it starts where green ended (mod 100).
+            wrongEl.setAttribute('stroke-dashoffset', String((25 - correctLen + 100) % 100));
+            const cT = document.getElementById('donutCorrectTitle'); if (cT) cT.textContent = `Correct: ${correct}`;
+            const wT = document.getElementById('donutWrongTitle');   if (wT) wT.textContent = `Wrong: ${wrong}`;
         }
 
         // -------- version label (auto-updated by GH Action via version.json) --------

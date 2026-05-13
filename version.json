@@ -1,5 +1,5 @@
 {
-  "sha": "6f9c9d4",
-  "date": "2026-05-13T10:32:15-07:00",
-  "message": "Math: admin-gated reset day, delete report, auto-save partial on reset"
+  "sha": "b58bf41",
+  "date": "2026-05-13T10:40:57-07:00",
+  "message": "Math menu: reorder, rename Reset->Reset Practice, group admin under collapsible Parent controls (one password per sessio"
 }

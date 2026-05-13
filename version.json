@@ -1,5 +1,5 @@
 {
-  "sha": "5389222",
-  "date": "2026-05-13T09:41:45-07:00",
-  "message": "fix(math): admin-password gate uses single guard, trims input, touch-friendly"
+  "sha": "9d88c1e",
+  "date": "2026-05-13T09:52:09-07:00",
+  "message": "feat(math): show daily-time sync status + manual Sync now button in menu"
 }

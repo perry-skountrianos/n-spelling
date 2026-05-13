@@ -108,6 +108,23 @@
             margin-bottom: 10px;
             letter-spacing: 0.02em;
         }
+        button.topic-pill-btn {
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        button.topic-pill-btn::after {
+            content: ' \203A';
+            font-weight: 700;
+            opacity: 0.7;
+        }
+        button.topic-pill-btn:hover {
+            background: #bbdefb;
+        }
+        button.topic-pill-btn:active {
+            transform: scale(0.97);
+        }
         .progress-counter {
             font-size: 13px;
             color: #888;
@@ -929,8 +946,22 @@
             <span class="donut-label" id="wrongCount">0</span>
         </div>
         <div class="donut-wrapper" id="donutTimerWrapper" title="Daily practice time remaining">
-            <svg class="donut" viewBox="0 0 36 36">
+            <svg class="donut donut-clock" viewBox="0 0 36 36">
                 <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <g class="donut-ticks" stroke="#bdbdbd" stroke-linecap="round">
+                    <line x1="18" y1="3.2"  x2="18" y2="5.2"  stroke-width="0.9"/>
+                    <line x1="18" y1="30.8" x2="18" y2="32.8" stroke-width="0.9"/>
+                    <line x1="3.2"  y1="18" x2="5.2"  y2="18" stroke-width="0.9"/>
+                    <line x1="30.8" y1="18" x2="32.8" y2="18" stroke-width="0.9"/>
+                    <line x1="25.4" y1="5.5"  x2="24.4" y2="7.2"  stroke-width="0.55"/>
+                    <line x1="30.5" y1="10.6" x2="28.8" y2="11.6" stroke-width="0.55"/>
+                    <line x1="30.5" y1="25.4" x2="28.8" y2="24.4" stroke-width="0.55"/>
+                    <line x1="25.4" y1="30.5" x2="24.4" y2="28.8" stroke-width="0.55"/>
+                    <line x1="10.6" y1="30.5" x2="11.6" y2="28.8" stroke-width="0.55"/>
+                    <line x1="5.5"  y1="25.4" x2="7.2"  y2="24.4" stroke-width="0.55"/>
+                    <line x1="5.5"  y1="10.6" x2="7.2"  y2="11.6" stroke-width="0.55"/>
+                    <line x1="10.6" y1="5.5"  x2="11.6" y2="7.2"  stroke-width="0.55"/>
+                </g>
                 <circle class="donut-ring" id="donutTimer" cx="18" cy="18" r="15.9" fill="none" stroke="#ff9800" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
             </svg>
             <span class="donut-label donut-timer-label" id="donutTimerLabel">20m</span>
@@ -2138,6 +2169,12 @@
             renderTopicPicker();
             topicPickerOverlay.style.display = 'flex';
         });
+        // Expose so the in-question topic pill can open the picker too
+        window.openTopicPicker = () => {
+            gearDropdown.classList.remove('show');
+            renderTopicPicker();
+            topicPickerOverlay.style.display = 'flex';
+        };
         document.getElementById('topicPickerCloseBtn').onclick = () => {
             topicPickerOverlay.style.display = 'none';
         };
@@ -2334,7 +2371,7 @@
                         </div>
                     </div>` : '';
                 container.innerHTML = `
-                    <div class="topic-pill">${topicLabel}</div>
+                    <button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${topicLabel}</button>
                     <div class="question-row">
                         <div class="quiz-question">Mini-lesson</div>
                         ${lessonHTML ? `<button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>` : ''}
@@ -2375,8 +2412,7 @@
                 // Header
                 const header = document.createElement('div');
                 header.innerHTML = `
-                    <div class="progress-counter">Question ${current + 1} of ${questions.length}</div>
-                    ${q._topic ? `<div class="topic-pill">${q._topic}</div>` : ''}
+                    ${q._topic ? `<button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${q._topic}</button>` : ''}
                     ${lessonHTML ? `<div class="lesson-actions"><button class="lesson-toggle" id="lessonToggle">☰ Show lesson</button></div>` : ''}
                     <div class="question-row">
                         <div class="quiz-question">${q.question}</div>

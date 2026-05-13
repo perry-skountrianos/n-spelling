@@ -1,5 +1,5 @@
 {
-  "sha": "a19fa83",
-  "date": "2026-05-13T09:38:17-07:00",
-  "message": "feat(math): password-gate the daily goal input"
+  "sha": "5389222",
+  "date": "2026-05-13T09:41:45-07:00",
+  "message": "fix(math): admin-password gate uses single guard, trims input, touch-friendly"
 }

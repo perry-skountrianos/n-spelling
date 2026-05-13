@@ -1,5 +1,5 @@
 {
-  "sha": "e632b99",
-  "date": "2026-05-13T09:36:50-07:00",
-  "message": "ui(math): move daily timer from floating chip into gear menu"
+  "sha": "a19fa83",
+  "date": "2026-05-13T09:38:17-07:00",
+  "message": "feat(math): password-gate the daily goal input"
 }

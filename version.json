@@ -1,5 +1,5 @@
 {
-  "sha": "458768a",
-  "date": "2026-05-13T11:26:26-07:00",
-  "message": "Fix broken Khan unlike-denominators video link (EGfO_QlcI4Y -> zkJ1gOrYhEg)"
+  "sha": "1d31e8d",
+  "date": "2026-05-13T11:28:47-07:00",
+  "message": "Remove beforeunload confirmation prompt on profile switch/exit"
 }

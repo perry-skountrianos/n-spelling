@@ -18,6 +18,26 @@
         /* Donut ring styling tweaks specific to the timer donut */
         .donut-ring.is-paused { opacity: 0.45; }
         .donut-timer-label { font-variant-numeric: tabular-nums; }
+        /* Apple Fitness-style combined activity ring (Remaining/Correct/Wrong) */
+        .activity-rings-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            line-height: 1.05;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .activity-rings-label .ar-count { display: block; }
+        .activity-rings-label .ar-remaining { color: #2196f3; }
+        .activity-rings-label .ar-correct   { color: #4caf50; }
+        .activity-rings-label .ar-wrong     { color: #dc3545; }
+        @media (max-width: 480px) {
+            .activity-rings-label { font-size: 10px; }
+        }
         /* Tighten the score-row layout on small screens so 4 donuts + 2 circles fit */
         @media (max-width: 480px) {
             .score-display { gap: 4px !important; }
@@ -925,26 +945,22 @@
         <div class="profile-circle" id="profileIndicator" title="Switch Player">
             <span class="profile-circle-avatar" id="profileAvatar">👤</span>
         </div>
-        <div class="donut-wrapper">
+        <div class="donut-wrapper activity-rings" title="Remaining · Correct · Wrong">
             <svg class="donut" viewBox="0 0 36 36">
-                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round"/>
+                <!-- Backgrounds -->
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="rgba(33,150,243,0.18)" stroke-width="2.6"/>
+                <circle class="donut-bg" cx="18" cy="18" r="12.2" fill="none" stroke="rgba(76,175,80,0.18)" stroke-width="2.6"/>
+                <circle class="donut-bg" cx="18" cy="18" r="8.5"  fill="none" stroke="rgba(220,53,69,0.18)" stroke-width="2.6"/>
+                <!-- Progress rings -->
+                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="2.6" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
+                <circle class="donut-ring" id="donutCorrect"   cx="18" cy="18" r="12.2" fill="none" stroke="#4caf50" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
+                <circle class="donut-ring" id="donutWrong"     cx="18" cy="18" r="8.5"  fill="none" stroke="#dc3545" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
             </svg>
-            <span class="donut-label" id="remainingCount">0</span>
-        </div>
-        <div class="donut-wrapper">
-            <svg class="donut" viewBox="0 0 36 36">
-                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                <circle class="donut-ring" id="donutCorrect" cx="18" cy="18" r="15.9" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-            </svg>
-            <span class="donut-label" id="correctCount">0</span>
-        </div>
-        <div class="donut-wrapper">
-            <svg class="donut" viewBox="0 0 36 36">
-                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
-                <circle class="donut-ring" id="donutWrong" cx="18" cy="18" r="15.9" fill="none" stroke="#dc3545" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-            </svg>
-            <span class="donut-label" id="wrongCount">0</span>
+            <div class="activity-rings-label">
+                <span class="ar-count ar-remaining" id="remainingCount">0</span>
+                <span class="ar-count ar-correct"   id="correctCount">0</span>
+                <span class="ar-count ar-wrong"     id="wrongCount">0</span>
+            </div>
         </div>
         <div class="donut-wrapper" id="donutTimerWrapper" title="Daily practice time remaining">
             <svg class="donut donut-clock" viewBox="0 0 36 36">

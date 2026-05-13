@@ -14,51 +14,19 @@
         .gear-menu-wrapper { position: static !important; margin-left: auto; }
 
         /* ===== Daily practice timer ===== */
-        .daily-timer-chip {
-            position: fixed;
-            bottom: 18px;
-            right: 18px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 16px 10px 14px;
-            background: rgba(255, 255, 255, 0.97);
-            border: 2px solid #4a90e2;
-            border-radius: 999px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.14);
-            font-size: 15px;
-            font-weight: 700;
-            color: #1f3a5f;
-            z-index: 1500;
-            user-select: none;
-            -webkit-user-select: none;
-            backdrop-filter: blur(6px);
-            font-variant-numeric: tabular-nums;
-        }
-        .daily-timer-chip.is-paused { opacity: 0.7; border-color: #b8c2cc; color: #555; }
-        .daily-timer-chip.is-done {
-            background: linear-gradient(135deg, #d1f7d6 0%, #b9f0c2 100%);
-            border-color: #6cc878;
-            color: #1f7a35;
-        }
-        .daily-timer-chip .dt-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #2ea043;
-            box-shadow: 0 0 0 0 rgba(46,160,67,0.45);
-            animation: dtPulse 1.6s ease-out infinite;
-        }
-        .daily-timer-chip.is-paused .dt-dot {
-            background: #999;
-            animation: none;
-        }
-        .daily-timer-chip.is-done .dt-dot {
-            background: #1f7a35;
-            animation: none;
-        }
-        @keyframes dtPulse {
-            0% { box-shadow: 0 0 0 0 rgba(46,160,67,0.45); }
-            70% { box-shadow: 0 0 0 8px rgba(46,160,67,0); }
-            100% { box-shadow: 0 0 0 0 rgba(46,160,67,0); }
+        .daily-timer-chip { display: none !important; }
+        /* Donut ring styling tweaks specific to the timer donut */
+        .donut-ring.is-paused { opacity: 0.45; }
+        .donut-timer-label { font-variant-numeric: tabular-nums; }
+        /* Tighten the score-row layout on small screens so 4 donuts + 2 circles fit */
+        @media (max-width: 480px) {
+            .score-display { gap: 4px !important; }
+            .score-display .donut-wrapper,
+            .score-display .profile-circle,
+            .score-display .home-circle { width: 46px !important; height: 46px !important; }
+            .score-display .donut-label { font-size: 12px !important; }
+            .score-display .profile-circle-avatar { font-size: 20px !important; }
+            .score-display .home-circle svg { width: 24px; height: 24px; }
         }
         .daily-goal-row {
             display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -892,6 +860,13 @@
             </svg>
             <span class="donut-label" id="wrongCount">0</span>
         </div>
+        <div class="donut-wrapper" id="donutTimerWrapper" title="Daily practice time remaining">
+            <svg class="donut" viewBox="0 0 36 36">
+                <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke="#e0e0e0" stroke-width="3"/>
+                <circle class="donut-ring" id="donutTimer" cx="18" cy="18" r="15.9" fill="none" stroke="#ff9800" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+            </svg>
+            <span class="donut-label donut-timer-label" id="donutTimerLabel">20m</span>
+        </div>
         <div class="gear-menu-wrapper" id="gearMenuWrapper">
             <button class="menu-btn" id="gearBtn" title="Menu"><span class="menu-icon"><span></span><span></span><span></span></span></button>
             <div class="gear-dropdown" id="gearDropdown">
@@ -1017,7 +992,7 @@
             const GOAL_KEY = 'dailyGoal_' + currentProfile;
             const TIME_KEY = 'dailyTime_' + currentProfile;
             const DEVICE_KEY = 'deviceId';
-            const ACTIVE_WINDOW_MS = 60 * 1000;       // 60s since last answered question
+            const ACTIVE_WINDOW_MS = 10 * 1000;       // 10s since last activity
             const MAX_TICK_MS = 5 * 1000;             // ignore tick gaps > 5s (clock fiddle / sleep)
             const FIREBASE_FLUSH_MS = 10 * 1000;      // push to RTDB at most every 10s
             const DEFAULT_GOAL_MIN = 20;
@@ -1267,6 +1242,26 @@
                     txt.textContent = mainText;
                     chip.classList.toggle('is-paused', !counting && !done);
                     chip.classList.toggle('is-done', done);
+                }
+                // Score-bar donut for the timer
+                const donut = document.getElementById('donutTimer');
+                const donutLabel = document.getElementById('donutTimerLabel');
+                if (donut && donutLabel) {
+                    const pct = Math.max(0, Math.min(100, (cur / goal) * 100));
+                    donut.setAttribute('stroke-dasharray', pct.toFixed(1) + ' ' + (100 - pct).toFixed(1));
+                    donut.setAttribute('stroke', done ? '#4caf50' : '#ff9800');
+                    donut.classList.toggle('is-paused', !counting && !done);
+                    // Label: minutes remaining (or seconds when <1 min), checkmark when done
+                    if (done) {
+                        donutLabel.textContent = '✓';
+                        donutLabel.style.color = '#2e7d32';
+                    } else if (remaining >= 60) {
+                        donutLabel.textContent = Math.ceil(remaining / 60) + 'm';
+                        donutLabel.style.color = '';
+                    } else {
+                        donutLabel.textContent = remaining + 's';
+                        donutLabel.style.color = '#e67e22';
+                    }
                 }
                 const menuTxt = document.getElementById('dailyTimerMenuText');
                 const menuStatus = document.getElementById('dailyTimerMenuStatus');

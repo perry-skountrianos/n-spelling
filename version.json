@@ -1,5 +1,5 @@
 {
-  "sha": "c0ecd8e",
-  "date": "2026-05-13T08:41:34-07:00",
-  "message": "feat(math): show kid's wrong answer in missed-question reports"
+  "sha": "1cc13fe",
+  "date": "2026-05-13T08:51:07-07:00",
+  "message": "feat(math): daily practice timer with goal, cross-device sync, and 14-day history"
 }

@@ -1,5 +1,5 @@
 {
-  "sha": "15cbcee",
-  "date": "2026-05-13T10:10:42-07:00",
-  "message": "ui(math): restore floating timer chip; remove sync row/button + menu timer row"
+  "sha": "1ab822c",
+  "date": "2026-05-13T10:27:05-07:00",
+  "message": "feat(math): timer as 4th donut in score row; 10s pause window; mobile fit"
 }

@@ -2039,6 +2039,7 @@
             }
 
             let current = 0, correct = 0, wrong = 0, results = [];
+            let currentQuestionStartedAt = 0; // ms epoch when current question rendered
             const sessionStartedAt = (restore && restore.startedAt) || new Date().toISOString();
             if (restore) {
                 current = restore.current || 0;
@@ -2158,6 +2159,7 @@
             function show() {
                 ttsCancel();
                 const q = questions[current];
+                currentQuestionStartedAt = Date.now();
 
                 // Header
                 const header = document.createElement('div');
@@ -2278,6 +2280,8 @@
             function finishQuestion(isCorrect, explanationDelay, userAnswer) {
                 DailyTime.recordActivity();
                 const q = questions[current];
+                const elapsedMs = currentQuestionStartedAt ? (Date.now() - currentQuestionStartedAt) : 0;
+                currentQuestionStartedAt = 0; // prevent double-counting if finish runs twice
                 const snapSteps = isCorrect ? equationSnapSteps(q) : null;
                 if (isCorrect) { correct++; clearWrong(q); }
                 else { wrong++; markWrong(q); }
@@ -2289,7 +2293,8 @@
                     userAnswer: (userAnswer == null ? '' : String(userAnswer)),
                     explanation: q.explanation || '',
                     resolveSteps: Array.isArray(q.resolveSteps) ? q.resolveSteps.slice() : null,
-                    isCorrect: isCorrect
+                    isCorrect: isCorrect,
+                    timeMs: elapsedMs
                 });
                 updateDonuts(correct, wrong, questions.length);
                 persistSession();
@@ -2392,7 +2397,8 @@
                                 const userHtml = r.userAnswer
                                     ? `<div style="font-size:12px;color:#c0392b;margin-top:2px;">Your answer: ${escapeHTML(r.userAnswer)}</div>`
                                     : '';
-                                return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
+                                const timeHtml = answerTimeBadge(r.timeMs);
+                                return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}${timeHtml}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
                             }).join('')}
                         </div>
                     </details>
@@ -2432,7 +2438,8 @@
                                     const userHtml = r.userAnswer
                                         ? `<div style="font-size:12px;color:#c0392b;margin-top:2px;">Your answer: ${escapeHTML(r.userAnswer)}</div>`
                                         : '';
-                                    return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
+                                    const timeHtml = answerTimeBadge(r.timeMs);
+                                    return `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 120 ? '…' : ''}${timeHtml}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div>${expHtml}${stepsHtml}</div>`;
                                 }).join('')
                                 : '<div class="report-word-item"><div style="font-weight:600;color:#333;">No missed questions in this session.</div></div>'}
                         </div>
@@ -2658,6 +2665,29 @@
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
+        // Time-per-question helpers (shared across inline + reports views)
+        function formatAnswerTime(ms) {
+            if (!ms || ms < 0) return '';
+            if (ms < 1000) return '<1s';
+            const s = ms / 1000;
+            if (s < 60) return (s < 10 ? s.toFixed(1) : Math.round(s)) + 's';
+            const m = Math.floor(s / 60);
+            const rem = Math.round(s - m * 60);
+            return m + 'm ' + rem + 's';
+        }
+        function answerTimeColor(ms) {
+            if (!ms) return '#888';
+            if (ms >= 30000) return '#c0392b';  // slow → red
+            if (ms >= 15000) return '#e67e22';  // medium → orange
+            return '#2e7d32';                    // fast → green
+        }
+        function answerTimeBadge(ms) {
+            if (!ms) return '';
+            const color = answerTimeColor(ms);
+            return '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;'
+                 + 'background:' + color + '14;color:' + color + ';font-size:11px;font-weight:600;'
+                 + 'vertical-align:middle;">⏱ ' + formatAnswerTime(ms) + '</span>';
+        }
         function correctAnswerTextTop(q) {
             if (!q) return '';
             if (q.type === 'numeric') return q.answer + (q.unit ? ' ' + q.unit : '');
@@ -2860,12 +2890,26 @@
                         const card = document.createElement('div');
                         card.className = 'report-card';
                         const scoreClass = report.percentage >= 80 ? 'report-score-good' : report.percentage >= 50 ? 'report-score-ok' : 'report-score-low';
+                        // Per-question timing summary (if recorded)
+                        let timingSummaryHtml = '';
+                        if (report.results && report.results.length) {
+                            const timed = report.results.filter(r => r.timeMs > 0);
+                            if (timed.length) {
+                                const total = timed.reduce((s, r) => s + r.timeMs, 0);
+                                const avg = total / timed.length;
+                                const slow = timed.filter(r => r.timeMs >= 30000).length;
+                                timingSummaryHtml = ' <span style="font-size:12px;color:#666;">'
+                                    + '· avg ' + formatAnswerTime(avg) + '/q'
+                                    + (slow ? ', <span style="color:#c0392b;font-weight:600;">' + slow + ' slow</span>' : '')
+                                    + '</span>';
+                            }
+                        }
                         card.innerHTML = `
                             <div class="report-card-header">
                                 <div class="report-date">${dateStr} at ${timeStr}${report.hardMode ? '<div style="font-size:11px;color:#0071e3;font-weight:600;margin-top:2px;">\ud83c\udfaf Missed only</div>' : ''}</div>
                                 <div class="report-score ${scoreClass}">${report.percentage}%</div>
                             </div>
-                            <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalQuestions} questions</div>
+                            <div class="report-summary">${report.correct} correct, ${report.wrong} wrong out of ${report.totalQuestions} questions${timingSummaryHtml}</div>
                         `;
                         if (report.results) {
                             const wrongQs = report.results.filter(r => !r.isCorrect);
@@ -2882,7 +2926,8 @@
                                     const userHtml = r.userAnswer
                                         ? `<div style="font-size:12px;color:#c0392b;margin-top:2px;">Your answer: ${escapeHTMLTop(r.userAnswer)}</div>`
                                         : '';
-                                    wordsList.innerHTML += `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 90 ? '\u2026' : ''}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
+                                    const timeHtml = answerTimeBadge(r.timeMs);
+                                    wordsList.innerHTML += `<div class="report-word-item"><div style="font-weight:600;color:#333;">${qShort}${qShort.length >= 90 ? '\u2026' : ''}${timeHtml}</div>${userHtml}<div style="font-size:12px;color:#2e7d32;margin-top:2px;">Correct: ${r.correctAnswer || ''}</div></div>`;
                                 });
                                 details.appendChild(wordsList);
                                 card.appendChild(details);

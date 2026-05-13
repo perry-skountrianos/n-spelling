@@ -7,12 +7,6 @@ const mathPracticeTopics = {
       "id": "dAgfnK528RA",
       "title": "Math Antics — Order Of Operations",
       "blurb": "Quick, fun 10-min refresher on PEMDAS by Math Antics. Watch this first, then come back and crush the practice! 💪"
-    },
-    "khan": {
-      "id": "eoYThjIAhOc",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-exponents-and-order-of-operations/cc-6th-order-of-operations/v/order-operations-intro",
-      "title": "Khan Academy — Order of Operations Intro",
-      "blurb": "Sal Khan walks through PEMDAS with worked examples. A calmer, deeper take on the same idea."
     }
   },
   "2 — Translating & Equivalent Expressions (6.EE.2–4)": {
@@ -21,12 +15,6 @@ const mathPracticeTopics = {
       "id": "NybHckSEQBI",
       "title": "Math Antics — What Is Algebra?",
       "blurb": "A fun intro to variables and algebraic expressions — the perfect warm-up before translating words into math."
-    },
-    "khan": {
-      "id": "640-86yn2wM",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-writing-expressions/v/writing-expressions-with-variables-examples",
-      "title": "Khan Academy — Writing Expressions with Variables",
-      "blurb": "Khan Academy translates word phrases into algebraic expressions — useful for the \"8 less than\" trap."
     }
   },
   "3 — One-Step Equations (6.EE.5, 6.EE.7)": {
@@ -35,12 +23,6 @@ const mathPracticeTopics = {
       "id": "l3XzepN03KQ",
       "title": "Math Antics — Solving Basic Equations Part 1",
       "blurb": "See how to undo addition or subtraction to solve for x. Watch this, then crush the practice! 💪"
-    },
-    "khan": {
-      "id": "5FBDqY41GjU",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-solving-equations/v/why-we-do-the-same-thing-to-both-sides-simple-equations",
-      "title": "Khan Academy — Same Thing to Both Sides",
-      "blurb": "Sal shows the balance-scale intuition behind \"do the same thing to both sides\"."
     }
   },
   "4 — Inequalities (6.EE.8)": {
@@ -49,12 +31,6 @@ const mathPracticeTopics = {
       "id": "Qyd_v3DGzTM",
       "title": "Math Antics — Solving Basic Equations Part 2",
       "blurb": "The same balance idea works for inequalities — just don’t forget to flip the sign if you multiply or divide by a negative!"
-    },
-    "khan": {
-      "id": "ilWDSYnTEFs",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-inequalities/v/plotting-inequalities-on-a-number-line",
-      "title": "Khan Academy — Plotting Inequalities on a Number Line",
-      "blurb": "Khan Academy walks through open vs closed circles and which direction the arrow points."
     }
   },
   "5 — Variables, Tables & Equations (6.EE.9)": {
@@ -63,12 +39,6 @@ const mathPracticeTopics = {
       "id": "WZdZhuUSmpM",
       "title": "Introduction to Algebra — Using Variables",
       "blurb": "Variables are just placeholders for numbers. This short video makes that crystal clear."
-    },
-    "khan": {
-      "id": "SGC_d7O7_Eg",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-equations-and-inequalities/cc-6th-dependent-independent/v/dependent-independent-variables",
-      "title": "Khan Academy — Dependent & Independent Variables",
-      "blurb": "Sal explains which variable is the input you choose and which depends on it."
     }
   },
   "6 — Fraction & Decimal Operations (6.NS.1, 6.NS.3)": {
@@ -77,12 +47,6 @@ const mathPracticeTopics = {
       "id": "5juto2ze8Lg",
       "title": "Math Antics — Adding and Subtracting Fractions",
       "blurb": "Common denominators, mixed numbers, and a few sneaky shortcuts. 🍰"
-    },
-    "khan": {
-      "id": "f3ySpxX9oeM",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-arithmetic-operations/cc-6th-dividing-fractions/v/conceptual-understanding-of-dividing-fractions-by-fractions",
-      "title": "Khan Academy — Understanding Division of Fractions",
-      "blurb": "Why \"keep, change, flip\" actually works — the conceptual story behind dividing fractions."
     }
   },
   "7 — GCF, LCM & Distributive (6.NS.4)": {
@@ -91,12 +55,6 @@ const mathPracticeTopics = {
       "id": "jFd-6EPfnec",
       "title": "Math Antics — Greatest Common Factor",
       "blurb": "How to find the GCF the easy way — the same trick also unlocks LCM and the distributive property."
-    },
-    "khan": {
-      "id": "znmPfDfsir8",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-expressions-and-variables/cc-6th-lcm/v/least-common-multiple-exercise",
-      "title": "Khan Academy — Least Common Multiple",
-      "blurb": "Sal walks through LCM with prime factorization — the other half of this topic (Math Antics covers GCF above)."
     }
   },
   "8 — Integers & Absolute Value (6.NS.5–7)": {
@@ -105,12 +63,6 @@ const mathPracticeTopics = {
       "id": "OAoLCXpao6s",
       "title": "Math Antics — Negative Numbers",
       "blurb": "Negative numbers on the number line, opposites, and absolute value — all in one clean explainer."
-    },
-    "khan": {
-      "id": "r6hS_8nm1jM",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-negative-number-topic/cc-6th-absolute-value/v/absolute-value-of-integers",
-      "title": "Khan Academy — Absolute Value Examples",
-      "blurb": "Khan Academy treats |n| as \"distance from 0\" with multiple worked examples."
     }
   },
   "9 — Coordinate Plane (6.NS.6, 6.NS.8)": {
@@ -119,12 +71,6 @@ const mathPracticeTopics = {
       "id": "9Uc62CuQjc4",
       "title": "Math Antics — Graphing On The Coordinate Plane",
       "blurb": "Quadrants, ordered pairs, and how (x, y) becomes a dot. Get comfy before plotting shapes!"
-    },
-    "khan": {
-      "id": "VhNkWdLGpmA",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:coordinate-plane/cc-6th-coordinate-plane/v/the-coordinate-plane",
-      "title": "Khan Academy — Points on the Coordinate Plane",
-      "blurb": "Sal plots points across all four quadrants and explains the sign of x and y in each."
     }
   },
   "10 — Ratios & Unit Rate (6.RP.1–3)": {
@@ -133,12 +79,6 @@ const mathPracticeTopics = {
       "id": "RQ2nYUBVvqI",
       "title": "Math Antics — Ratios And Rates",
       "blurb": "What a ratio actually means, plus how to turn any ratio into a unit rate."
-    },
-    "khan": {
-      "id": "bIKmw0aTmYc",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-ratios-prop-topic/intro-to-ratios/v/ratios-intro",
-      "title": "Khan Academy — Intro to Ratios",
-      "blurb": "Khan Academy's introduction with worked examples on part-to-part and part-to-whole ratios."
     }
   },
   "11 — Percent Problems (6.RP.3c)": {
@@ -147,12 +87,6 @@ const mathPracticeTopics = {
       "id": "JeVSmq1Nrpw",
       "title": "Math Antics — What Are Percentages?",
       "blurb": "Percent just means ‘out of 100’. This video makes percent problems feel easy. 💯"
-    },
-    "khan": {
-      "id": "Lvr2YsxG10o",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-rates-and-percentages/cc-6th-percentages/v/describing-the-meaning-of-percent",
-      "title": "Khan Academy — The Meaning of Percent",
-      "blurb": "Sal explains why percent is \"per hundred\" and how to translate between %, fraction, and decimal."
     }
   },
   "12 — Area of Polygons (6.G.1)": {
@@ -161,12 +95,6 @@ const mathPracticeTopics = {
       "id": "xCdxURXMdFY",
       "title": "Math Antics — Area",
       "blurb": "Area of rectangles, triangles, and parallelograms — then combine them for any polygon."
-    },
-    "khan": {
-      "id": "rRTXKQpblEc",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/x0267d782:cc-6th-plane-figures/cc-6th-area-triangle/v/intuition-for-area-of-a-triangle",
-      "title": "Khan Academy — Area of a Triangle",
-      "blurb": "Khan Academy builds the ½ × base × height formula from a rectangle — great intuition."
     }
   },
   "13 — Volume & Unit Conversion (6.G.2, 6.G.4)": {
@@ -175,12 +103,6 @@ const mathPracticeTopics = {
       "id": "qJwecTgce6c",
       "title": "Math Antics — Volume",
       "blurb": "V = l × w × h, even with fraction sides. Builds the intuition for the cube-counting problems."
-    },
-    "khan": {
-      "id": "EJTPGyWqhqc",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-geometry-topic/cc-6th-volume-with-fractions/v/volume-of-a-rectangular-prism-with-fractional-dimensions",
-      "title": "Khan Academy — Volume of a Rectangular Prism (Fractional Dimensions)",
-      "blurb": "Sal walks through V = l × w × h when the edges are fractions — the trickiest case."
     }
   },
   "14 — Statistics: Center, Spread & Plots (6.SP.4–5)": {
@@ -189,12 +111,6 @@ const mathPracticeTopics = {
       "id": "5C9LBF3b65s",
       "title": "Math Antics — Mean, Median and Mode",
       "blurb": "The three most common ways to find the ‘center’ of a data set — with simple examples."
-    },
-    "khan": {
-      "id": "h8EYEJ32oQ8",
-      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-data-statistics/mean-and-median/v/statistics-intro-mean-median-and-mode",
-      "title": "Khan Academy — Statistics Intro: Mean, Median & Mode",
-      "blurb": "Khan Academy's classic intro — same three measures, more worked examples."
     }
   }
 };

@@ -421,15 +421,6 @@
             border: 1px solid #ffd6e0;
             border-radius: 14px;
         }
-        /* Khan Academy video card — same layout as Math Antics, different tint. */
-        .lesson-khan-wrap {
-            background: linear-gradient(135deg, #eef7ff 0%, #f1ecff 100%);
-            border: 1px solid #cfe2ff;
-        }
-        .lesson-khan-wrap .lesson-video-title { color: #1a5cb3; }
-        .lesson-khan-wrap .lesson-video-frame {
-            box-shadow: 0 4px 14px rgba(20, 110, 200, 0.15);
-        }
         .lesson-video-title {
             font-weight: 600;
             font-size: 15px;
@@ -2185,7 +2176,7 @@
         function render(category, restore) {
             container.innerHTML = '';
             initProfileAvatar();
-            let questions, topicLabel, lessonHTML, lessonVideo, lessonKhan;
+            let questions, topicLabel, lessonHTML, lessonVideo;
             // Pool builder: read consolidated per-topic question list.
             function poolForTopic(key) {
                 const arr = (mathPracticeQuestions && mathPracticeQuestions[key]) || [];
@@ -2211,7 +2202,6 @@
                 topicLabel = restore.topicLabel || null;
                 lessonHTML = restore.lessonHTML || null;
                 lessonVideo = restore.lessonVideo || null;
-                lessonKhan = restore.lessonKhan || null;
             } else if (hardMode) {
                 // "Missed questions only" mode: pull from all topics, missed only.
                 const missedPool = buildMissedOnlyPool();
@@ -2231,7 +2221,6 @@
                 topicLabel = 'Missed questions only';
                 lessonHTML = null;
                 lessonVideo = null;
-                lessonKhan = null;
             } else if (category === '__all__') {
                 const all = [];
                 for (const k in mathPracticeQuestions) {
@@ -2242,7 +2231,6 @@
                 topicLabel = null;
                 lessonHTML = null;
                 lessonVideo = null;
-                lessonKhan = null;
             } else {
                 const meta = (typeof mathPracticeTopics !== 'undefined' && mathPracticeTopics[category]) || null;
                 const pool = poolForTopic(category);
@@ -2251,7 +2239,6 @@
                 topicLabel = category;
                 lessonHTML = meta && meta.lesson ? meta.lesson : null;
                 lessonVideo = meta && meta.video ? meta.video : null;
-                lessonKhan = meta && meta.khan ? meta.khan : null;
             }
             if (!questions.length) {
                 container.textContent = 'No questions in this topic.';
@@ -2272,7 +2259,7 @@
 
             function persistSession() {
                 saveSession({
-                    category, topicLabel, lessonHTML, lessonVideo, lessonKhan,
+                    category, topicLabel, lessonHTML, lessonVideo,
                     questions, current, correct, wrong, results,
                     startedAt: sessionStartedAt,
                     timestamp: new Date().toISOString()
@@ -2306,7 +2293,7 @@
             };
 
             // Show lesson first if available (skip lesson if resuming mid-session)
-            if ((lessonHTML || lessonVideo || lessonKhan) && !restore) {
+            if ((lessonHTML || lessonVideo) && !restore) {
                 showLesson();
             } else {
                 show();
@@ -2342,34 +2329,6 @@
                         </div>
                     </div>` : '';
                 const lessonBlock = lessonHTML ? `<div class="lesson-card" id="lessonCardContent">${lessonHTML}</div>` : '';
-                const khanFrameId = (lessonKhan && lessonKhan.id) ? `kaFrame_${Math.random().toString(36).slice(2,8)}` : '';
-                const khanHTML = (lessonKhan && lessonKhan.id) ? `
-                    <div class="lesson-video-wrap lesson-khan-wrap">
-                        <div class="lesson-video-title">📚 ${lessonKhan.title || 'Also on Khan Academy'}</div>
-                        ${lessonKhan.blurb ? `<div class="lesson-video-blurb">${lessonKhan.blurb}</div>` : ''}
-                        <div class="lesson-video-frame">
-                            <iframe id="${khanFrameId}"
-                                src="https://www.youtube-nocookie.com/embed/${lessonKhan.id}?rel=0&modestbranding=1&iv_load_policy=3&fs=0&playsinline=1&controls=0&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
-                                title="${lessonKhan.title || 'Khan Academy lesson video'}"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowfullscreen
-                                referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                            <div class="lesson-video-topcover" aria-hidden="true"></div>
-                            <div class="lesson-video-clickcatch" id="${khanFrameId}_click"></div>
-                            <div class="lesson-video-controls" id="${khanFrameId}_controls">
-                                <button type="button" class="lvc-btn" id="${khanFrameId}_playpause" title="Play / Pause">▶</button>
-                                <div class="lvc-time" id="${khanFrameId}_time">0:00 / 0:00</div>
-                                <div class="lvc-progress" id="${khanFrameId}_progress">
-                                    <div class="lvc-progress-fill" id="${khanFrameId}_progressfill"></div>
-                                </div>
-                                <button type="button" class="lvc-btn" id="${khanFrameId}_fs" title="Fullscreen">⛶</button>
-                            </div>
-                            <div class="lesson-video-shield" id="${khanFrameId}_shield">
-                                <button type="button" class="lesson-video-resume" id="${khanFrameId}_resume">▶ Play video</button>
-                            </div>
-                        </div>
-                    </div>` : '';
                 container.innerHTML = `
                     <button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${topicLabel}</button>
                     <div class="question-row">
@@ -2377,7 +2336,6 @@
                         ${lessonHTML ? `<button class="speak-btn" id="lessonSpeakBtn" title="Read lesson">${SPEAKER_SVG}</button>` : ''}
                     </div>
                     ${videoHTML}
-                    ${khanHTML}
                     ${lessonBlock}
                     <button class="start-practice-btn" id="startPracticeBtn">Start practice →</button>
                 `;
@@ -2397,9 +2355,6 @@
                 }
                 if (lessonVideo && videoFrameId) {
                     attachYouTubeShield(videoFrameId);
-                }
-                if (lessonKhan && lessonKhan.id && khanFrameId) {
-                    attachYouTubeShield(khanFrameId);
                 }
             }
 

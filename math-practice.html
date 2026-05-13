@@ -32,11 +32,12 @@
             pointer-events: none;
         }
         .activity-rings-label .ar-count { display: block; }
-        .activity-rings-label .ar-remaining { color: #2196f3; }
-        .activity-rings-label .ar-correct   { color: #4caf50; }
-        .activity-rings-label .ar-wrong     { color: #dc3545; }
+        .activity-rings-label .ar-remaining { color: #222; font-size: 20px; }
+        .activity-rings-label .ar-correct,
+        .activity-rings-label .ar-wrong { display: none !important; }
+        .activity-rings .donut-ring { cursor: help; }
         @media (max-width: 480px) {
-            .activity-rings-label { font-size: 10px; }
+            .activity-rings-label .ar-remaining { font-size: 16px; }
         }
         /* Tighten the score-row layout on small screens so 4 donuts + 2 circles fit */
         @media (max-width: 480px) {
@@ -952,14 +953,14 @@
                 <circle class="donut-bg" cx="18" cy="18" r="12.2" fill="none" stroke="rgba(76,175,80,0.18)" stroke-width="2.6"/>
                 <circle class="donut-bg" cx="18" cy="18" r="8.5"  fill="none" stroke="rgba(220,53,69,0.18)" stroke-width="2.6"/>
                 <!-- Progress rings -->
-                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="2.6" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
-                <circle class="donut-ring" id="donutCorrect"   cx="18" cy="18" r="12.2" fill="none" stroke="#4caf50" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
-                <circle class="donut-ring" id="donutWrong"     cx="18" cy="18" r="8.5"  fill="none" stroke="#dc3545" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"/>
+                <circle class="donut-ring" id="donutRemaining" cx="18" cy="18" r="15.9" fill="none" stroke="#2196f3" stroke-width="2.6" stroke-dasharray="100 0" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutRemainingTitle">Remaining: 0</title></circle>
+                <circle class="donut-ring" id="donutCorrect"   cx="18" cy="18" r="12.2" fill="none" stroke="#4caf50" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutCorrectTitle">Correct: 0</title></circle>
+                <circle class="donut-ring" id="donutWrong"     cx="18" cy="18" r="8.5"  fill="none" stroke="#dc3545" stroke-width="2.6" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" pathLength="100"><title id="donutWrongTitle">Wrong: 0</title></circle>
             </svg>
             <div class="activity-rings-label">
                 <span class="ar-count ar-remaining" id="remainingCount">0</span>
-                <span class="ar-count ar-correct"   id="correctCount">0</span>
-                <span class="ar-count ar-wrong"     id="wrongCount">0</span>
+                <span class="ar-count ar-correct"   id="correctCount" hidden>0</span>
+                <span class="ar-count ar-wrong"     id="wrongCount"   hidden>0</span>
             </div>
         </div>
         <div class="donut-wrapper" id="donutTimerWrapper" title="Daily practice time remaining">
@@ -2040,6 +2041,9 @@
             document.getElementById('donutRemaining').setAttribute('stroke-dasharray', `${(remaining/t)*100} ${(1-remaining/t)*100}`);
             document.getElementById('donutCorrect').setAttribute('stroke-dasharray',   `${(correct/t)*100} ${(1-correct/t)*100}`);
             document.getElementById('donutWrong').setAttribute('stroke-dasharray',     `${(wrong/t)*100} ${(1-wrong/t)*100}`);
+            const rT = document.getElementById('donutRemainingTitle'); if (rT) rT.textContent = `Remaining: ${remaining}`;
+            const cT = document.getElementById('donutCorrectTitle');   if (cT) cT.textContent = `Correct: ${correct}`;
+            const wT = document.getElementById('donutWrongTitle');     if (wT) wT.textContent = `Wrong: ${wrong}`;
         }
 
         // -------- version label (auto-updated by GH Action via version.json) --------

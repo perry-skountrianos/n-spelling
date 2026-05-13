@@ -1,5 +1,5 @@
 {
-  "sha": "b58bf41",
-  "date": "2026-05-13T10:40:57-07:00",
-  "message": "Math menu: reorder, rename Reset->Reset Practice, group admin under collapsible Parent controls (one password per sessio"
+  "sha": "5c3919a",
+  "date": "2026-05-13T10:46:38-07:00",
+  "message": "Math: clock ticks on timer donut, remove redundant 'Question X of Y', topic pill is now a topic-switcher link"
 }

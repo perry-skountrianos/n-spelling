@@ -1,5 +1,5 @@
 {
-  "sha": "b91cfdb",
-  "date": "2026-05-13T08:57:13-07:00",
-  "message": "feat(math): countdown-style daily timer chip, larger & more prominent"
+  "sha": "2045c9e",
+  "date": "2026-05-13T09:07:27-07:00",
+  "message": "feat(math): multi-device additive timer (sum across devices), default 20min"
 }

@@ -1,5 +1,5 @@
 {
-  "sha": "2045c9e",
-  "date": "2026-05-13T09:07:27-07:00",
-  "message": "feat(math): multi-device additive timer (sum across devices), default 20min"
+  "sha": "500babe",
+  "date": "2026-05-13T09:18:49-07:00",
+  "message": "feat(math): capture and display per-question answer time in reports"
 }

@@ -14,7 +14,28 @@
         .gear-menu-wrapper { position: static !important; margin-left: auto; }
 
         /* ===== Daily practice timer ===== */
-        .daily-timer-chip { display: none !important; }
+        .daily-timer-chip {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px 10px 14px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 2px solid #4a90e2;
+            border-radius: 999px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+            font-size: 15px;
+            font-weight: 700;
+            color: #1f3a5f;
+            z-index: 1500;
+            user-select: none;
+            -webkit-user-select: none;
+            backdrop-filter: blur(6px);
+            font-variant-numeric: tabular-nums;
+        }
+        .daily-timer-chip.is-paused { opacity: 0.7; border-color: #b8c2cc; color: #555; }
         .daily-timer-chip.is-done {
             background: linear-gradient(135deg, #d1f7d6 0%, #b9f0c2 100%);
             border-color: #6cc878;
@@ -886,14 +907,6 @@
                     <label for="hardSwitch">🎯 Missed questions only</label>
                     <span class="tts-switch" id="hardSwitch"></span>
                 </div>
-                <div class="gear-option daily-timer-row" id="dailyTimerRow" title="Practice time remaining today" style="display:flex;align-items:center;gap:8px;font-weight:600;color:#1f3a5f;cursor:default;">
-                    <span id="dailyTimerMenuText" style="font-variant-numeric:tabular-nums;">⏱ 20:00 left today</span>
-                    <span id="dailyTimerMenuStatus" style="font-size:11px;color:#999;font-weight:500;margin-left:auto;">paused</span>
-                </div>
-                <div class="gear-option daily-sync-row" id="dailySyncRow" title="Cloud sync status for daily practice time" style="display:flex;align-items:center;gap:8px;font-size:11px;color:#666;cursor:pointer;">
-                    <span id="dailySyncText" style="flex:1;">☁ Sync: …</span>
-                    <button type="button" id="dailySyncBtn" style="font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:6px;background:#f7f7f7;cursor:pointer;">Sync now</button>
-                </div>
                 <div class="gear-option daily-goal-row" id="dailyGoalRow" title="How many minutes per day to practice">
                     <label for="dailyGoalInput">⏱ Daily goal (min)</label>
                     <input type="number" id="dailyGoalInput" min="1" max="120" step="1" value="30">
@@ -1262,28 +1275,6 @@
                     if (done) { menuStatus.textContent = ''; }
                     else if (counting) { menuStatus.textContent = '● counting'; menuStatus.style.color = '#2ea043'; }
                     else { menuStatus.textContent = 'paused'; menuStatus.style.color = '#999'; }
-                }
-                const syncTxt = document.getElementById('dailySyncText');
-                if (syncTxt) {
-                    const hasDb = (typeof db !== 'undefined');
-                    const ownMin = Math.floor(ownSec(state.today) / 60);
-                    const otherMin = Math.floor(otherSec(state.today) / 60);
-                    const ownLabel = fmtMMSS(ownSec(state.today));
-                    const otherLabel = fmtMMSS(otherSec(state.today));
-                    if (!hasDb) {
-                        syncTxt.innerHTML = '<span style="color:#c0392b;">☁ Firebase not loaded</span>';
-                    } else if (state.lastSyncError) {
-                        syncTxt.innerHTML = '<span style="color:#c0392b;">⚠ Sync failed:</span> ' + escapeHTMLTop(state.lastSyncError);
-                    } else if (state.lastSyncAt) {
-                        const ago = Math.floor((Date.now() - state.lastSyncAt) / 1000);
-                        const agoLabel = ago < 60 ? ago + 's ago' : Math.floor(ago / 60) + 'm ago';
-                        const pending = state.dirtyTodaySec > 1 ? ' · <span style="color:#e67e22;">' + Math.round(state.dirtyTodaySec) + 's pending</span>' : '';
-                        syncTxt.innerHTML = '☁ Synced ' + agoLabel + ' · this device ' + ownLabel
-                            + (otherSec(state.today) > 0 ? ' + others ' + otherLabel : '')
-                            + pending;
-                    } else {
-                        syncTxt.innerHTML = '☁ Not synced yet · this device ' + ownLabel;
-                    }
                 }
             }
 
@@ -1805,21 +1796,6 @@
             // Keep the gear dropdown open when interacting with the input
             dailyGoalRow.addEventListener('click', (e) => e.stopPropagation());
             dailyGoalInput.addEventListener('click', (e) => e.stopPropagation());
-        }
-
-        // Sync-now button and sync-row keep gear dropdown open
-        const dailySyncRow = document.getElementById('dailySyncRow');
-        const dailySyncBtn = document.getElementById('dailySyncBtn');
-        if (dailySyncRow) dailySyncRow.addEventListener('click', (e) => e.stopPropagation());
-        if (dailySyncBtn) {
-            dailySyncBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                dailySyncBtn.textContent = 'Syncing…';
-                dailySyncBtn.disabled = true;
-                try { await DailyTime.flushNow(); } catch(_) {}
-                dailySyncBtn.textContent = 'Sync now';
-                dailySyncBtn.disabled = false;
-            });
         }
 
         // ===== Answer-choice shuffling =====

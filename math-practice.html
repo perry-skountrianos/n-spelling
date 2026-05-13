@@ -402,6 +402,16 @@
             justify-content: flex-end;
             margin-bottom: 10px;
         }
+        .topic-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .topic-row .lesson-actions { margin-bottom: 0; }
+        .topic-row .topic-pill { margin-bottom: 0; }
         .lesson-toggle {
             background: none;
             border: 1px solid #d2d2d7;
@@ -2371,8 +2381,10 @@
                 // Header
                 const header = document.createElement('div');
                 header.innerHTML = `
-                    ${q._topic ? `<button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${q._topic}</button>` : ''}
-                    ${lessonHTML ? `<div class="lesson-actions"><button class="lesson-toggle" id="lessonToggle">☰ Show lesson</button></div>` : ''}
+                    ${(q._topic || lessonHTML) ? `<div class="topic-row">
+                        ${q._topic ? `<button type="button" class="topic-pill topic-pill-btn" onclick="window.openTopicPicker && window.openTopicPicker()" title="Switch topic">${q._topic}</button>` : '<span></span>'}
+                        ${lessonHTML ? `<div class="lesson-actions"><button class="lesson-toggle" id="lessonToggle">☰ Show lesson</button></div>` : ''}
+                    </div>` : ''}
                     <div class="question-row">
                         <div class="quiz-question">${q.question}</div>
                         <div class="question-buttons">

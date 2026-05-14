@@ -1,5 +1,5 @@
 {
-  "sha": "3509f86",
-  "date": "2026-05-13T11:56:58-07:00",
-  "message": "Activity rings: show only remaining count; add hover tooltips for correct/wrong"
+  "sha": "0fe78f6",
+  "date": "2026-05-13T15:40:54-07:00",
+  "message": "math-practice: single-ring activity donut + lighter labels; add reusable src/auth module"
 }

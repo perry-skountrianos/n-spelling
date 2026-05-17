@@ -680,12 +680,185 @@ const transitionSentences = {
     'ultimately': 'Ultimately the team worked together and won.'
 };
 
+// Heart Words list (irregular "heart" words — must be learned by heart)
+const heartWordsWords = [
+    'of', 'gone', 'move', 'pretty', 'pear', 'bear', 'tear', 'wear', 'write', 'again',
+    'against', 'said', 'friend', 'almost', 'though', 'although', 'thorough', 'always',
+    'among', 'anyone', 'nothing', 'ocean', 'is', 'buy', 'build', 'built', 'aunt', 'cousin',
+    'young', 'touch', 'toward', 'enough', 'rough', 'his', 'tough', 'laugh', 'learn', 'earth',
+    'early', 'sugar', 'sure', 'busy', 'half', 'eight', 'as', 'weight', 'straight', 'through',
+    'door', 'poor', 'floor', 'shoe', 'prove', 'every', 'woman', 'has', 'women', 'false',
+    'cough', 'beauty', 'beautiful', 'backward', 'forward', 'imagine', 'whole', 'month', 'was',
+    'doubt', 'height', 'business', 'guess', 'guest', 'guide', 'guy', 'guard', 'journey',
+    'journal', 'want', 'muscle', 'answer', 'sign', 'island', 'science', 'machine', 'character',
+    'favorite', 'breakfast', 'Wednesday', 'what', 'February', 'are', 'they', 'could', 'would',
+    'should', 'your', 'were', 'know', 'knew', 'about', 'all', 'walk', 'talk', 'two', 'who',
+    'any', 'many', 'from', 'front', 'off', 'people', 'too', 'been', 'some', 'come', 'none',
+    'done', 'one', 'once', 'love', 'above', 'does', 'use', 'here', 'there', 'where', 'very',
+    'give', 'have', 'live', 'work', 'the', 'word', 'world', 'four', 'fourth', 'forty', 'today',
+    'other', 'mother', 'brother', 'another', 'you', 'father', 'because', 'won', 'son', 'eye',
+    'heart', 'water', 'watch', 'their', 'truth', 'to', 'truly', 'whom', 'whose', 'minute',
+    'hour', 'honest', 'honor', 'says', 'great', 'break', 'do', 'thought', 'fought', 'bought',
+    'brought', 'put', 'push', 'pull', 'full', 'often', 'listen'
+];
+
+const heartWordsSentences = {
+    'gone': 'The cookies are all gone.',
+    'pear': 'I ate a juicy pear for lunch.',
+    'bear': 'The bear slept all winter.',
+    'tear': 'A tear ran down her cheek.',
+    'wear': 'I wear a hat on sunny days.',
+    'against': 'He leaned against the wall.',
+    'though': 'Though it was cold we played outside.',
+    'although': 'Although it was cold we still had fun.',
+    'thorough': 'She did a thorough job cleaning up.',
+    'among': 'The puppy hid among the pillows.',
+    'anyone': 'Has anyone seen my pencil?',
+    'nothing': 'There is nothing left in the box.',
+    'ocean': 'The ocean is deep and blue.',
+    'buy': 'We went to the shop to buy milk.',
+    'build': 'We will build a sandcastle at the beach.',
+    'built': 'They built a birdhouse together.',
+    'aunt': 'My aunt made me a birthday cake.',
+    'cousin': 'My cousin lives in another town.',
+    'touch': 'Do not touch the hot stove.',
+    'toward': 'She walked toward the door.',
+    'rough': 'The bark of the tree feels rough.',
+    'tough': 'The maths problem was tough.',
+    'early': 'I woke up early this morning.',
+    'sugar': 'He put sugar in his tea.',
+    'sure': 'Are you sure you packed your bag?',
+    'busy': 'Mum was busy cooking dinner.',
+    'half': 'I ate half of my sandwich.',
+    'weight': 'The weight of the box was too much.',
+    'straight': 'Draw a straight line with your ruler.',
+    'door': 'Please close the door behind you.',
+    'poor': 'The poor dog was lost in the rain.',
+    'floor': 'She sat on the floor to read.',
+    'shoe': 'I found one shoe under the bed.',
+    'prove': 'He wanted to prove he was right.',
+    'woman': 'The woman waved hello from across the street.',
+    'women': 'The women played a game of tennis.',
+    'false': 'That answer is false.',
+    'cough': 'He had a loud cough all night.',
+    'beauty': 'The beauty of the sunset took my breath away.',
+    'beautiful': 'The flowers in the garden are beautiful.',
+    'backward': 'She took a step backward to see the painting.',
+    'forward': 'Take one step forward please.',
+    'imagine': 'Imagine a world full of colour.',
+    'whole': 'She ate the whole apple.',
+    'month': 'My birthday is next month.',
+    'doubt': 'I have no doubt that you can do it.',
+    'height': 'The height of the tree surprised me.',
+    'business': 'Dad works at his own business.',
+    'guess': 'Can you guess what is in the bag?',
+    'guest': 'We had a special guest at school.',
+    'guide': 'The guide showed us around the museum.',
+    'guy': 'That guy has a very tall hat.',
+    'guard': 'The guard stood at the gate.',
+    'journey': 'The journey to the mountains took three hours.',
+    'journal': 'I write in my journal every night.',
+    'muscle': 'He hurt a muscle in his arm.',
+    'sign': 'The sign said to stop at the corner.',
+    'island': 'We sailed to a small island.',
+    'science': 'My favourite subject is science.',
+    'machine': 'The machine made a loud noise.',
+    'character': 'The main character in the book was brave.',
+    'favorite': 'Pizza is my favorite food.',
+    'breakfast': 'I had eggs and toast for breakfast.',
+    'front': 'She sat in the front row.',
+    'none': 'None of the bags were left.',
+    'love': 'I love spending time with my family.',
+    'fourth': 'I finished in fourth place.',
+    'forty': 'There are forty students in the hall.',
+    'today': 'Today is a great day for a picnic.',
+    'brother': 'My brother and I play together.',
+    'won': 'Our team won the game!',
+    'son': 'The son helped his father in the garden.',
+    'heart': 'She drew a big red heart on the card.',
+    'truth': 'Always tell the truth.',
+    'truly': 'I truly love reading.',
+    'whom': 'To whom does this belong?',
+    'minute': 'Please wait one minute.',
+    'hour': 'The show lasts one hour.',
+    'honest': 'She gave an honest answer.',
+    'honor': 'It is an honor to receive this award.',
+    'says': 'He says the food is ready.',
+    'break': 'Let us take a short break.',
+    'fought': 'The knight fought the dragon bravely.',
+    'bought': 'Mum bought me a new book.',
+    'brought': 'She brought cookies to share.',
+    'push': 'Push the door open.',
+    'listen': 'Please listen carefully.'
+};
+
+// Irregular Words flash card list
+const irregularWordsWords = [
+    'for', 'pear', 'bear', 'tear', 'wear', 'again', 'against', 'friend', 'almost', 'though',
+    'although', 'of', 'always', 'among', 'anyone', 'nothing', 'ocean', 'touch', 'buy', 'build',
+    'built', 'cousins', 'said', 'aunt', 'toward', 'enough', 'rough', 'tough', 'learn', 'earth',
+    'early', 'sugar', 'sure', 'was', 'busy', 'half', 'prove', 'straight', 'through', 'heart',
+    'door', 'poor', 'floor', 'shoe', 'want', 'every', 'woman', 'women', 'false', 'cough',
+    'beauty', 'beautiful', 'backward', 'forward', 'imagine', 'what', 'young', 'whole', 'month',
+    'thorough', 'doubt', 'height', 'business', 'guess', 'guest', 'guide', 'are', 'guy', 'guard',
+    'journey', 'journal', 'muscle', 'answer', 'sign', 'machine', 'Wednesday', 'February', 'they',
+    'could', 'would', 'the', 'should', 'your', 'were', 'know', 'knew', 'about', 'all', 'walk',
+    'talk', 'two', 'is', 'who', 'any', 'many', 'from', 'front', 'off', 'some', 'come', 'one',
+    'none', 'his', 'done', 'love', 'above', 'here', 'there', 'where', 'very', 'give', 'have',
+    'live', 'as', 'work', 'word', 'world', 'four', 'fourth', 'forty', 'once', 'today', 'does',
+    'other', 'has', 'mother', 'brother', 'another', 'father', 'because', 'people', 'won', 'son',
+    'eye', 'watch', 'you', 'water', 'their', 'cloth', 'truth', 'truly', 'whose', 'been', 'too',
+    'minute', 'hour', 'to', 'honest', 'honor', 'says', 'great', 'break', 'thought', 'fought',
+    'bought', 'brought', 'eight', 'do', 'push', 'put', 'pull', 'often', 'listen', 'gone',
+    'laugh', 'move', 'pretty', 'whom'
+];
+
+const irregularWordsSentences = {
+    'cousins': 'My cousins came to visit last weekend.',
+    'cloth': 'She used a soft cloth to wipe the table.'
+};
+
+// Fry Words list (high-frequency words by Dr Edward Fry)
+const fryWordsWords = [
+    'that', 'may', 'part', 'over', 'new', 'sound', 'take', 'only', 'little', 'work', 'know',
+    'it', 'place', 'years', 'live', 'me', 'back', 'give', 'most', 'very', 'after', 'things',
+    'he', 'our', 'just', 'name', 'good', 'sentence', 'man', 'think', 'say', 'great', 'where',
+    'was', 'help', 'though', 'much', 'before', 'line', 'right', 'too', 'means', 'old', 'any',
+    'for', 'same', 'tell', 'boy', 'follow', 'came', 'want', 'show', 'also', 'around', 'form',
+    'on', 'three', 'small', 'set', 'put', 'end', 'does', 'another', 'well', 'large', 'must',
+    'are', 'big', 'even', 'such', 'because', 'turn', 'here', 'why', 'ask', 'went', 'men', 'as',
+    'read', 'need', 'land', 'different', 'home', 'us', 'move', 'try', 'kind', 'hand', 'with',
+    'picture', 'again', 'change', 'off', 'play', 'spell', 'air', 'away', 'animal', 'house',
+    'his', 'point', 'page', 'letter', 'mother', 'answer', 'found', 'study', 'still', 'learn',
+    'should', 'the', 'they', 'world', 'at', 'be', 'this', 'have', 'from', 'or', 'one', 'had',
+    'of', 'by', 'words', 'but', 'not', 'what', 'all', 'were', 'we', 'when', 'your', 'and',
+    'can', 'said', 'there', 'use', 'an', 'each', 'which', 'she', 'do', 'how', 'a', 'their',
+    'if', 'will', 'up', 'other', 'about', 'out', 'many', 'then', 'to', 'these', 'so', 'some',
+    'her', 'would', 'make', 'like', 'him', 'into', 'time', 'in', 'has', 'look', 'two', 'more',
+    'write', 'go', 'see', 'number', 'no', 'way', 'is', 'could', 'people', 'my', 'than', 'first',
+    'water', 'been', 'called', 'who', 'oil', 'you', 'sit', 'now', 'find', 'long', 'down', 'day',
+    'did', 'get', 'come', 'made'
+];
+
+const fryWordsSentences = {
+    'years': 'She has lived here for many years.',
+    'things': 'There are many things I want to do.',
+    'means': 'That word means happy.',
+    'form': 'Fill in your name on the form.',
+    'make': 'I want to make a paper airplane.',
+    'called': 'She called out my name.',
+    'sit': 'Please sit down.'
+};
+
 // Merge extra sentences into wordSentences so lookups work for all lists
 Object.assign(wordSentences, extraSentences);
 Object.assign(wordSentences, sightSentences);
 Object.assign(wordSentences, stThomasSentences);
 Object.assign(wordSentences, transitionSentences);
 Object.assign(wordSentences, greekRootsSentences);
+Object.assign(wordSentences, heartWordsSentences);
+Object.assign(wordSentences, irregularWordsSentences);
+Object.assign(wordSentences, fryWordsSentences);
 
 // Root-part highlighting for Greek & Latin Roots vocabulary words
 // Each entry defines two parts: first root (primary/red) and second root (secondary/blue)

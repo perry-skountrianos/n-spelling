@@ -144,6 +144,21 @@ async function ensureDefaultWordList(profileId) {
     if (!greekSnap.exists()) {
         await ref.child('greekroots').set({ name: 'Greek & Latin Roots', words: greekRootsWords });
     }
+    // Ensure Heart Words list exists
+    const heartSnap = await ref.orderByChild('name').equalTo('Heart Words').once('value');
+    if (!heartSnap.exists()) {
+        await ref.child('heartwords').set({ name: 'Heart Words', words: heartWordsWords });
+    }
+    // Ensure Irregular Words list exists
+    const irregSnap = await ref.orderByChild('name').equalTo('Irregular Words').once('value');
+    if (!irregSnap.exists()) {
+        await ref.child('irregularwords').set({ name: 'Irregular Words', words: irregularWordsWords });
+    }
+    // Ensure Fry Words list exists
+    const frySnap = await ref.orderByChild('name').equalTo('Fry Words').once('value');
+    if (!frySnap.exists()) {
+        await ref.child('frywords').set({ name: 'Fry Words', words: fryWordsWords });
+    }
     // Load the active list (saved preference) or default to Red Card Words
     let loadedWords = null;
     const activeIdSnap = await db.ref('activeWordList/' + profileId).once('value');
@@ -2145,6 +2160,9 @@ const wordCategoryLists = [
     stThomasWords,
     transitionWords,
     sightWords,
+    heartWordsWords,
+    irregularWordsWords,
+    fryWordsWords,
     numbersWords,
     daysWords,
     monthsWords,

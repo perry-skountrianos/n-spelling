@@ -1,5 +1,5 @@
 {
-  "sha": "7dd3f42",
-  "date": "2026-05-17T22:43:40-07:00",
-  "message": "fix: mult table fits without scrolling, sticky header row as fallback"
+  "sha": "180cb22",
+  "date": "2026-05-17T22:50:42-07:00",
+  "message": "feat: mult table as right side panel on wide screens"
 }

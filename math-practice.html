@@ -1387,6 +1387,13 @@
                     donut.setAttribute('stroke-dasharray', pct.toFixed(1) + ' ' + (100 - pct).toFixed(1));
                     donut.setAttribute('stroke', done ? '#4caf50' : '#ff9800');
                     donut.classList.toggle('is-paused', !counting && !done);
+                    const clockSvg = donut.closest('svg');
+                    if (clockSvg) {
+                        const bg = clockSvg.querySelector('.donut-bg');
+                        const ticks = clockSvg.querySelector('.donut-ticks');
+                        if (bg) bg.setAttribute('stroke', done ? '#c8e6c9' : '#e0e0e0');
+                        if (ticks) ticks.setAttribute('stroke', done ? '#66bb6a' : '#bdbdbd');
+                    }
                     // Label: minutes remaining (or seconds when <1 min), checkmark when done
                     if (done) {
                         donutLabel.textContent = '✓';
@@ -1395,7 +1402,7 @@
                         donutLabel.textContent = Math.ceil(remaining / 60) + 'm';
                         donutLabel.style.color = '';
                     } else {
-                        donutLabel.textContent = remaining + 's';
+                        donutLabel.textContent = Math.ceil(remaining) + 's';
                         donutLabel.style.color = '#e67e22';
                     }
                 }

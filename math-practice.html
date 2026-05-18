@@ -1056,11 +1056,10 @@
             -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
         .pq-correct > span:last-child { color: #2e7d32; font-weight: 700; }
-        .pq-blank { font-size: 14px; padding-left: 26px; font-family: sans-serif; margin-top: 4px; }
-        .pq-blank-line {
-            display: inline-block; width: 220px; border-bottom: 1.5px solid #444;
-            vertical-align: bottom; margin-left: 6px;
-        }
+        .pq-blank { padding-left: 26px; font-family: sans-serif; margin-top: 8px; }
+        .pq-blank-label { font-size: 14px; margin-bottom: 10px; }
+        .pq-write-lines { display: flex; flex-direction: column; }
+        .pq-write-line { border-bottom: 1.5px solid #bbb; height: 36px; width: 100%; }
         .pq-answer-line { font-size: 14px; padding-left: 26px; font-family: sans-serif; margin-top: 4px; }
         .pq-answer-val { font-weight: bold; color: #2e7d32; font-size: 16px; }
         .pq-multi-hint { font-size: 12px; color: #888; font-style: italic; padding-left: 26px; margin-bottom: 6px; font-family: sans-serif; }
@@ -3713,7 +3712,7 @@
                 if (showAnswer) {
                     html += `<div class="pq-answer-line">Answer: <span class="pq-answer-val">${q.answer}</span></div>`;
                 } else {
-                    html += '<div class="pq-blank">Answer:<span class="pq-blank-line"></span></div>';
+                    html += '<div class="pq-blank"><div class="pq-blank-label">Answer:</div><div class="pq-write-lines"><div class="pq-write-line"></div><div class="pq-write-line"></div><div class="pq-write-line"></div></div></div>';
                 }
             } else if (q.type === 'multi') {
                 html += '<div class="pq-multi-hint">(Select all that apply)</div>';

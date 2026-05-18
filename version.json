@@ -1,5 +1,5 @@
 {
-  "sha": "ff21a49",
-  "date": "2026-05-17T21:10:03-07:00",
-  "message": "fix: give numeric print questions 3 ruled write lines instead of one underline"
+  "sha": "8d4e5a6",
+  "date": "2026-05-17T21:11:55-07:00",
+  "message": "feat: add 50-question option to print quiz"
 }

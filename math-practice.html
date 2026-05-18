@@ -806,6 +806,17 @@
             color: #888;
             margin-top: 4px;
         }
+        .topic-section-label {
+            padding: 10px 16px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #aaa;
+        }
+        .topic-row-videoonly:hover { background: #fff8f0; }
+        .topic-row-videoonly .topic-row-name::before { content: '📺 '; }
+        .topic-row-videoonly .topic-row-pct.is-empty { color: #f0a040; font-weight: 600; font-size: 12px; }
 
         /* ---- Reports overlay: grouped by topic ---- */
         .report-group {
@@ -2454,9 +2465,38 @@
                     </button>
                 `);
             }
+            // Video-only topics (in mathPracticeTopics but not mathPracticeQuestions)
+            const videoOnlyTopics = Object.keys(mathPracticeTopics || {}).filter(k => {
+                if (mathPracticeQuestions && mathPracticeQuestions[k]) return false;
+                const m = mathPracticeTopics[k];
+                return (Array.isArray(m.videos) && m.videos.length) || m.video;
+            });
+            if (videoOnlyTopics.length) {
+                rows.push(`<div class="topic-section-label">Videos &amp; Resources</div>`);
+                videoOnlyTopics.forEach(key => {
+                    const meta = mathPracticeTopics[key];
+                    const vcount = Array.isArray(meta.videos) ? meta.videos.length : (meta.video ? 1 : 0);
+                    const safeKey = key.replace(/"/g, '&quot;');
+                    rows.push(`
+                        <button type="button" class="topic-row topic-row-videoonly" data-videokey="${safeKey}">
+                            <div class="topic-row-head">
+                                <span class="topic-row-name">${key}</span>
+                                <span class="topic-row-pct is-empty">${vcount} video${vcount !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="topic-row-meta">Watch &amp; learn — no practice questions</div>
+                        </button>
+                    `);
+                });
+            }
             topicPickerList.innerHTML = rows.join('');
             topicPickerList.querySelectorAll('.topic-row').forEach(btn => {
                 btn.addEventListener('click', () => {
+                    const vk = btn.getAttribute('data-videokey');
+                    if (vk) {
+                        topicPickerOverlay.style.display = 'none';
+                        openLessonModal(vk);
+                        return;
+                    }
                     const v = btn.getAttribute('data-value');
                     if (categorySelect.value !== v) {
                         categorySelect.value = v;

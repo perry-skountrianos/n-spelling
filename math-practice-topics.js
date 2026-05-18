@@ -193,5 +193,34 @@ const mathPracticeTopics = {
       "title": "Math Antics — Mean, Median and Mode",
       "blurb": "The three most common ways to find the ‘center’ of a data set — with simple examples."
     }
+  },
+  "Test Strategies": {
+    "videos": [
+      {
+        "id": "oVZfP2RntmM",
+        "title": "Test Taking Strategies: Grades K-5",
+        "blurb": "Superhero-themed walkthrough of strategies to become a confident, smart test taker."
+      },
+      {
+        "id": "VaNaxixpZK0",
+        "title": "Test Prep Tips for Elementary Students",
+        "blurb": "6 actionable tips for gaining confidence before end-of-year tests, including pacing strategies."
+      },
+      {
+        "id": "5J5jWC7fK20",
+        "title": "Test Taking Strategies for Multiple Choice",
+        "blurb": "Process of elimination and other tactics for cracking multiple-choice questions."
+      },
+      {
+        "id": "E44XnVP7g18",
+        "title": "Test Anxiety Strategies For Kids",
+        "blurb": "What test anxiety feels like, why it happens, and coping techniques to stay calm."
+      },
+      {
+        "id": "S33K8quqkxk",
+        "title": "Test Taking Tips",
+        "blurb": "Before, during, and after the test — time management, staying focused, and checking your work."
+      }
+    ]
   }
 };

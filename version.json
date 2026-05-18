@@ -1,5 +1,5 @@
 {
-  "sha": "b9df47d",
-  "date": "2026-05-17T21:17:43-07:00",
-  "message": "feat: print answer key as compact two-column table on page 2"
+  "sha": "dae1ea0",
+  "date": "2026-05-17T21:21:05-07:00",
+  "message": "fix: remove ruled lines from numeric answer space, keep blank height"
 }

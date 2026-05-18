@@ -822,12 +822,12 @@
         .mult-table-btn {
             display: inline-flex; align-items: center; justify-content: center;
             width: 40px; height: 40px; border-radius: 50%; border: none;
-            background: #fce4ec; color: #c2185b;
-            font-size: 18px; font-weight: 800; cursor: pointer;
+            background: #e8f0fe; color: #1a73e8;
+            font-size: 22px; font-weight: 700; cursor: pointer;
             transition: background 0.15s, transform 0.1s;
             flex-shrink: 0;
         }
-        .mult-table-btn:hover { background: #f8bbd0; transform: scale(1.08); }
+        .mult-table-btn:hover { background: #c8dcfd; transform: scale(1.08); }
         .mult-table-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.55);
             z-index: 8500; display: flex; align-items: center;
@@ -2859,7 +2859,7 @@
                         <div class="quiz-question">${q.question}</div>
                         <div class="question-buttons">
                             ${q.hint ? `<button class="hint-btn" id="hintBtn" title="Show hint">💡</button>` : ''}
-                            ${isMultiplicationQ(q) ? `<button class="mult-table-btn" id="multTableBtn" title="Multiplication table">×</button>` : ''}
+                            ${isMultiplicationQ(q) ? `<button class="mult-table-btn" id="multTableBtn" title="Multiplication table">*</button>` : ''}
                             <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
                         </div>
                     </div>

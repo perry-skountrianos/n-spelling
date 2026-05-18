@@ -1,5 +1,5 @@
 {
-  "sha": "b336fb0",
-  "date": "2026-05-17T09:32:15-07:00",
-  "message": "feat: add Heart Words, Irregular Words, and Fry Words lists"
+  "sha": "3baaced",
+  "date": "2026-05-17T17:28:22-07:00",
+  "message": "fix: round timer seconds and turn clock green when time is up"
 }

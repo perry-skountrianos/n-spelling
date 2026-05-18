@@ -1,5 +1,5 @@
 {
-  "sha": "00b3dd2",
-  "date": "2026-05-17T22:28:02-07:00",
-  "message": "fix: mult table not rendering + showing on wrong questions"
+  "sha": "c90c714",
+  "date": "2026-05-17T22:30:36-07:00",
+  "message": "fix: mult table button - use * icon and blue color, not red \u00d7"
 }

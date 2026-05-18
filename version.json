@@ -1,5 +1,5 @@
 {
-  "sha": "8d4e5a6",
-  "date": "2026-05-17T21:11:55-07:00",
-  "message": "feat: add 50-question option to print quiz"
+  "sha": "b9df47d",
+  "date": "2026-05-17T21:17:43-07:00",
+  "message": "feat: print answer key as compact two-column table on page 2"
 }

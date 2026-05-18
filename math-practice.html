@@ -829,19 +829,22 @@
         }
         .mult-table-btn:hover { background: #c8dcfd; transform: scale(1.08); }
         .mult-table-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-            z-index: 8500; display: flex; align-items: center;
-            justify-content: center; padding: 16px;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 8500; display: flex; flex-direction: column;
         }
         .mult-table-panel {
-            background: #fff; border-radius: 18px;
-            box-shadow: 0 10px 48px rgba(0,0,0,0.22);
-            max-width: 440px; width: 100%; max-height: 88vh;
+            background: #fff; border-radius: 18px 18px 0 0;
+            box-shadow: 0 -6px 32px rgba(0,0,0,0.16);
+            max-height: 55vh;
             display: flex; flex-direction: column; overflow: hidden;
+        }
+        .mult-table-handle {
+            width: 36px; height: 4px; background: #ddd; border-radius: 2px;
+            margin: 10px auto 0; flex-shrink: 0;
         }
         .mult-table-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px 12px; border-bottom: 1px solid #f0f0f0;
+            padding: 10px 16px 12px; border-bottom: 1px solid #f0f0f0;
         }
         .mult-table-header span {
             font-size: 15px; font-weight: 700; color: #333;
@@ -1420,11 +1423,12 @@
         </div>
     </div>
 
-    <!-- Multiplication table overlay -->
+    <!-- Multiplication table bottom sheet -->
     <div class="mult-table-overlay" id="multTableOverlay" style="display:none;">
         <div class="mult-table-panel">
+            <div class="mult-table-handle"></div>
             <div class="mult-table-header">
-                <span>✖ Multiplication Table</span>
+                <span>Multiplication Table</span>
                 <button class="mult-table-close" id="multTableCloseBtn">✕</button>
             </div>
             <div class="mult-table-scroll">
@@ -2115,14 +2119,12 @@
             if (overlay) {
                 buildMultTable();
                 document.getElementById('multTableCloseBtn').onclick = () => overlay.style.display = 'none';
-                overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
             } else {
                 // Fallback: DOM not yet ready, wait for it.
                 document.addEventListener('DOMContentLoaded', () => {
                     buildMultTable();
                     const ov = document.getElementById('multTableOverlay');
                     document.getElementById('multTableCloseBtn').onclick = () => ov.style.display = 'none';
-                    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
                 });
             }
         })();

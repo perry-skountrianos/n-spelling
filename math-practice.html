@@ -818,6 +818,72 @@
         .topic-row-videoonly .topic-row-name::before { content: '📺 '; }
         .topic-row-videoonly .topic-row-pct.is-empty { color: #f0a040; font-weight: 600; font-size: 12px; }
 
+        /* ---- Multiplication table ---- */
+        .mult-table-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; border: none;
+            background: #fce4ec; color: #c2185b;
+            font-size: 18px; font-weight: 800; cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            flex-shrink: 0;
+        }
+        .mult-table-btn:hover { background: #f8bbd0; transform: scale(1.08); }
+        .mult-table-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+            z-index: 8500; display: flex; align-items: center;
+            justify-content: center; padding: 16px;
+        }
+        .mult-table-panel {
+            background: #fff; border-radius: 18px;
+            box-shadow: 0 10px 48px rgba(0,0,0,0.22);
+            max-width: 440px; width: 100%; max-height: 88vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .mult-table-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px 12px; border-bottom: 1px solid #f0f0f0;
+        }
+        .mult-table-header span {
+            font-size: 15px; font-weight: 700; color: #333;
+        }
+        .mult-table-close {
+            background: none; border: none; font-size: 20px; color: #aaa;
+            cursor: pointer; padding: 2px 8px; border-radius: 8px; line-height: 1;
+        }
+        .mult-table-close:hover { background: #f5f5f5; color: #555; }
+        .mult-table-scroll { overflow: auto; padding: 10px 12px 14px; }
+        .mult-table {
+            border-collapse: separate; border-spacing: 2px;
+            width: 100%; table-layout: fixed;
+        }
+        .mult-table td {
+            text-align: center; font-weight: 700;
+            font-size: clamp(10px, 2.8vw, 14px);
+            height: clamp(26px, 6.5vw, 38px);
+            border-radius: 4px; border: none;
+        }
+        .mt-corner { background: #c2185b !important; color: #fff; font-size: clamp(12px, 3vw, 16px) !important; }
+        .mt-col-head { background: #f48fb1; color: #6d0025; }
+        .mt-row-head { color: #555; }
+        .mt-r1  { background: #fce4ec; } .mt-r2  { background: #f8bbd0; }
+        .mt-r3  { background: #f3e5f5; } .mt-r4  { background: #ffcdd2; }
+        .mt-r5  { background: #ffe0b2; } .mt-r6  { background: #fff9c4; }
+        .mt-r7  { background: #f0f4c3; } .mt-r8  { background: #dcedc8; }
+        .mt-r9  { background: #c8e6c9; } .mt-r10 { background: #b2dfdb; }
+        .mt-r11 { background: #b3e5fc; } .mt-r12 { background: #bbdefb; }
+        .mt-r1.mt-row-head  { background: #f48fb1; }
+        .mt-r2.mt-row-head  { background: #f48fb1; }
+        .mt-r3.mt-row-head  { background: #ce93d8; }
+        .mt-r4.mt-row-head  { background: #ef9a9a; }
+        .mt-r5.mt-row-head  { background: #ffb74d; }
+        .mt-r6.mt-row-head  { background: #fff176; }
+        .mt-r7.mt-row-head  { background: #dce775; }
+        .mt-r8.mt-row-head  { background: #aed581; }
+        .mt-r9.mt-row-head  { background: #81c784; }
+        .mt-r10.mt-row-head { background: #4db6ac; color: #fff; }
+        .mt-r11.mt-row-head { background: #4fc3f7; }
+        .mt-r12.mt-row-head { background: #64b5f6; }
+
         /* ---- Reports overlay: grouped by topic ---- */
         .report-group {
             border-bottom: 1px solid #ececef;
@@ -1351,6 +1417,19 @@
                 <button class="reports-close" id="topicPickerCloseBtn">✕</button>
             </div>
             <div class="reports-list" id="topicPickerList"></div>
+        </div>
+    </div>
+
+    <!-- Multiplication table overlay -->
+    <div class="mult-table-overlay" id="multTableOverlay" style="display:none;">
+        <div class="mult-table-panel">
+            <div class="mult-table-header">
+                <span>✖ Multiplication Table</span>
+                <button class="mult-table-close" id="multTableCloseBtn">✕</button>
+            </div>
+            <div class="mult-table-scroll">
+                <table class="mult-table" id="multTableEl"></table>
+            </div>
         </div>
     </div>
 
@@ -2007,6 +2086,42 @@
 
         const TTS_KEY = 'mathPracticeTTS';
         let ttsEnabled = false; // auto-read disabled — manual speaker buttons only
+
+        // Multiplication table
+        (function() {
+            const ROW_COLORS = ['','mt-r1','mt-r2','mt-r3','mt-r4','mt-r5','mt-r6','mt-r7','mt-r8','mt-r9','mt-r10','mt-r11','mt-r12'];
+            function buildMultTable() {
+                const tbl = document.getElementById('multTableEl');
+                if (!tbl || tbl.rows.length) return;
+                for (let r = 0; r <= 12; r++) {
+                    const tr = tbl.insertRow();
+                    for (let c = 0; c <= 12; c++) {
+                        const td = tr.insertCell();
+                        if (r === 0 && c === 0) {
+                            td.textContent = '×'; td.className = 'mt-corner';
+                        } else if (r === 0) {
+                            td.textContent = c; td.className = 'mt-col-head';
+                        } else if (c === 0) {
+                            td.textContent = r; td.className = ROW_COLORS[r] + ' mt-row-head';
+                        } else {
+                            td.textContent = r * c; td.className = ROW_COLORS[r];
+                        }
+                    }
+                }
+            }
+            document.addEventListener('DOMContentLoaded', () => {
+                buildMultTable();
+                const overlay = document.getElementById('multTableOverlay');
+                document.getElementById('multTableCloseBtn').onclick = () => overlay.style.display = 'none';
+                overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+            });
+        })();
+
+        function isMultiplicationQ(q) {
+            if (!q || !q.question) return false;
+            const t = q.question;
+            return /[×✕]/.test(t) || /\b(multipl|product|times table)\b/i.test(t);
+        }
 
         // Speaker icon SVG
         const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
@@ -2732,6 +2847,7 @@
                         <div class="quiz-question">${q.question}</div>
                         <div class="question-buttons">
                             ${q.hint ? `<button class="hint-btn" id="hintBtn" title="Show hint">💡</button>` : ''}
+                            ${isMultiplicationQ(q) ? `<button class="mult-table-btn" id="multTableBtn" title="Multiplication table">×</button>` : ''}
                             <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
                         </div>
                     </div>
@@ -2760,6 +2876,13 @@
                             hintDisplay.classList.add('show');
                             hintDisplay.textContent = q.hint;
                         }
+                    };
+                }
+                const multTableBtn = document.getElementById('multTableBtn');
+                if (multTableBtn) {
+                    multTableBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        document.getElementById('multTableOverlay').style.display = 'flex';
                     };
                 }
                 const qBtn = document.getElementById('questionSpeakBtn');

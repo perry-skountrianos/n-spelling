@@ -1,5 +1,5 @@
 {
-  "sha": "4d63700",
-  "date": "2026-05-17T17:46:47-07:00",
-  "message": "feat: add Print Quiz and Answer Key feature to math practice"
+  "sha": "ff21a49",
+  "date": "2026-05-17T21:10:03-07:00",
+  "message": "fix: give numeric print questions 3 ruled write lines instead of one underline"
 }

@@ -1,5 +1,5 @@
 {
-  "sha": "99db15b",
-  "date": "2026-05-17T22:36:27-07:00",
-  "message": "fix: show mult table button on all questions, center * icon"
+  "sha": "46b9279",
+  "date": "2026-05-17T22:39:27-07:00",
+  "message": "fix: mult table button - SVG grid icon (centered) + toggle on/off"
 }

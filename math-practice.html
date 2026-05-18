@@ -2087,7 +2087,7 @@
         const TTS_KEY = 'mathPracticeTTS';
         let ttsEnabled = false; // auto-read disabled — manual speaker buttons only
 
-        // Multiplication table
+        // Multiplication table — built once on first open, closed by ✕ or backdrop tap
         (function() {
             const ROW_COLORS = ['','mt-r1','mt-r2','mt-r3','mt-r4','mt-r5','mt-r6','mt-r7','mt-r8','mt-r9','mt-r10','mt-r11','mt-r12'];
             function buildMultTable() {
@@ -2109,18 +2109,30 @@
                     }
                 }
             }
-            document.addEventListener('DOMContentLoaded', () => {
+            // Wire up once the overlay HTML is in the DOM (runs at script-parse time,
+            // after all HTML above this script block is already parsed).
+            const overlay = document.getElementById('multTableOverlay');
+            if (overlay) {
                 buildMultTable();
-                const overlay = document.getElementById('multTableOverlay');
                 document.getElementById('multTableCloseBtn').onclick = () => overlay.style.display = 'none';
                 overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
-            });
+            } else {
+                // Fallback: DOM not yet ready, wait for it.
+                document.addEventListener('DOMContentLoaded', () => {
+                    buildMultTable();
+                    const ov = document.getElementById('multTableOverlay');
+                    document.getElementById('multTableCloseBtn').onclick = () => ov.style.display = 'none';
+                    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+                });
+            }
         })();
 
+        // Only show for pure multiplication facts (e.g. "7 × 8"), not compound
+        // expressions like "3 + 4 × 2" that happen to contain ×.
         function isMultiplicationQ(q) {
             if (!q || !q.question) return false;
             const t = q.question;
-            return /[×✕]/.test(t) || /\b(multipl|product|times table)\b/i.test(t);
+            return /\b\d+\s*[×✕]\s*\d+/.test(t) && !/[+\-÷\/\(]/.test(t);
         }
 
         // Speaker icon SVG

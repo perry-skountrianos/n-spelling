@@ -825,7 +825,7 @@
             background: #e8f0fe; color: #1a73e8;
             font-size: 22px; font-weight: 700; cursor: pointer;
             transition: background 0.15s, transform 0.1s;
-            flex-shrink: 0; line-height: 1; padding-bottom: 2px;
+            flex-shrink: 0;
         }
         .mult-table-btn:hover { background: #c8dcfd; transform: scale(1.08); }
         .mult-table-overlay {
@@ -2861,7 +2861,7 @@
                         <div class="quiz-question">${q.question}</div>
                         <div class="question-buttons">
                             ${q.hint ? `<button class="hint-btn" id="hintBtn" title="Show hint">💡</button>` : ''}
-                            <button class="mult-table-btn" id="multTableBtn" title="Multiplication table">*</button>
+                            <button class="mult-table-btn" id="multTableBtn" title="Multiplication table"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="4" height="4" rx="0.8"/><rect x="6" y="0" width="4" height="4" rx="0.8"/><rect x="12" y="0" width="4" height="4" rx="0.8"/><rect x="0" y="6" width="4" height="4" rx="0.8"/><rect x="6" y="6" width="4" height="4" rx="0.8"/><rect x="12" y="6" width="4" height="4" rx="0.8"/><rect x="0" y="12" width="4" height="4" rx="0.8"/><rect x="6" y="12" width="4" height="4" rx="0.8"/><rect x="12" y="12" width="4" height="4" rx="0.8"/></svg></button>
                             <button class="speak-btn" id="questionSpeakBtn" title="Read question">${SPEAKER_SVG}</button>
                         </div>
                     </div>
@@ -2896,7 +2896,8 @@
                 if (multTableBtn) {
                     multTableBtn.onclick = (e) => {
                         e.stopPropagation();
-                        document.getElementById('multTableOverlay').style.display = 'flex';
+                        const ov = document.getElementById('multTableOverlay');
+                        ov.style.display = ov.style.display === 'flex' ? 'none' : 'flex';
                     };
                 }
                 const qBtn = document.getElementById('questionSpeakBtn');

@@ -888,6 +888,25 @@
         .mt-r11.mt-row-head { background: #4fc3f7; }
         .mt-r12.mt-row-head { background: #64b5f6; }
 
+        /* Wide screens: right side panel instead of bottom sheet */
+        @media (min-width: 540px) {
+            .mult-table-overlay {
+                bottom: 0; top: 0; left: auto; right: 0;
+                width: 300px; flex-direction: column;
+            }
+            .mult-table-panel {
+                height: 100%; max-height: none;
+                border-radius: 0;
+                box-shadow: -6px 0 24px rgba(0,0,0,0.13);
+            }
+            .mult-table-handle { display: none; }
+            .mult-table td {
+                height: clamp(28px, calc((100vh - 76px) / 13), 52px);
+                font-size: clamp(9px, 1.4vh, 13px);
+            }
+            body.mult-open { padding-right: 300px; box-sizing: border-box; transition: padding-right 0.2s; }
+        }
+
         /* ---- Reports overlay: grouped by topic ---- */
         .report-group {
             border-bottom: 1px solid #ececef;
@@ -2116,18 +2135,20 @@
             }
             // Wire up once the overlay HTML is in the DOM (runs at script-parse time,
             // after all HTML above this script block is already parsed).
-            const overlay = document.getElementById('multTableOverlay');
-            if (overlay) {
+            function setup() {
+                const ov = document.getElementById('multTableOverlay');
+                if (!ov) return;
                 buildMultTable();
-                document.getElementById('multTableCloseBtn').onclick = () => overlay.style.display = 'none';
-            } else {
-                // Fallback: DOM not yet ready, wait for it.
-                document.addEventListener('DOMContentLoaded', () => {
-                    buildMultTable();
-                    const ov = document.getElementById('multTableOverlay');
-                    document.getElementById('multTableCloseBtn').onclick = () => ov.style.display = 'none';
-                });
+                function openMT()  { ov.style.display = 'flex'; document.body.classList.add('mult-open'); }
+                function closeMT() { ov.style.display = 'none'; document.body.classList.remove('mult-open'); }
+                window._openMT  = openMT;
+                window._closeMT = closeMT;
+                window._toggleMT = () => ov.style.display === 'flex' ? closeMT() : openMT();
+                document.getElementById('multTableCloseBtn').onclick = closeMT;
             }
+            const overlay = document.getElementById('multTableOverlay');
+            if (overlay) { setup(); }
+            else { document.addEventListener('DOMContentLoaded', setup); }
         })();
 
         // Only show for pure multiplication facts (e.g. "7 × 8"), not compound
@@ -2897,8 +2918,7 @@
                 if (multTableBtn) {
                     multTableBtn.onclick = (e) => {
                         e.stopPropagation();
-                        const ov = document.getElementById('multTableOverlay');
-                        ov.style.display = ov.style.display === 'flex' ? 'none' : 'flex';
+                        if (window._toggleMT) window._toggleMT();
                     };
                 }
                 const qBtn = document.getElementById('questionSpeakBtn');

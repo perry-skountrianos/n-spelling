@@ -1,5 +1,5 @@
 {
-  "sha": "46b9279",
-  "date": "2026-05-17T22:39:27-07:00",
-  "message": "fix: mult table button - SVG grid icon (centered) + toggle on/off"
+  "sha": "7dd3f42",
+  "date": "2026-05-17T22:43:40-07:00",
+  "message": "fix: mult table fits without scrolling, sticky header row as fallback"
 }

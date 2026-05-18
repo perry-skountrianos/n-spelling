@@ -936,6 +936,186 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        /* ===== Print Quiz feature ===== */
+        .print-setup-overlay {
+            position: fixed; inset: 0; z-index: 9100;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .print-setup-panel {
+            background: white; border-radius: 14px; padding: 28px 32px;
+            width: 390px; max-width: 95vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+        }
+        .print-setup-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .print-setup-header h2 { font-size: 17px; margin: 0; }
+        .print-setup-close {
+            background: none; border: none; font-size: 22px; cursor: pointer;
+            color: #999; line-height: 1; padding: 2px 6px; border-radius: 6px;
+        }
+        .print-setup-close:hover { background: #f0f0f0; color: #333; }
+        .print-setup-topic {
+            background: #f0f4ff; border-radius: 8px; padding: 10px 14px;
+            font-size: 13px; color: #333; margin-bottom: 22px; line-height: 1.5;
+        }
+        .print-setup-sublabel {
+            font-size: 12px; color: #888; font-weight: 600; margin-bottom: 10px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .print-count-row { display: flex; gap: 10px; margin-bottom: 18px; }
+        .print-count-btn {
+            flex: 1; padding: 14px 0; border: 2px solid #1a73e8; border-radius: 10px;
+            background: white; color: #1a73e8; font-size: 20px; font-weight: bold;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .print-count-btn:hover { background: #1a73e8; color: white; }
+        .print-setup-note { font-size: 12px; color: #aaa; line-height: 1.6; text-align: center; }
+
+        /* Print preview overlay */
+        .pq-preview-overlay {
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0.65);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .pq-preview-toolbar {
+            flex-shrink: 0; display: flex; align-items: center; gap: 12px;
+            padding: 11px 18px; background: #2c2c2c; color: white;
+        }
+        .pq-preview-toolbar-title { flex: 1; font-size: 14px; font-weight: 600; }
+        .pq-toolbar-btn {
+            padding: 7px 18px; border-radius: 7px; border: none; cursor: pointer;
+            font-size: 14px; font-weight: 600;
+        }
+        .pq-close-btn { background: rgba(255,255,255,0.12); color: white; }
+        .pq-close-btn:hover { background: rgba(255,255,255,0.22); }
+        .pq-print-btn { background: #4caf50; color: white; }
+        .pq-print-btn:hover { background: #43a047; }
+        .pq-preview-body {
+            flex: 1; overflow-y: auto; padding: 28px 16px; background: #d8d8d8;
+        }
+        .pq-preview-page {
+            background: white; margin: 0 auto; max-width: 760px;
+            padding: 40px 52px; box-shadow: 0 4px 24px rgba(0,0,0,0.28);
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+        .pq-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-bottom: 2.5px solid #1a1a1a; padding-bottom: 14px; margin-bottom: 6px;
+            gap: 16px;
+        }
+        .pq-header-left { flex: 1; }
+        .pq-title { font-size: 21px; font-weight: bold; }
+        .pq-topic { font-size: 13px; color: #555; margin-top: 5px; font-family: sans-serif; }
+        .pq-meta { font-size: 13px; margin-top: 12px; font-family: sans-serif; color: #333; }
+        .pq-name-line, .pq-date-line {
+            display: inline-block; border-bottom: 1px solid #444;
+            vertical-align: bottom; margin: 0 4px;
+        }
+        .pq-name-line { width: 150px; }
+        .pq-date-line { width: 85px; }
+        .pq-id-badge {
+            background: #1a73e8; color: white; padding: 10px 16px;
+            border-radius: 9px; text-align: center; min-width: 110px; flex-shrink: 0;
+        }
+        .pq-id-badge-key { background: #2e7d32; }
+        .pq-id-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+            font-family: sans-serif; opacity: 0.85;
+        }
+        .pq-id-value {
+            font-size: 24px; font-weight: bold; letter-spacing: 3px;
+            font-family: 'Courier New', monospace; margin-top: 3px;
+        }
+        .pq-id-note {
+            font-size: 11px; color: #999; margin-bottom: 26px;
+            font-family: sans-serif; border-bottom: 1px solid #eee; padding-bottom: 14px;
+        }
+        .pq-question { margin-bottom: 22px; break-inside: avoid; page-break-inside: avoid; }
+        .pq-qtext { font-size: 15px; font-weight: 600; margin-bottom: 10px; line-height: 1.45; }
+        .pq-num { color: #1a73e8; margin-right: 2px; }
+        .pq-answer-mode .pq-num { color: #2e7d32; }
+        .pq-options { display: flex; flex-direction: column; gap: 7px; padding-left: 26px; }
+        .pq-options-inline { flex-direction: row; gap: 28px; flex-wrap: wrap; }
+        .pq-option { display: flex; align-items: center; gap: 9px; font-size: 14px; line-height: 1.3; }
+        .pq-bubble {
+            width: 18px; height: 18px; border: 1.5px solid #666; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; flex-shrink: 0; font-family: sans-serif;
+        }
+        .pq-checkbox {
+            width: 16px; height: 16px; border: 1.5px solid #666; border-radius: 3px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; flex-shrink: 0; font-family: sans-serif;
+        }
+        .pq-correct .pq-bubble, .pq-correct .pq-checkbox {
+            background: #e8f5e9; border-color: #2e7d32; color: #2e7d32; font-weight: bold;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        .pq-correct > span:last-child { color: #2e7d32; font-weight: 700; }
+        .pq-blank { font-size: 14px; padding-left: 26px; font-family: sans-serif; margin-top: 4px; }
+        .pq-blank-line {
+            display: inline-block; width: 220px; border-bottom: 1.5px solid #444;
+            vertical-align: bottom; margin-left: 6px;
+        }
+        .pq-answer-line { font-size: 14px; padding-left: 26px; font-family: sans-serif; margin-top: 4px; }
+        .pq-answer-val { font-weight: bold; color: #2e7d32; font-size: 16px; }
+        .pq-multi-hint { font-size: 12px; color: #888; font-style: italic; padding-left: 26px; margin-bottom: 6px; font-family: sans-serif; }
+
+        /* Answer key lookup panel */
+        .answer-key-overlay {
+            position: fixed; inset: 0; z-index: 9200;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .answer-key-panel {
+            background: white; border-radius: 14px;
+            width: 680px; max-width: 96vw; max-height: 88vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+        }
+        .answer-key-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px; border-bottom: 1px solid #eee; flex-shrink: 0;
+        }
+        .answer-key-header h2 { flex: 1; font-size: 17px; margin: 0; }
+        .answer-key-search {
+            display: flex; gap: 8px; padding: 14px 20px;
+            border-bottom: 1px solid #eee; flex-shrink: 0; align-items: center;
+        }
+        .answer-key-id-input {
+            flex: 1; border: 1.5px solid #ddd; border-radius: 8px;
+            padding: 9px 14px; font-size: 17px; font-family: 'Courier New', monospace;
+            text-transform: uppercase; letter-spacing: 3px;
+        }
+        .answer-key-id-input:focus { outline: none; border-color: #1a73e8; }
+        .answer-key-lookup-btn {
+            background: #1a73e8; color: white; border: none;
+            border-radius: 8px; padding: 9px 18px; font-size: 14px;
+            font-weight: 600; cursor: pointer; white-space: nowrap;
+        }
+        .answer-key-lookup-btn:hover { background: #1557b0; }
+        .answer-key-content {
+            flex: 1; overflow-y: auto; padding: 20px;
+            font-family: Georgia, serif;
+        }
+
+        /* Hidden wrapper — only shown when printing */
+        #printPageWrapper { display: none; }
+        @media print {
+            body > *:not(#printPageWrapper) { display: none !important; }
+            #printPageWrapper {
+                display: block !important;
+                font-family: Georgia, 'Times New Roman', serif;
+            }
+            .pq-preview-page { box-shadow: none; padding: 0; max-width: none; }
+            .pq-id-badge {
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+        }
     </style>
 </head>
 <body>
@@ -999,6 +1179,7 @@
                 </div>
                 <button class="gear-option" id="viewMissedBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Missed questions list</button>
                 <button class="gear-option" id="viewReportsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16V8"/><path d="M12 16v-5"/><path d="M16 16v-8"/></svg> Reports</button>
+                <button class="gear-option" id="printQuizBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Quiz</button>
                 <button class="gear-option gear-option-danger" id="resetBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg> Reset Practice</button>
 
                 <button type="button" class="gear-option gear-parent-header" id="parentControlsToggle" title="Parent controls (password-protected)">
@@ -1011,6 +1192,7 @@
                         <input type="number" id="dailyGoalInput" min="1" max="120" step="1" value="30">
                     </div>
                     <button class="gear-option gear-option-danger" id="resetDailyBtn" title="Reset today's practice time to 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Reset today's time</button>
+                    <button class="gear-option" id="answerKeyBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg> Answer Key Lookup</button>
                 </div>
                 <div class="gear-version" id="gearVersion" style="padding:10px 14px;border-top:1px solid #eee;font-size:12px;color:#999;text-align:center;user-select:text;">build …</div>
             </div>
@@ -1055,6 +1237,58 @@
                 <p class="reports-loading">Loading…</p>
             </div>
         </div>
+    </div>
+
+    <!-- Print Quiz setup modal -->
+    <div class="print-setup-overlay" id="printSetupOverlay" style="display:none;">
+        <div class="print-setup-panel">
+            <div class="print-setup-header">
+                <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Quiz</h2>
+                <button class="print-setup-close" id="printSetupCloseBtn">✕</button>
+            </div>
+            <div class="print-setup-topic" id="printSetupTopic">All Topics (mixed)</div>
+            <div class="print-setup-sublabel">Number of questions</div>
+            <div class="print-count-row">
+                <button class="print-count-btn" data-n="10">10</button>
+                <button class="print-count-btn" data-n="20">20</button>
+                <button class="print-count-btn" data-n="30">30</button>
+            </div>
+            <div class="print-setup-note">A unique Quiz ID is printed on every sheet — use it to look up the answer key (parent only).</div>
+        </div>
+    </div>
+
+    <!-- Print preview overlay -->
+    <div class="pq-preview-overlay" id="printPreviewOverlay" style="display:none;">
+        <div class="pq-preview-toolbar">
+            <button class="pq-toolbar-btn pq-close-btn" id="printPreviewCloseBtn">← Close</button>
+            <span class="pq-preview-toolbar-title" id="printPreviewTitle">Math Practice Quiz</span>
+            <button class="pq-toolbar-btn pq-print-btn" id="doPrintBtn">🖨 Print / Save PDF</button>
+        </div>
+        <div class="pq-preview-body">
+            <div class="pq-preview-page" id="printContent"></div>
+        </div>
+    </div>
+
+    <!-- Answer Key lookup modal -->
+    <div class="answer-key-overlay" id="answerKeyOverlay" style="display:none;">
+        <div class="answer-key-panel">
+            <div class="answer-key-header">
+                <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg>Answer Key Lookup</h2>
+                <button class="reports-close" id="answerKeyCloseBtn">✕</button>
+            </div>
+            <div class="answer-key-search">
+                <input class="answer-key-id-input" id="answerKeyIdInput" maxlength="6" placeholder="Quiz ID (e.g. A7X3K2)" autocomplete="off" spellcheck="false">
+                <button class="answer-key-lookup-btn" id="answerKeyLookupBtn">Look Up →</button>
+            </div>
+            <div class="answer-key-content" id="answerKeyContent">
+                <p style="color:#aaa;font-family:sans-serif;font-size:14px;">Enter a Quiz ID above to view the answer key.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden print-only wrapper (content injected before window.print()) -->
+    <div id="printPageWrapper">
+        <div class="pq-preview-page" id="printPageContent"></div>
     </div>
 
     <!-- Lesson modal: shows a topic's mini-lesson + video(s) in-app -->
@@ -3412,6 +3646,225 @@
                 render(categorySelect.value);
             }
         });
+    })();
+    </script>
+
+    <!-- ===== Print Quiz feature ===== -->
+    <script>
+    (function () {
+        const ADMIN_PW = 'admin123';
+        const LS_KEY = 'mathPrintQuizzes';
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function generateQuizId() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+
+        function pickQuestions(n) {
+            const cat = document.getElementById('categorySelect').value;
+            const qs = window.mathPracticeQuestions;
+            if (!qs) return [];
+            let pool = [];
+            if (cat === '__all__' || cat === '__missed__') {
+                for (const key in qs) pool.push(...(qs[key] || []).map(q => ({ ...q, _topic: key })));
+            } else if (qs[cat]) {
+                pool = qs[cat].map(q => ({ ...q, _topic: cat }));
+            }
+            return shuffle(pool).slice(0, n);
+        }
+
+        const LETTERS = 'ABCDEFGHIJ';
+        function letter(i) { return LETTERS[i] || String(i + 1); }
+
+        function renderQuestion(q, idx, showAnswer) {
+            const num = idx + 1;
+            let html = `<div class="pq-question${showAnswer ? ' pq-answer-mode' : ''}">`;
+            html += `<div class="pq-qtext"><span class="pq-num">${num}.</span> ${q.question}</div>`;
+
+            if (q.type === 'mc') {
+                html += '<div class="pq-options">';
+                (q.options || []).forEach((opt, i) => {
+                    const correct = showAnswer && i === q.answer;
+                    html += `<div class="pq-option${correct ? ' pq-correct' : ''}">`;
+                    html += `<span class="pq-bubble">${correct ? '✓' : ''}</span>`;
+                    html += `<span>${letter(i)}) ${opt}</span></div>`;
+                });
+                html += '</div>';
+            } else if (q.type === 'tf') {
+                const labels = q.labels || ['True', 'False'];
+                html += '<div class="pq-options pq-options-inline">';
+                labels.forEach((lbl, i) => {
+                    const correct = showAnswer && i === q.answer;
+                    html += `<div class="pq-option${correct ? ' pq-correct' : ''}">`;
+                    html += `<span class="pq-bubble">${correct ? '✓' : ''}</span>`;
+                    html += `<span>${lbl}</span></div>`;
+                });
+                html += '</div>';
+            } else if (q.type === 'numeric') {
+                if (showAnswer) {
+                    html += `<div class="pq-answer-line">Answer: <span class="pq-answer-val">${q.answer}</span></div>`;
+                } else {
+                    html += '<div class="pq-blank">Answer:<span class="pq-blank-line"></span></div>';
+                }
+            } else if (q.type === 'multi') {
+                html += '<div class="pq-multi-hint">(Select all that apply)</div>';
+                html += '<div class="pq-options">';
+                (q.options || []).forEach((opt, i) => {
+                    const correct = showAnswer && Array.isArray(q.answer) && q.answer.includes(i);
+                    html += `<div class="pq-option${correct ? ' pq-correct' : ''}">`;
+                    html += `<span class="pq-checkbox">${correct ? '✓' : ''}</span>`;
+                    html += `<span>${letter(i)}) ${opt}</span></div>`;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function buildPageHTML(quizData, showAnswers) {
+            const badge = `<div class="pq-id-badge${showAnswers ? ' pq-id-badge-key' : ''}">
+                <div class="pq-id-label">Quiz ID</div>
+                <div class="pq-id-value">${quizData.id}</div></div>`;
+            const titleLine = showAnswers ? 'Answer Key' : 'Math Practice Quiz';
+            const metaRow = showAnswers
+                ? `<div class="pq-meta">Generated: ${quizData.date}</div>`
+                : `<div class="pq-meta">Name:<span class="pq-name-line"></span>&nbsp;&nbsp;Date:<span class="pq-date-line"></span></div>`;
+
+            let html = `<div class="pq-header">
+                <div class="pq-header-left">
+                    <div class="pq-title">${titleLine}</div>
+                    <div class="pq-topic">${quizData.topic}</div>
+                    ${metaRow}
+                </div>
+                <div class="pq-header-right">${badge}</div>
+            </div>`;
+            if (!showAnswers) {
+                html += `<div class="pq-id-note">Keep this ID — a parent can use it to look up the answer key. &nbsp;|&nbsp; ${quizData.date}</div>`;
+            }
+            html += '<div class="pq-questions">';
+            quizData.questions.forEach((q, i) => { html += renderQuestion(q, i, showAnswers); });
+            html += '</div>';
+            return html;
+        }
+
+        function saveQuiz(quizId, quizData) {
+            // Firebase (global key so any parent can look up by ID)
+            if (typeof db !== 'undefined') {
+                db.ref('mathPrintQuizzes/' + quizId).set(quizData).catch(() => {});
+            }
+            // localStorage backup
+            try {
+                const store = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+                store[quizId] = quizData;
+                localStorage.setItem(LS_KEY, JSON.stringify(store));
+            } catch (_) {}
+        }
+
+        async function loadQuiz(quizId) {
+            const id = quizId.toUpperCase();
+            if (typeof db !== 'undefined') {
+                try {
+                    const snap = await db.ref('mathPrintQuizzes/' + id).once('value');
+                    if (snap.exists()) return snap.val();
+                } catch (_) {}
+            }
+            try {
+                const store = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+                return store[id] || null;
+            } catch (_) { return null; }
+        }
+
+        // ---- Print Setup ----
+        function openPrintSetup() {
+            const cat = document.getElementById('categorySelect').value;
+            let label = cat === '__all__' ? 'All Topics (mixed)' : cat === '__missed__' ? 'Missed Questions' : cat;
+            document.getElementById('printSetupTopic').textContent = label;
+            document.getElementById('printSetupOverlay').style.display = 'flex';
+        }
+        function closePrintSetup() { document.getElementById('printSetupOverlay').style.display = 'none'; }
+
+        function generateAndPreview(n) {
+            const questions = pickQuestions(n);
+            if (!questions.length) { alert('No questions available for this topic.'); return; }
+            const cat = document.getElementById('categorySelect').value;
+            const topic = cat === '__all__' ? 'All Topics (mixed)' : cat === '__missed__' ? 'Missed Questions' : cat;
+            const quizId = generateQuizId();
+            const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const quizData = { id: quizId, topic, date, questions };
+            saveQuiz(quizId, quizData);
+            closePrintSetup();
+            openPreview(quizData);
+        }
+
+        // ---- Print Preview ----
+        function openPreview(quizData) {
+            document.getElementById('printContent').innerHTML = buildPageHTML(quizData, false);
+            document.getElementById('printPreviewTitle').textContent = `Quiz ${quizData.id} · ${quizData.questions.length} questions`;
+            document.getElementById('printPreviewOverlay').style.display = 'flex';
+            // Stash for the print button
+            document.getElementById('doPrintBtn')._quizData = quizData;
+        }
+        function closePreview() { document.getElementById('printPreviewOverlay').style.display = 'none'; }
+
+        function doPrint(quizData) {
+            document.getElementById('printPageContent').innerHTML = buildPageHTML(quizData, false);
+            window.print();
+        }
+
+        // ---- Answer Key ----
+        function openAnswerKey() {
+            const pw = window.prompt('Enter parent password:');
+            if (pw !== ADMIN_PW) { if (pw !== null) alert('Incorrect password.'); return; }
+            document.getElementById('answerKeyIdInput').value = '';
+            document.getElementById('answerKeyContent').innerHTML =
+                '<p style="color:#aaa;font-family:sans-serif;font-size:14px;">Enter a Quiz ID above to view the answer key.</p>';
+            document.getElementById('answerKeyOverlay').style.display = 'flex';
+            document.getElementById('answerKeyIdInput').focus();
+        }
+        function closeAnswerKey() { document.getElementById('answerKeyOverlay').style.display = 'none'; }
+
+        async function lookupAnswerKey() {
+            const rawId = document.getElementById('answerKeyIdInput').value.trim().toUpperCase();
+            if (!rawId) { alert('Please enter a Quiz ID.'); return; }
+            const content = document.getElementById('answerKeyContent');
+            content.innerHTML = '<p style="color:#888;font-family:sans-serif;font-size:14px;padding:8px 0;">Looking up quiz…</p>';
+            const quiz = await loadQuiz(rawId);
+            if (!quiz) {
+                content.innerHTML = `<p style="color:#dc3545;font-family:sans-serif;font-size:14px;">Quiz <b>${rawId}</b> not found. The quiz may have been generated on a different device or the ID may be incorrect.</p>`;
+                return;
+            }
+            content.innerHTML = buildPageHTML(quiz, true);
+        }
+
+        // ---- Wire up events ----
+        document.getElementById('printQuizBtn').addEventListener('click', () => {
+            document.getElementById('gearDropdown').classList.remove('show');
+            openPrintSetup();
+        });
+        document.getElementById('printSetupCloseBtn').addEventListener('click', closePrintSetup);
+        document.getElementById('printSetupOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePrintSetup(); });
+        document.querySelectorAll('.print-count-btn').forEach(btn => {
+            btn.addEventListener('click', () => generateAndPreview(parseInt(btn.dataset.n, 10)));
+        });
+
+        document.getElementById('printPreviewCloseBtn').addEventListener('click', closePreview);
+        document.getElementById('printPreviewOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePreview(); });
+        document.getElementById('doPrintBtn').addEventListener('click', function () { doPrint(this._quizData); });
+
+        document.getElementById('answerKeyBtn').addEventListener('click', openAnswerKey);
+        document.getElementById('answerKeyCloseBtn').addEventListener('click', closeAnswerKey);
+        document.getElementById('answerKeyOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeAnswerKey(); });
+        document.getElementById('answerKeyLookupBtn').addEventListener('click', lookupAnswerKey);
+        document.getElementById('answerKeyIdInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupAnswerKey(); });
     })();
     </script>
 </body>

@@ -835,7 +835,7 @@
         .mult-table-panel {
             background: #fff; border-radius: 18px 18px 0 0;
             box-shadow: 0 -6px 32px rgba(0,0,0,0.16);
-            max-height: 55vh;
+            max-height: 68vh;
             display: flex; flex-direction: column; overflow: hidden;
         }
         .mult-table-handle {
@@ -854,19 +854,20 @@
             cursor: pointer; padding: 2px 8px; border-radius: 8px; line-height: 1;
         }
         .mult-table-close:hover { background: #f5f5f5; color: #555; }
-        .mult-table-scroll { overflow: auto; padding: 10px 12px 14px; }
+        .mult-table-scroll { overflow: auto; padding: 4px 8px 6px; flex: 1; }
         .mult-table {
             border-collapse: separate; border-spacing: 2px;
             width: 100%; table-layout: fixed;
         }
         .mult-table td {
             text-align: center; font-weight: 700;
-            font-size: clamp(10px, 2.8vw, 14px);
-            height: clamp(26px, 6.5vw, 38px);
+            font-size: clamp(9px, 1.6vh, 13px);
+            height: clamp(20px, 3.8vh, 36px);
             border-radius: 4px; border: none;
         }
-        .mt-corner { background: #c2185b !important; color: #fff; font-size: clamp(12px, 3vw, 16px) !important; }
+        .mt-corner { background: #c2185b !important; color: #fff; font-size: clamp(12px, 1.8vh, 16px) !important; }
         .mt-col-head { background: #f48fb1; color: #6d0025; }
+        .mt-corner, .mt-col-head { position: sticky; top: 0; z-index: 2; }
         .mt-row-head { color: #555; }
         .mt-r1  { background: #fce4ec; } .mt-r2  { background: #f8bbd0; }
         .mt-r3  { background: #f3e5f5; } .mt-r4  { background: #ffcdd2; }

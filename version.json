@@ -1,5 +1,5 @@
 {
-  "sha": "0853876",
-  "date": "2026-05-17T22:24:35-07:00",
-  "message": "feat: add rainbow multiplication table helper to math practice"
+  "sha": "00b3dd2",
+  "date": "2026-05-17T22:28:02-07:00",
+  "message": "fix: mult table not rendering + showing on wrong questions"
 }

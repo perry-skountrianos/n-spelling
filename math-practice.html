@@ -1104,9 +1104,11 @@
 
         /* Answer key table (second printed page) */
         .pq-answer-table-page {
-            page-break-before: always;
             font-family: sans-serif;
             padding-top: 24px;
+        }
+        @media print {
+            .pq-answer-table-page { page-break-before: always; }
         }
         .pq-answer-table-meta {
             display: flex; align-items: center; gap: 14px;
@@ -3833,10 +3835,11 @@
 
         // ---- Print Preview ----
         function openPreview(quizData) {
-            document.getElementById('printContent').innerHTML = buildPageHTML(quizData, false);
+            const sep = `<div style="text-align:center;padding:18px 0 10px;font-family:sans-serif;font-size:12px;color:#888;letter-spacing:1px;text-transform:uppercase;">— Page 2: Answer Key (print only) —</div>`;
+            document.getElementById('printContent').innerHTML =
+                buildPageHTML(quizData, false) + sep + buildAnswerTableHTML(quizData);
             document.getElementById('printPreviewTitle').textContent = `Quiz ${quizData.id} · ${quizData.questions.length} questions`;
             document.getElementById('printPreviewOverlay').style.display = 'flex';
-            // Stash for the print button
             document.getElementById('doPrintBtn')._quizData = quizData;
         }
         function closePreview() { document.getElementById('printPreviewOverlay').style.display = 'none'; }

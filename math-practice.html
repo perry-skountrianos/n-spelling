@@ -1102,6 +1102,32 @@
             font-family: Georgia, serif;
         }
 
+        /* Answer key table (second printed page) */
+        .pq-answer-table-page {
+            page-break-before: always;
+            font-family: sans-serif;
+            padding-top: 24px;
+        }
+        .pq-answer-table-meta {
+            display: flex; align-items: center; gap: 14px;
+            border-bottom: 2.5px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 16px;
+        }
+        .pq-answer-table-meta-text { flex: 1; }
+        .pq-answer-table-meta-text .pq-title { font-size: 19px; }
+        .pq-answer-table { width: 100%; border-collapse: collapse; }
+        .pq-at-num {
+            font-size: 13px; font-weight: 600; color: #555;
+            width: 30px; padding: 5px 6px 5px 0; vertical-align: top;
+            border-bottom: 1px solid #eee;
+        }
+        .pq-at-ans {
+            font-size: 14px; font-weight: 700; color: #2e7d32;
+            padding: 5px 0; border-bottom: 1px solid #eee; vertical-align: top;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        .pq-at-spacer { width: 36px; }
+        .pq-answer-table-note { font-size: 11px; color: #aaa; margin-top: 14px; text-align: center; }
+
         /* Hidden wrapper — only shown when printing */
         #printPageWrapper { display: none; }
         @media print {
@@ -3815,8 +3841,45 @@
         }
         function closePreview() { document.getElementById('printPreviewOverlay').style.display = 'none'; }
 
+        function getCompactAnswer(q) {
+            if (q.type === 'mc') return letter(q.answer);
+            if (q.type === 'tf') return (q.labels || ['True', 'False'])[q.answer];
+            if (q.type === 'numeric') return String(q.answer) + (q.unit ? ' ' + q.unit : '');
+            if (q.type === 'multi') return (q.answer || []).map(i => letter(i)).join(', ');
+            return '';
+        }
+
+        function buildAnswerTableHTML(quizData) {
+            const qs = quizData.questions;
+            const mid = Math.ceil(qs.length / 2);
+            let rows = '';
+            for (let i = 0; i < mid; i++) {
+                const rIdx = mid + i;
+                const right = rIdx < qs.length
+                    ? `<td class="pq-at-num">${rIdx + 1}.</td><td class="pq-at-ans">${getCompactAnswer(qs[rIdx])}</td>`
+                    : '<td></td><td></td>';
+                rows += `<tr><td class="pq-at-num">${i + 1}.</td><td class="pq-at-ans">${getCompactAnswer(qs[i])}</td><td class="pq-at-spacer"></td>${right}</tr>`;
+            }
+            return `<div class="pq-answer-table-page">
+                <div class="pq-answer-table-meta">
+                    <div class="pq-answer-table-meta-text">
+                        <div class="pq-title">Answer Key</div>
+                        <div class="pq-topic">${quizData.topic}</div>
+                        <div class="pq-meta">${quizData.date} &nbsp;·&nbsp; ${qs.length} questions</div>
+                    </div>
+                    <div class="pq-id-badge pq-id-badge-key">
+                        <div class="pq-id-label">Quiz ID</div>
+                        <div class="pq-id-value">${quizData.id}</div>
+                    </div>
+                </div>
+                <table class="pq-answer-table"><tbody>${rows}</tbody></table>
+                <div class="pq-answer-table-note">Keep this page — give the student only the question sheet.</div>
+            </div>`;
+        }
+
         function doPrint(quizData) {
-            document.getElementById('printPageContent').innerHTML = buildPageHTML(quizData, false);
+            document.getElementById('printPageContent').innerHTML =
+                buildPageHTML(quizData, false) + buildAnswerTableHTML(quizData);
             window.print();
         }
 
